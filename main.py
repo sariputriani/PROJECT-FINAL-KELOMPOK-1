@@ -16,6 +16,7 @@ from PySide6.QtSql import QSqlDatabase,QSqlTableModel
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
+from MAHASISWA.mahasiswa import HalamanMahasiswa
 basedir = os.path.dirname(__file__)
 
 class LoginWindow(QMainWindow):
@@ -120,13 +121,13 @@ class LoginWindow(QMainWindow):
 
         if username == "sari" and password == "sari":
             QMessageBox.information(self, 'Berhasil', 'Berhasil!.')
-            self.showMahasiswa = self.mahasiswa()
+            self.showMHS = HalamanMahasiswa()
+            self.showMHS.show()
+            self.close()
         else:
             QMessageBox.warning(self,"Eror","password dan username salah,tolong inputkan ulang")
             self.username.clear()
-            self.password.clear()
-    def mahasiswa(self):
-        self.shoMahasiswa = "./MAHASISWA/mahasiswa.py"        
+            self.password.clear()      
             
 
 if __name__ == "__main__":

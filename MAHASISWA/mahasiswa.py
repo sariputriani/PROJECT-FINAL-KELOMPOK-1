@@ -12,12 +12,11 @@ from PySide6.QtWidgets import (
     QToolBar,
     QSizePolicy,
     QFrame,
-    QDate,
     QTableWidget,
     QCalendarWidget,
     QMessageBox
 )
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt,QDate
 from PySide6.QtGui import QAction, QIcon
 basedir = os.path.dirname(__file__)
 
@@ -29,9 +28,6 @@ class HalamanMahasiswa(QMainWindow):
 
         # Layout dan Widget
         self.layoutMHS = QVBoxLayout()
-        # self.judul = QLabel("SELAMAT DATANG MAHASISWA")
-        # self.judul.setStyleSheet("font-size: 24px; font-weight: bold; text-align: center;")
-        # self.judul.setAlignment(Qt.AlignCenter)
         
         # Menambahkan widget ke layout
         self.toolbar = QToolBar("Toolbar")
@@ -41,6 +37,7 @@ class HalamanMahasiswa(QMainWindow):
         dataMHS = QAction("Dashboard", self)
         dataMHS.setCheckable(True)
         self.toolbar.addAction(dataMHS)
+        dataMHS.triggered.connect(self.Dashboard)
 
         spasi = QWidget()
         spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -106,7 +103,7 @@ class HalamanMahasiswa(QMainWindow):
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search Here ...")
         self.search.setObjectName("search")
-        self.search.textChanged.connect(self.apply_filter)
+        # self.search.textChanged.connect(self.apply_filter)
         layoutDs.addWidget(self.search)
 
         # table
@@ -122,9 +119,6 @@ class HalamanMahasiswa(QMainWindow):
         layoutDs.addStretch()
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
-        self.tugas()
-        # self.pesanPengingat()
-        self.pengingat()
     
     def DashboardJadwal(self):
         container = QWidget()
