@@ -20,27 +20,3 @@ QToolButton {
     font-size:24;
     font-weight: bold;
 }
-
-QLineEdit#search{
-    font-family:Poppins;
-    font-size:12px;
-    margin : 15,20,5;
-    border: 2px solid #125370;
-    border-radius: 5px;
-    padding: 5px;
-}
-
-QFrame#line{
-    border: 2px solid #125370;
-}
-
-QTableWidget QHeaderView::section{
-    font-weight:bold;
-    background-color: #4DA1A9;
-    color:white;
-}
-
-QTableWidget{
-    alternate-background-color: #BDEDFB;
-    background-color: #F4F9FA;
-}
