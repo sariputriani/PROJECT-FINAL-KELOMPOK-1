@@ -11,7 +11,8 @@ from PySide6.QtWidgets import(
     QPushButton,
     QMessageBox,
 )
-# from MAHASISWA.mahasiswa import HalamanMahasiswa
+
+# from MAHASISWA.mahasiswa import HalamanM  ahasiswa
 from PySide6.QtSql import QSqlDatabase,QSqlTableModel,QSqlQuery
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
@@ -105,7 +106,6 @@ class LoginWindow(QMainWindow):
 
         # menghubungkan ke databases
         connection,curse = buat_koneksi()
-
         curse = connection.cursor()
 
         # mahasiswa
@@ -131,8 +131,7 @@ class LoginWindow(QMainWindow):
         else:
             print("Username tidak ditemukan")
             QMessageBox.warning(self, "Login Gagal", "password salah!")
-    
-        
+
 def apply_stylesheet(app, path):
     with open(path, "r") as file:
         qss = file.read()
