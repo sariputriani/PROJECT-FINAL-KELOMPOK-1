@@ -24,7 +24,7 @@ from PySide6.QtCore import QSize, Qt,QDate
 from PySide6.QtGui import QAction, QIcon,QPixmap
 
 # import modlu
-from DATABASE.databse import buat_koneksi
+from connectionDatabase import buat_koneksi
 basedir = os.path.dirname(__file__)
 
 class HalamanMahasiswa(QMainWindow):
@@ -69,6 +69,10 @@ class HalamanMahasiswa(QMainWindow):
         datauser.triggered.connect(self.halamanDataUser)
         self.toolbar.addAction(datauser)
 
+        setting = QAction(QIcon(os.path.join(basedir,"../DOSEN/image.png")),"Setting",self)
+        setting.triggered.connect(self.halamanSetting)
+        self.toolbar.addAction(setting)
+
         # toolbar langout
         langout = QAction(
             QIcon(os.path.join(basedir, "./gambarMahasiswa/langout.png")),
@@ -91,11 +95,16 @@ class HalamanMahasiswa(QMainWindow):
         self.showDataUser = DataUser(self.username)
         self.showDataUser.show()
 
+    def halamanSetting(self):
+         self.showSetting = HalamanSetting()
+         self.showSetting.show()
+
     def show_langout(self):
         masseg = QMessageBox.question(self, "Konfirmasi", 
                 "Apakah anda yakin ingin keluar dari aplikasi?", QMessageBox.Yes | QMessageBox.No)
-        
-        
+        if masseg == QMessageBox.Yes:
+                    self.close()
+                    print("aplikasi di close")
 
     def Dashboard(self):
         container = QWidget()
@@ -216,7 +225,6 @@ class HalamanMahasiswa(QMainWindow):
                 INNER JOIN 
                     Ruang ON Jadwal.ID_Ruang = Ruang.ID_Ruang;
             """
-        
         curse.execute(query)
         # ambil data semua pada table jadwal
         ambildata = curse.fetchall()
@@ -412,6 +420,12 @@ class DataUser(QWidget):
                 self.lb2Prodi.setText("Data Tidak ditemukan")
                 self.lb2Semester.setText("Data Tidak ditemukan")
 
+
+class HalamanSetting(QWidget):
+    def __init__(self):
+        super().__init__()
+
+
 class HalamanKumpulkanTugas(QWidget):
     def __init__(self,username):
         super().__init__()
@@ -465,3 +479,5 @@ class HalamanKumpulkanTugas(QWidget):
                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
                 # self.lb2Semester.setText(f'Semester  : {tanggal_pen}')
+
+        
