@@ -15,13 +15,13 @@ class HalamanDosen(QMainWindow):
         self.setFixedSize(800, 600)
 
         # Menyimpan koneksi database MySQL
-        self.db_conn = mysql.connector.connect(
-            host="localhost",
-            user="root",  # Ganti dengan username MySQL Anda
-            password="",  # Ganti dengan password MySQL Anda
-            database="aplikasi_mahasiswa"  # Nama database Anda
-        )
-        self.db_cursor = self.db_conn.cursor()
+        # self.db_conn = mysql.connector.connect(
+        #     host="localhost",
+        #     user="root",  # Ganti dengan username MySQL Anda
+        #     password="",  # Ganti dengan password MySQL Anda
+        #     database="aplikasi_mahasiswa"  # Nama database Anda
+        # )
+        # self.db_cursor = self.db_conn.cursor()
 
         # Membuat tabel jika belum ada
         self.create_tables()

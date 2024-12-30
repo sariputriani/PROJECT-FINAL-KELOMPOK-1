@@ -1,10 +1,10 @@
 import mysql.connector
 
 def buat_koneksi():
-    con = mysql.connector.connect(
-        username = "root",
+    connection = mysql.connector.connect(
+        user = "root",
         password = "",
         database = "tugas_jadwal"
     )
-    curse = con.cursor()
-    return con,curse
+    cursor = connection.cursor()
+    return connection, cursor
