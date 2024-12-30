@@ -85,7 +85,7 @@ class HalamanMahasiswa(QMainWindow):
         self.setLayout(self.layoutMHS)
 
     def styleqss(self):
-        qss_file = os.path.join(basedir, "./mahasiswa.qss")
+        qss_file = os.path.join(basedir, "./style.qss")
         if os.path.exists(qss_file):
             with open(qss_file, "r") as file:
                 qss = file.read()
@@ -234,6 +234,7 @@ class HalamanMahasiswa(QMainWindow):
         for barisnumber, barisData in enumerate(ambildata):   
                 for col,data in enumerate(barisData):
                     self.daftarJadwal.setItem(barisnumber, col, QTableWidgetItem(str(data)))
+        
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
     
@@ -241,15 +242,8 @@ class HalamanMahasiswa(QMainWindow):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
-                SELECT 
-                    tugas.ID_Tugas,
-                    tugas.ID_mk,
-                    Jadwal.Hari,
-                    tugas.Deskripsi_Tugas,
-                    tugas.Tanggal_Pemberian,
-                    tugas.Tanggal_Pengumpulan,
-                    (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan)))),
-                    MataKuliah.Nama_MK
+                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan,
+                (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan)))),MataKuliah.Nama_MK  
                 FROM 
                     Tugas
                 INNER JOIN 
@@ -399,7 +393,6 @@ class DataUser(QWidget):
                 ON datamahasiswa.nim = loginmahasiswa.username 
                 WHERE loginmahasiswa.username = %s;
             """
-        
         curse.execute(query,(username,))
 
         # menampilkan usrname di consle
@@ -435,11 +428,11 @@ class HalamanKumpulkanTugas(QWidget):
         layout = QVBoxLayout()
 
         # membuat kontent
-        self.id_tugas = QLabel("h")
-        self.mataKuliah = QLabel("")
-        self.judulTugas = QLabel("h")
-        self.tanggalPemberian = QLabel("h")
-        self.tanggalDeadline = QLabel("h")
+        self.id_tugas = QLabel()
+        self.mataKuliah = QLabel()
+        self.judulTugas = QLabel()
+        self.tanggalPemberian = QLabel()
+        self.tanggalDeadline = QLabel()
         self.FileTugas = QPlainTextEdit()
         
         # menambahkan ke layout
@@ -464,7 +457,6 @@ class HalamanKumpulkanTugas(QWidget):
                 JOIN loginmahasiswa ON loginmahasiswa.username = %s
                 WHERE loginmahasiswa.username = %s;
             """
-        
         curse.execute(query,(username,username))
 
         # menampilkan usrname di consle
@@ -478,6 +470,5 @@ class HalamanKumpulkanTugas(QWidget):
                 self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
-                # self.lb2Semester.setText(f'Semester  : {tanggal_pen}')
 
         

@@ -9,7 +9,6 @@ from PySide6.QtWidgets import(
     QLabel,
     QLineEdit,
     QPushButton,
-    QMessageBox,
 )
 
 # from MAHASISWA.mahasiswa import HalamanM  ahasiswa
