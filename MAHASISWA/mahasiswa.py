@@ -138,6 +138,7 @@ class HalamanMahasiswa(QMainWindow):
         self.btnViewJadwal = QPushButton("  Jadwal")
         self.btnViewJadwal.setObjectName("btnViewJadwal")
         self.btnViewJadwal.setFixedSize(90, 30)
+
         # memberi icon di push button
         gambarMahasiswa_path = os.path.join(basedir, "gambarMahasiswa", "eyes.png")
         self.btnViewJadwal.setIcon(QIcon(gambarMahasiswa_path))
@@ -242,14 +243,9 @@ class HalamanMahasiswa(QMainWindow):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
-                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan,
-                (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan)))),MataKuliah.Nama_MK  
-                FROM 
-                    Tugas
-                INNER JOIN 
-                    Jadwal ON Tugas.ID_Jadwal = Jadwal.ID_Jadwal
-                INNER JOIN 
-                    MataKuliah ON Jadwal.ID_MK = MataKuliah.ID_MK
+                SELECT tugas.id_tugas, tugas.id_mk, jadwal.hari,tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan))))
+                FROM tugas
+                JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk;
             """
         
         curse.execute(query)
@@ -296,7 +292,7 @@ class HalamanMahasiswa(QMainWindow):
 
         for  data in ambildata:
             # ambildata di kolom 1
-            namajudul = data[1]
+            namajudul = data[2]
             # ambil data dikolom 2 dengan format tanggal
             tanggalDeadline = data[4].strftime("%Y-%m-%d %H:%M:%S")
             
@@ -469,6 +465,4 @@ class HalamanKumpulkanTugas(QWidget):
                 self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
                 self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
-                self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
-
-        
+                self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')        
