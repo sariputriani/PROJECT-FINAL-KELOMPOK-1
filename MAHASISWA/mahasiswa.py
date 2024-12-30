@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QSize, Qt,QDate
 from PySide6.QtGui import QAction, QIcon,QPixmap
+from functools import partial
 
 # import modlu
 from DATABASE.databse import buat_koneksi
@@ -158,8 +159,8 @@ class HalamanMahasiswa(QMainWindow):
         # table
         self.daftarTugas = QTableWidget()
         self.daftarTugas.setObjectName("daftarTugas")
-        self.daftarTugas.setColumnCount(8)
-        self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk", "Hari", "Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
+        self.daftarTugas.setColumnCount(6)
+        self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
         self.daftarTugas.horizontalHeader().setStretchLastSection(True)
         layoutDs.addWidget(self.daftarTugas)
         
@@ -243,7 +244,7 @@ class HalamanMahasiswa(QMainWindow):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
-                SELECT tugas.id_tugas, tugas.id_mk, jadwal.hari,tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan))))
+                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, (abs(day(tanggal_pemberian) - (day(tanggal_pengumpulan))))
                 FROM tugas
                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk;
             """
@@ -257,14 +258,15 @@ class HalamanMahasiswa(QMainWindow):
         for barisnumber, barisData in enumerate(ambildata):
                 for col,data in enumerate(barisData):
                     self.daftarTugas.setItem(barisnumber, col, QTableWidgetItem(str(data)))
+                id_tugas = barisData[0]
                 self.button = QPushButton("Kumpulkan")
-                self.button.clicked.connect(self.kumpulkan)
+                self.button.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
                 self.button.setProperty("row",barisnumber)
-                self.daftarTugas.setCellWidget(barisnumber, 7, self.button)
+                self.daftarTugas.setCellWidget(barisnumber, 5, self.button)
         self.daftarTugas.resizeColumnsToContents() 
 
-    def kumpulkan(self):
-        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(self.username)
+    def kumpulkan(self,id_tugas):
+        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas)
         self.ShowHalamanKumpulkanTugas.show()
 
     def apply_filter(self):
@@ -416,7 +418,7 @@ class HalamanSetting(QWidget):
 
 
 class HalamanKumpulkanTugas(QWidget):
-    def __init__(self,username):
+    def __init__(self,id_tugas):
         super().__init__()
         self.setWindowTitle("Kumpulkan Tugas")
         self.setFixedSize(450,450)
@@ -430,6 +432,8 @@ class HalamanKumpulkanTugas(QWidget):
         self.tanggalPemberian = QLabel()
         self.tanggalDeadline = QLabel()
         self.FileTugas = QPlainTextEdit()
+        self.lbFile = QLabel("File Tugas")
+        self.btnKirim = QPushButton("Kirim")
         
         # menambahkan ke layout
         layout.addWidget(self.id_tugas)
@@ -437,32 +441,33 @@ class HalamanKumpulkanTugas(QWidget):
         layout.addWidget(self.judulTugas)
         layout.addWidget(self.tanggalPemberian)
         layout.addWidget(self.tanggalDeadline)
+        layout.addWidget(self.lbFile)
         layout.addWidget(self.FileTugas)
+        layout.addWidget(self.btnKirim)
 
         # mengsetlayout
         self.setLayout(layout)
-        self.ambilDataTugas(username)
+        self.ambilDataTugas(id_tugas)
     
-    def ambilDataTugas(self,username):
+    def ambilDataTugas(self,id_tugas):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
                 FROM tugas
                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
-                JOIN loginmahasiswa ON loginmahasiswa.username = %s
-                WHERE loginmahasiswa.username = %s;
+                WHERE tugas.id_tugas = %s;
             """
-        curse.execute(query,(username,username))
+        curse.execute(query,(id_tugas,))
 
         # menampilkan usrname di consle
-        print(username)
+        print(id_tugas)
 
         ambildata = curse.fetchone()
         if ambildata:
                 id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
-                self.id_tugas.setText(f'id Tugas            : {id_tugas}')
-                self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
-                self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
-                self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
-                self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')        
+                self.id_tugas.setText(f'id Tugas\t\t\t: {id_tugas}')
+                self.mataKuliah.setText(f'Id Mata Kuliah\t\t: {id_mk}')
+                self.judulTugas.setText(f'Judul Tugas\t\t: {deskripsi_tugas}')
+                self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
+                self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')        
