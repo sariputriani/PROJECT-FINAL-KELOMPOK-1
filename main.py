@@ -9,23 +9,23 @@ from PySide6.QtWidgets import(
     QLabel,
     QLineEdit,
     QPushButton,
-    QMessageBox
+    QMessageBox,
 )
 # from MAHASISWA.mahasiswa import HalamanMahasiswa
-from PySide6.QtSql import QSqlDatabase,QSqlTableModel
-
+from PySide6.QtSql import QSqlDatabase,QSqlTableModel,QSqlQuery
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
+
+# import dosen dan mahasiswa
 from MAHASISWA.mahasiswa import HalamanMahasiswa
+from DOSEN.dosen import HalamanDosen
+from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)
 
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        # menentukan databases
-        self.db = QSqlDatabase("QSQLITE")
-        self.db.setDatabaseName(os.path.join(basedir,"./manajemen.sql"))
-        self.db.open()
+        # self.connectDB()
 
         # start
         self.setWindowTitle("Login")
@@ -54,18 +54,9 @@ class LoginWindow(QMainWindow):
         layoutHUser.addWidget(lbUser)
 
         self.username = QLineEdit()
+        self.username.setObjectName("username")
         self.username.setFixedSize(270,85)
         self.username.setPlaceholderText("username")
-        self.username.setStyleSheet("""
-        QLineEdit{
-            font-family : "Cabliri";
-            font-size : 14px;
-            margin : 30,20,5;
-            border: 2px solid #125370;
-            border-radius: 5px;
-            padding: 5px;                       
-        }                                    
-""")
         layoutHUser.addWidget(self.username)
         layout.addLayout(layoutHUser)
 
@@ -78,23 +69,15 @@ class LoginWindow(QMainWindow):
         layoutHPassword.addWidget(lbPw)
 
         self.password = QLineEdit()
+        self.password.setObjectName("password")
         self.password.setFixedSize(270,55)
         self.password.setPlaceholderText("password")
-        self.password.setStyleSheet("""                      
-        QLineEdit{
-            font-family : "Cabliri";
-            font-size : 14px;
-            margin : 0,20,0;
-            border: 2px solid #125370;
-            border-radius: 5px;
-            padding: 5px;              
-        }     
-""")
         layoutHPassword.addWidget(self.password)
         layout.addLayout(layoutHPassword)
 
         # button
         self.btnLogin = QPushButton("L O G I N")
+        self.btnLogin.setObjectName("btnlogin")
         self.btnLogin.setFixedSize(309,45)
         self.btnLogin.setStyleSheet("""
         QPushButton{
@@ -114,24 +97,52 @@ class LoginWindow(QMainWindow):
         layoutHPassword.addStretch()
         container.setLayout(layout)
         self.setCentralWidget(container)
-   
+        
+    # ini periksa user
     def periksaUser(self):
         username = self.username.text()
         password = self.password.text()
 
-        if username == "sari" and password == "sari":
-            QMessageBox.information(self, 'Berhasil', 'Berhasil!.')
-            self.showMHS = HalamanMahasiswa()
+        # menghubungkan ke databases
+        connection,curse = buat_koneksi()
+
+        curse = connection.cursor()
+
+        # mahasiswa
+        queryMahasiswa = 'select * from loginmahasiswa where username = %s AND password = %s'
+        curse.execute(queryMahasiswa, (username,password))      
+        resultMahasiswa = curse.fetchall()
+        if resultMahasiswa:
+            print("Mahasiswa ditemukan")
+            self.showMHS = HalamanMahasiswa(username)
             self.showMHS.show()
             self.close()
+            return
+        
+        # dosen
+        queryDosen = 'select * from logindosen where username = %s AND password = %s'
+        curse.execute(queryDosen,(username,password))
+        resultDosen = curse.fetchall()
+        if resultDosen: 
+            print("Dosen ditemukan")
+            self.showDSN = HalamanDosen(username)
+            self.showDSN.show()
+            self.close()
         else:
-            QMessageBox.warning(self,"Eror","password dan username salah,tolong inputkan ulang")
-            self.username.clear()
-            self.password.clear()      
-            
+            print("Username tidak ditemukan")
+            QMessageBox.warning(self, "Login Gagal", "password salah!")
+    
+        
+def apply_stylesheet(app, path):
+    with open(path, "r") as file:
+        qss = file.read()
+        app.setStyleSheet(qss)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    stylesheet_path = "style.qss"
+    apply_stylesheet(app, stylesheet_path)
+
     window = LoginWindow()
     window.show()
     sys.exit(app.exec())

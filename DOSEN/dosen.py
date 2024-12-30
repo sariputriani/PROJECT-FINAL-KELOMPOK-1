@@ -3,9 +3,10 @@ import mysql.connector
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayout, QToolBar, 
     QFileDialog, QTableWidget, QTableWidgetItem, QDialog, QDialogButtonBox, QFormLayout, 
-    QStackedWidget, QSizePolicy, QMessageBox, QAction, QLineEdit
+    QStackedWidget, QSizePolicy, QMessageBox, QLineEdit
 )
 from PySide6.QtCore import QSize, Qt 
+from PySide6.QtGui import QAction 
 
 class HalamanDosen(QMainWindow):
     def __init__(self):
