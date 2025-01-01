@@ -27,6 +27,7 @@ from functools import partial
 
 # import modlu
 from DATABASE.databse import buat_koneksi
+from main import LoginWindow
 basedir = os.path.dirname(__file__)
 
 class HalamanMahasiswa(QMainWindow):
@@ -107,6 +108,9 @@ class HalamanMahasiswa(QMainWindow):
         if masseg == QMessageBox.Yes:
                     self.close()
                     print("aplikasi di close")
+                    LoginWindow.show()
+
+    
 
     def Dashboard(self):
         container = QWidget()
@@ -241,7 +245,7 @@ class HalamanMahasiswa(QMainWindow):
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
 
-    def tugas(self):
+    # def tugas(self):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
@@ -266,9 +270,63 @@ class HalamanMahasiswa(QMainWindow):
                 self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
         self.daftarTugas.resizeColumnsToContents() 
 
+    def tugas(self):
+        connection, curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
+                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, 
+                    (ABS(DAY(tugas.tanggal_pemberian) - DAY(tugas.tanggal_pengumpulan)))
+                FROM tugas
+                JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk;
+            """
+        
+        curse.execute(query)
+        ambildata = curse.fetchall()
+
+        hariIni = QDate.currentDate()  # Tanggal hari ini
+
+        self.daftarTugas.setRowCount(len(ambildata))
+        for barisnumber, barisData in enumerate(ambildata):
+            for col, data in enumerate(barisData):
+                self.daftarTugas.setItem(barisnumber, col, QTableWidgetItem(str(data)))
+            
+            id_tugas = barisData[0]
+            tanggal_deadline = QDate.fromString(barisData[4].strftime("%Y-%m-%d"), "yyyy-MM-dd")
+
+            # Cek apakah user sudah mengumpulkan tugas
+            query_check = """
+            SELECT COUNT(*) 
+            FROM pengumpulantugas 
+            WHERE id_tugas = %s AND nim = (
+                SELECT dataMahasiswa.nim 
+                FROM dataMahasiswa 
+                JOIN loginMahasiswa ON loginMahasiswa.username = dataMahasiswa.nim 
+                WHERE loginMahasiswa.username = %s
+            )
+            """
+            curse.execute(query_check, (id_tugas, self.username))
+            sudah_dikumpulkan = curse.fetchone()[0] > 0
+
+            # Kondisi untuk menonaktifkan tombol
+            tombol_nonaktif = tanggal_deadline < hariIni or sudah_dikumpulkan
+
+            self.buttonKmpl = QPushButton("Kumpulkan")
+            self.buttonKmpl.setEnabled(not tombol_nonaktif)  # Disable tombol jika kondisi terpenuhi
+            if tombol_nonaktif:
+                self.buttonKmpl.setToolTip("Tugas ini telah melewati deadline atau sudah dikumpulkan.")
+            
+            self.buttonKmpl.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
+            self.buttonKmpl.setProperty("row", barisnumber)
+            self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
+        
+        self.daftarTugas.resizeColumnsToContents()
+        connection.close()
+
+
     def kumpulkan(self,id_tugas):
         self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
         self.ShowHalamanKumpulkanTugas.show()
+
 
     def apply_filter(self):
         filter_text = self.search.text().lower()  # Ambil teks pencarian dan ubah menjadi huruf kecil
@@ -280,6 +338,7 @@ class HalamanMahasiswa(QMainWindow):
                     found = True  # Jika ada, set found = True
                     break  # Tidak perlu cek kolom lainnya
             self.daftarTugas.setRowHidden(row, not found)  # Sembunyikan baris jika teks tidak ditemukan
+
 
     def pengingat(self):
         connection,curse = buat_koneksi()
@@ -468,6 +527,7 @@ class HalamanKumpulkanTugas(QWidget):
                 self.judulTugas.setText(f'Judul Tugas\t\t: {deskripsi_tugas}')
                 self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
+
 
     def kirim (self):
         connection,curse = buat_koneksi()
