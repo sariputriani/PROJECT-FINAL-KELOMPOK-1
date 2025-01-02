@@ -54,7 +54,15 @@ class LoginWindow(QMainWindow):
         layoutHUser.addWidget(lbUser)
 
         self.username = QLineEdit()
-        self.username.setObjectName("username")
+        # self.username.setObjectName("username")
+        self.username.setStyleSheet("""
+            font-family : "Cabliri";
+            font-size : 14px;
+            margin : 30,20,5;
+            border: 2px solid #125370;
+            border-radius: 5px;
+            padding: 5px; 
+""")
         self.username.setFixedSize(270,85)
         self.username.setPlaceholderText("username")
         layoutHUser.addWidget(self.username)
@@ -69,7 +77,16 @@ class LoginWindow(QMainWindow):
         layoutHPassword.addWidget(lbPw)
 
         self.password = QLineEdit()
-        self.password.setObjectName("password")
+        # self.password.setObjectName("password")
+        self.password.setStyleSheet("""
+        font-family : "Cabliri";
+        font-size : 14px;
+            margin : 0,20,0;
+            border: 2px solid #125370;
+            border-radius: 5px;
+            padding: 5px;
+
+""")
         self.password.setFixedSize(270,55)
         self.password.setPlaceholderText("password")
         layoutHPassword.addWidget(self.password)
@@ -109,7 +126,8 @@ class LoginWindow(QMainWindow):
 
         # mahasiswa
         queryMahasiswa = 'select * from loginmahasiswa where username = %s AND password = %s'
-        curse.execute(queryMahasiswa, (username,password))      
+        curse.execute(queryMahasiswa, (username,password)) 
+             
         resultMahasiswa = curse.fetchall()
         if resultMahasiswa:
             print("Mahasiswa ditemukan")
