@@ -63,24 +63,24 @@ class HalamanMahasiswa(QMainWindow):
         self.toolbar.addWidget(spasi)
 
         # Tambahkan action Data User di sebelah kanan
-        datauser = QAction(
-            QIcon(os.path.join(basedir, "./gambarMahasiswa/userhh.png")),
-            "User",self
-        )
-        datauser.triggered.connect(self.halamanDataUser)
-        self.toolbar.addAction(datauser)
+        # datauser = QAction(
+        #     QIcon(os.path.join(basedir, "./gambarMahasiswa/userhh.png")),
+        #     "User",self
+        # )
+        # datauser.triggered.connect(self.halamanDataUser)
+        # self.toolbar.addAction(datauser)
 
         setting = QAction(QIcon(os.path.join(basedir,"../DOSEN/image.png")),"Setting",self)
         setting.triggered.connect(self.halamanSetting)
         self.toolbar.addAction(setting)
 
         # toolbar langout
-        langout = QAction(
-            QIcon(os.path.join(basedir, "./gambarMahasiswa/langout.png")),
-            "Langout",self
-        )
-        self.toolbar.addAction(langout)
-        langout.triggered.connect(self.show_langout)
+        # langout = QAction(
+        #     QIcon(os.path.join(basedir, "./gambarMahasiswa/langout.png")),
+        #     "Langout",self
+        # )
+        # self.toolbar.addAction(langout)
+        # langout.triggered.connect(self.show_langout)
         
         # Mengatur layout untuk widget utama
         self.setLayout(self.layoutMHS)
@@ -173,6 +173,7 @@ class HalamanMahasiswa(QMainWindow):
         self.tugas()
         # self.pesanPengingat()
         self.pengingat()
+        self.tugas()
     
     def DashboardJadwal(self):
         container = QWidget()
@@ -315,6 +316,7 @@ class HalamanMahasiswa(QMainWindow):
                 font-weight: bold;
                 """)
                 self.buttonKmpl.clicked.connect(partial(self.view,id_tugas=id_tugas))
+                # self.tugas
             elif tanggal_deadline < hariIni or sudah_dikumpulkan:
                 self.buttonKmpl.setText("Tidak Mengumpulkan")
                 self.buttonKmpl.setStyleSheet("""           
@@ -322,6 +324,7 @@ class HalamanMahasiswa(QMainWindow):
                 color : white;
                 font-weight: bold;
                 """)
+                # self.tugas
             else:
                 self.buttonKmpl.setText("Kumpulkan")
                 self.buttonKmpl.setObjectName("Kumpulkan")
@@ -336,7 +339,7 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarTugas.resizeColumnsToContents()
 
     def kumpulkan(self,id_tugas):
-        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
+        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username,self.tugas)
         self.ShowHalamanKumpulkanTugas.show()
     
     def view(self,id_tugas):
@@ -401,7 +404,7 @@ class HalamanMahasiswa(QMainWindow):
                 #     QMessageBox.warning(self, "Deadline Terlewat", pesan)
                 #     continue
 
-class DataUser(QWidget):
+# class DataUser(QWidget):
     def __init__(self,username):
         super().__init__()
         self.setWindowTitle("Data User")
@@ -492,11 +495,12 @@ class HalamanSetting(QWidget):
         self.setWindowTitle("Halaman Pengaturan")
         self.setFixedSize(300,350)
 
-
+# ini halaman kumpulkan tugas
 class HalamanKumpulkanTugas(QWidget):
-    def __init__(self,id_tugas,username):
+    def __init__(self,id_tugas,username,tugas):
         super().__init__()
         self.username = username
+        self.tugas = tugas
         self.setWindowTitle("Kumpulkan Tugas")
         self.setFixedSize(450,450)
         layout = QVBoxLayout()
@@ -540,12 +544,13 @@ class HalamanKumpulkanTugas(QWidget):
         print(id_tugas)
         ambildata = curse.fetchone()
         if ambildata:
-                id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
+                id_tugas,id_mk,self.deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
                 self.idTugas = id_tugas
                 self.idmk = id_mk
+                # self.jdl_tgs = deskripsi_tugas.text()
                 self.id_tugas.setText(f'id Tugas\t\t\t: {id_tugas}')
                 self.mataKuliah.setText(f'Id Mata Kuliah\t\t: {id_mk}')
-                self.judulTugas.setText(f'Judul Tugas\t\t: {deskripsi_tugas}')
+                self.judulTugas.setText(f'Judul Tugas\t\t: {self.deskripsi_tugas}')
                 self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
 
@@ -581,12 +586,16 @@ class HalamanKumpulkanTugas(QWidget):
                     values (%s,%s,%s,%s,%s)
                 """
             curse.execute(query,(self.idTugas,self.idmk,nim,tglPengumpulan,fileTgs))
-            connection.commit()
-            print("berhasil")
-            connection.close()
-            self.close()
+            Jdltugas = self.deskripsi_tugas
+            massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
+            if massage == QMessageBox.Yes : 
+                connection.commit()
+                print("berhasil")
+                QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
+                self.close()
+                self.tugas()
 
-
+# untuk melihat tugas yang sudah diinputkan
 class HalamanViewTugas(QWidget):
     def __init__(self,id_tugas,username):
         super().__init__()
