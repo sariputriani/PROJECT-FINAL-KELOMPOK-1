@@ -136,6 +136,7 @@ def apply_stylesheet(app, path):
         qss = file.read()
         app.setStyleSheet(qss)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     stylesheet_path = "style.qss"

@@ -18,8 +18,6 @@ from PySide6.QtWidgets import (
     QCalendarWidget,
     QTableWidgetItem,
     QPlainTextEdit,
-
-
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
@@ -27,7 +25,7 @@ from functools import partial
 
 # import modlu
 from DATABASE.databse import buat_koneksi
-from main import LoginWindow
+# from main import LoginWindow
 basedir = os.path.dirname(__file__)
 
 class HalamanMahasiswa(QMainWindow):
@@ -103,14 +101,14 @@ class HalamanMahasiswa(QMainWindow):
          self.showSetting.show()
 
     def show_langout(self):
+        from main import LoginWindow
         masseg = QMessageBox.question(self, "Konfirmasi", 
                 "Apakah anda yakin ingin keluar dari aplikasi?", QMessageBox.Yes | QMessageBox.No)
         if masseg == QMessageBox.Yes:
                     self.close()
                     print("aplikasi di close")
-                    LoginWindow.show()
-
-    
+                    self.showLogin = LoginWindow()
+                    self.showLogin.show()
 
     def Dashboard(self):
         container = QWidget()
@@ -275,14 +273,13 @@ class HalamanMahasiswa(QMainWindow):
         curse = connection.cursor()
         query = """
                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, 
-                    (ABS(DAY(tugas.tanggal_pemberian) - DAY(tugas.tanggal_pengumpulan)))
+                ABS(DATEDIFF(tugas.tanggal_pengumpulan, tugas.tanggal_pemberian)) AS selisih_hari
                 FROM tugas
                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk;
             """
         
         curse.execute(query)
         ambildata = curse.fetchall()
-
         hariIni = QDate.currentDate()  # Tanggal hari ini
 
         self.daftarTugas.setRowCount(len(ambildata))
@@ -310,11 +307,18 @@ class HalamanMahasiswa(QMainWindow):
             # Kondisi untuk menonaktifkan tombol
             tombol_nonaktif = tanggal_deadline < hariIni or sudah_dikumpulkan
 
-            self.buttonKmpl = QPushButton("Kumpulkan")
+            self.buttonKmpl = QPushButton()
+            if sudah_dikumpulkan:
+                self.buttonKmpl.setText("Selesai")
+                self.buttonKmpl.setStyleSheet("background-color: green")
+
+            elif tanggal_deadline < hariIni or sudah_dikumpulkan:
+                self.buttonKmpl.setText("Tidak Mengumpulkan")
+                self.buttonKmpl.setStyleSheet("background-color: #ef233c")
+            else:
+                self.buttonKmpl.setText("Kumpulkan")
+
             self.buttonKmpl.setEnabled(not tombol_nonaktif)  # Disable tombol jika kondisi terpenuhi
-            if tombol_nonaktif:
-                self.buttonKmpl.setToolTip("Tugas ini telah melewati deadline atau sudah dikumpulkan.")
-            
             self.buttonKmpl.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
             self.buttonKmpl.setProperty("row", barisnumber)
             self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
@@ -322,11 +326,9 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarTugas.resizeColumnsToContents()
         connection.close()
 
-
     def kumpulkan(self,id_tugas):
         self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
         self.ShowHalamanKumpulkanTugas.show()
-
 
     def apply_filter(self):
         filter_text = self.search.text().lower()  # Ambil teks pencarian dan ubah menjadi huruf kecil
@@ -348,7 +350,7 @@ class HalamanMahasiswa(QMainWindow):
         query = "SELECT * FROM tugas"
         curse.execute(query)
         ambildata = curse.fetchall()
-
+        
         # ini mengambil tanggal hari ini
         hariIni = QDate.currentDate()
 
@@ -363,20 +365,28 @@ class HalamanMahasiswa(QMainWindow):
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
 
+            # menghilangkan pengingat jika batasnya sudah melewati deadline
+            if sisaHari < 0:
+                continue
+
             # memeriksa sisahari jika sisahari lebihkecil dari 3
-            if sisaHari <= 3:
+            elif sisaHari == 0:
+                pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy')})!"
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)
+                
+                
+            # Deadline hari ini
+            else:  
                 pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
                 
-                # Deadline hari ini
-                if sisaHari == 0:  
-                    pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy')})!"
-                    QMessageBox.warning(self, "Deadline Hari Ini", pesan)
-
-                # Deadline sudah lewat
-                else:  
-                    pesan = f"Tugas '{namajudul}' sudah melewati deadline pada {formatDeadline.toString('dd MMMM yyyy')}!"
-                    QMessageBox.warning(self, "Deadline Terlewat", pesan)
+            # else:
+                 
+                # # Deadline sudah lewat
+                # else:  
+                #     pesan = f"Tugas '{namajudul}' sudah melewati deadline pada {formatDeadline.toString('dd MMMM yyyy')}!"
+                #     QMessageBox.warning(self, "Deadline Terlewat", pesan)
+                #     continue
 
 class DataUser(QWidget):
     def __init__(self,username):
@@ -429,7 +439,6 @@ class DataUser(QWidget):
 
         # setlayout (layout) kedalam container
         container.setLayout(layout)
-
         layout.addStretch()
         self.setLayout(layout)
         self.ambil_dataUser(username)
@@ -464,10 +473,11 @@ class DataUser(QWidget):
                 self.lb2Prodi.setText("Data Tidak ditemukan")
                 self.lb2Semester.setText("Data Tidak ditemukan")
 
-
 class HalamanSetting(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Halaman Pengaturan")
+        self.setFixedSize(300,350)
 
 
 class HalamanKumpulkanTugas(QWidget):
@@ -476,7 +486,6 @@ class HalamanKumpulkanTugas(QWidget):
         self.username = username
         self.setWindowTitle("Kumpulkan Tugas")
         self.setFixedSize(450,450)
-
         layout = QVBoxLayout()
 
         # membuat kontent
@@ -514,7 +523,6 @@ class HalamanKumpulkanTugas(QWidget):
                 WHERE tugas.id_tugas = %s;
             """
         curse.execute(query,(id_tugas,))
-
         # menampilkan usrname di consle
         print(id_tugas)
         ambildata = curse.fetchone()
@@ -528,11 +536,9 @@ class HalamanKumpulkanTugas(QWidget):
                 self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
 
-
     def kirim (self):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
-
         queryNim = ("select dataMahasiswa.nim from datamahasiswa join loginmahasiswa on loginmahasiswa.username = datamahasiswa.nim where loginmahasiswa.username = %s")
         curse.execute(queryNim,(self.username,))
         nimdata = curse.fetchone()
@@ -553,12 +559,16 @@ class HalamanKumpulkanTugas(QWidget):
         tglPengumpulan = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
         fileTgs = self.FileTugas.toPlainText()
 
-        query = """
-                Insert into pengumpulantugas (id_tugas,id_mk,nim,tanggal_pengumpulan,file_tugas)
-                values (%s,%s,%s,%s,%s)
-            """
-        curse.execute(query,(self.idTugas,self.idmk,nim,tglPengumpulan,fileTgs))
-        connection.commit()
-        print("berhasil")
-        connection.close()
-        self.close()
+        if not fileTgs:
+            QMessageBox.warning(self, "Peringatan", "File Tugas kosong,silahkan lengkapi file tugas.")
+            return
+        else:
+            query = """
+                    Insert into pengumpulantugas (id_tugas,id_mk,nim,tanggal_pengumpulan,file_tugas)
+                    values (%s,%s,%s,%s,%s)
+                """
+            curse.execute(query,(self.idTugas,self.idmk,nim,tglPengumpulan,fileTgs))
+            connection.commit()
+            print("berhasil")
+            connection.close()
+            self.close()
