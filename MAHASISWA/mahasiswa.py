@@ -102,8 +102,7 @@ class HalamanMahasiswa(QMainWindow):
 
     def show_langout(self):
         from main import LoginWindow
-        masseg = QMessageBox.question(self, "Konfirmasi", 
-                "Apakah anda yakin ingin keluar dari aplikasi?", QMessageBox.Yes | QMessageBox.No)
+        masseg = QMessageBox.question(self, "Konfirmasi", "Apakah anda yakin ingin keluar dari akun ini?", QMessageBox.Yes | QMessageBox.No)
         if masseg == QMessageBox.Yes:
                     self.close()
                     print("aplikasi di close")
@@ -305,30 +304,44 @@ class HalamanMahasiswa(QMainWindow):
             sudah_dikumpulkan = curse.fetchone()[0] > 0
 
             # Kondisi untuk menonaktifkan tombol
-            tombol_nonaktif = tanggal_deadline < hariIni or sudah_dikumpulkan
+            tombol_nonaktif = tanggal_deadline < hariIni
 
             self.buttonKmpl = QPushButton()
             if sudah_dikumpulkan:
-                self.buttonKmpl.setText("Selesai")
-                self.buttonKmpl.setStyleSheet("background-color: green")
-
+                self.buttonKmpl.setText("VIEW")
+                self.buttonKmpl.setStyleSheet("""           
+                background-color: green;
+                color : white;
+                font-weight: bold;
+                """)
+                self.buttonKmpl.clicked.connect(partial(self.view,id_tugas=id_tugas))
             elif tanggal_deadline < hariIni or sudah_dikumpulkan:
                 self.buttonKmpl.setText("Tidak Mengumpulkan")
-                self.buttonKmpl.setStyleSheet("background-color: #ef233c")
+                self.buttonKmpl.setStyleSheet("""           
+                background-color: RED;
+                color : white;
+                font-weight: bold;
+                """)
             else:
                 self.buttonKmpl.setText("Kumpulkan")
+                self.buttonKmpl.setObjectName("Kumpulkan")
+                self.buttonKmpl.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
+
 
             self.buttonKmpl.setEnabled(not tombol_nonaktif)  # Disable tombol jika kondisi terpenuhi
-            self.buttonKmpl.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
+            # self.buttonKmpl.clicked.connect(partial(self.kumpulkan, id_tugas=id_tugas))
             self.buttonKmpl.setProperty("row", barisnumber)
             self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
         
         self.daftarTugas.resizeColumnsToContents()
-        connection.close()
 
     def kumpulkan(self,id_tugas):
         self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
         self.ShowHalamanKumpulkanTugas.show()
+    
+    def view(self,id_tugas):
+        self.ShowHalamanViewTugas = HalamanViewTugas(id_tugas,self.username)
+        self.ShowHalamanViewTugas.show()
 
     def apply_filter(self):
         filter_text = self.search.text().lower()  # Ambil teks pencarian dan ubah menjadi huruf kecil
@@ -352,16 +365,16 @@ class HalamanMahasiswa(QMainWindow):
         ambildata = curse.fetchall()
         
         # ini mengambil tanggal hari ini
-        hariIni = QDate.currentDate()
+        hariIni = QDateTime.currentDateTime()
 
         for  data in ambildata:
             # ambildata di kolom 1
             namajudul = data[2]
             # ambil data dikolom 2 dengan format tanggal
-            tanggalDeadline = data[4].strftime("%Y-%m-%d")
+            tanggalDeadline = data[4].strftime("%Y-%m-%d %H:%M:%S")
             
             # Konversi ke QDate
-            formatDeadline = QDate.fromString(tanggalDeadline, "yyyy-MM-dd")  
+            formatDeadline = QDateTime.fromString(tanggalDeadline, "yyyy-MM-dd HH:mm:ss")  
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
 
@@ -369,15 +382,15 @@ class HalamanMahasiswa(QMainWindow):
             if sisaHari < 0:
                 continue
 
-            # memeriksa sisahari jika sisahari lebihkecil dari 3
+            # deadline hari ini
             elif sisaHari == 0:
-                pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy')})!"
+                pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
                 QMessageBox.warning(self, "Deadline Hari Ini", pesan)
                 
                 
-            # Deadline hari ini
+            # tenggal hari <= 3 hari
             else:  
-                pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy')}."
+                pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
                 
             # else:
@@ -572,3 +585,66 @@ class HalamanKumpulkanTugas(QWidget):
             print("berhasil")
             connection.close()
             self.close()
+
+
+class HalamanViewTugas(QWidget):
+    def __init__(self,id_tugas,username):
+        super().__init__()
+        self.username = username
+        self.setWindowTitle("View Tugas")
+        self.setFixedSize(450,450)
+        layout = QVBoxLayout()
+
+        # membuat kontent
+        self.id_tugas = QLabel()
+        self.mataKuliah = QLabel()
+        self.judulTugas = QLabel()
+        self.tanggalPemberian = QLabel()
+        self.tanggalDeadline = QLabel()
+        self.tanggal = QLabel()
+        self.FileTugas = QPlainTextEdit()
+        self.FileTugas.setEnabled(False)
+        self.lbFile = QLabel("File Tugas")
+        # self.btnKirim = QPushButton("Kirim")
+        # self.btnKirim.clicked.connect(self.kirim)
+        
+        # menambahkan ke layout
+        layout.addWidget(self.id_tugas)
+        layout.addWidget(self.mataKuliah)
+        layout.addWidget(self.judulTugas)
+        layout.addWidget(self.tanggalPemberian)
+        layout.addWidget(self.tanggalDeadline)
+        layout.addWidget(self.tanggal)
+        layout.addWidget(self.lbFile)
+        layout.addWidget(self.FileTugas)
+        # layout.addWidget(self.btnKirim)
+
+        # mengsetlayout
+        self.setLayout(layout)
+        self.ambilDataTugas(id_tugas)
+
+    def ambilDataTugas(self,id_tugas):
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
+                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan,pengumpulantugas.tanggal_pengumpulan,pengumpulantugas.file_tugas
+                FROM pengumpulantugas
+                JOIN matakuliah ON matakuliah.id_mk = pengumpulantugas.id_mk
+                JOIN tugas ON tugas.id_tugas = pengumpulantugas.id_tugas
+                WHERE pengumpulantugas.id_tugas = %s;
+            """
+        curse.execute(query,(id_tugas,))
+        # menampilkan usrname di consle
+        print(id_tugas)
+        ambildata = curse.fetchone()
+        if ambildata:
+                id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan,tanggal,file_tugas = ambildata
+                self.idTugas = id_tugas
+                self.idmk = id_mk
+                self.id_tugas.setText(f'id Tugas\t\t\t: {id_tugas}')
+                self.mataKuliah.setText(f'Id Mata Kuliah\t\t: {id_mk}')
+                self.judulTugas.setText(f'Judul Tugas\t\t: {deskripsi_tugas}')
+                self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
+                self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
+                self.tanggal.setText(f'Tanggal Pengumpulan\t: {tanggal}')
+                self.FileTugas.setPlainText(f'{file_tugas}')
