@@ -719,30 +719,6 @@ class HalamanSetting(QWidget):
         connection.commit()
         QMessageBox.information(self, "Berhasil", "Password berhasil diubah!")
 
-    # def ambilDataTugas(self,id_tugas):
-    #     connection,curse = buat_koneksi()
-    #     curse = connection.cursor()
-    #     query = """
-    #             SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
-    #             FROM tugas
-    #             JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
-    #             WHERE tugas.id_tugas = %s;
-    #         """
-    #     curse.execute(query,(id_tugas,))
-    #     # menampilkan usrname di consle
-    #     print(id_tugas)
-    #     ambildata = curse.fetchone()
-    #     if ambildata:
-    #             id_tugas,id_mk,self.deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
-    #             self.idTugas = id_tugas
-    #             self.idmk = id_mk
-    #             # self.jdl_tgs = deskripsi_tugas.text()
-    #             self.id_tugas.setText(f'id Tugas\t\t\t: {id_tugas}')
-    #             self.mataKuliah.setText(f'Id Mata Kuliah\t\t: {id_mk}')
-    #             self.judulTugas.setText(f'Judul Tugas\t\t: {self.deskripsi_tugas}')
-    #             self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
-    #             self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
-
 # # untuk melihat tugas yang sudah diinputkan
 class HalamanViewTugas(QWidget):
     def __init__(self,id_tugas,username):
