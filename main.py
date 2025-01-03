@@ -151,16 +151,18 @@ class LoginWindow(QMainWindow):
             QMessageBox.warning(self, "Login Gagal", "password salah!")
 
 
+<<<<<<< HEAD
 def apply_stylesheet(app, path):
     with open(path, "r") as file:
         qss = file.read()
         app.setStyleSheet(qss)
 
+=======
+
+# run aplikasi
+>>>>>>> 33c678aec19b9b580e2b38d4fcb42cd05bcb631c
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stylesheet_path = "style.qss"
-    apply_stylesheet(app, stylesheet_path)
-
     window = LoginWindow()
     window.show()
     sys.exit(app.exec())
