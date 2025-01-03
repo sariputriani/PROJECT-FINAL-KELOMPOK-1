@@ -620,8 +620,22 @@ class HalamanSetting(QWidget):
         self.lbUsernamePw = QLabel("Username")
         self.lbUsernamePw.setStyleSheet("margin-right : 58px")
         self.ldUsernamePw = QLineEdit()
+        self.ldUsername.setEnabled(False)
         layoutHUsernamePw.addWidget(self.lbUsernamePw)
         layoutHUsernamePw.addWidget(self.ldUsernamePw)
+
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+
+        query = """
+            select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
+"""
+
+        curse.execute(query,(username,))
+        ambildata = curse.fetchone()
+        if ambildata:
+            username = ambildata[0]
+            self.ldUsernamePw.setText(username)
 
         # layout pw baru
         layoutHPw = QHBoxLayout()
