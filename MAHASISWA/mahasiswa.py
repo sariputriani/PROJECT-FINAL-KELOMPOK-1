@@ -162,7 +162,7 @@ class HalamanMahasiswa(QMainWindow):
         self.tugas()
         # self.pesanPengingat()
         self.pengingat()
-        self.tugas()
+        # self.tugas()
     
     def DashboardJadwal(self):
         container = QWidget()
@@ -312,7 +312,7 @@ class HalamanMahasiswa(QMainWindow):
 
     # ini method pemanggilan class halamanKumpulkantugas
     def kumpulkan(self,id_tugas):
-        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username,self.tugas)
+        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
         self.ShowHalamanKumpulkanTugas.show()
     
     # ini method pemanggilan class halaman penampilan tuags
@@ -381,17 +381,17 @@ class HalamanMahasiswa(QMainWindow):
                 QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
             
             # tenggal hari <= 3 hari
-            elif sisaHari <= 3:  
+            elif sisaHari > 3:  
                 pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
-
 class HalamanKumpulkanTugas(QWidget):
-    def __init__(self,username):
+    def __init__(self,id_tugas,username):
         super().__init__()
-        self.setWindowTitle("Kumpulkan Tugas")
+        self.username = username
+        # self.tugas = id_tugas
+        self.setWindowTitle("View Tugas")
         self.setFixedSize(450,450)
-
         layout = QVBoxLayout()
 
         # membuat kontent
@@ -400,7 +400,12 @@ class HalamanKumpulkanTugas(QWidget):
         self.judulTugas = QLabel()
         self.tanggalPemberian = QLabel()
         self.tanggalDeadline = QLabel()
+        self.tanggal = QLabel()
         self.FileTugas = QPlainTextEdit()
+        # self.FileTugas.setEnabled(False)
+        self.lbFile = QLabel("File Tugas")
+        self.btnKirim = QPushButton("Kirim")
+        self.btnKirim.clicked.connect(self.kirim)
         
         # menambahkan ke layout
         layout.addWidget(self.id_tugas)
@@ -408,35 +413,132 @@ class HalamanKumpulkanTugas(QWidget):
         layout.addWidget(self.judulTugas)
         layout.addWidget(self.tanggalPemberian)
         layout.addWidget(self.tanggalDeadline)
+        layout.addWidget(self.tanggal)
+        layout.addWidget(self.lbFile)
         layout.addWidget(self.FileTugas)
+        layout.addWidget(self.btnKirim)
 
         # mengsetlayout
         self.setLayout(layout)
-        self.ambilDataTugas(username)
-    
-    def ambilDataTugas(self,username):
-        connection,curse = buat_koneksi()
+        self.ambilDataTugas(id_tugas)
+
+    def ambilDataTugas(self, id_tugas):
+        connection, curse = buat_koneksi()
         curse = connection.cursor()
         query = """
                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
                 FROM tugas
                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
-                JOIN loginmahasiswa ON loginmahasiswa.username = %s
-                WHERE loginmahasiswa.username = %s;
+                WHERE tugas.id_tugas = %s;
             """
-        curse.execute(query,(username,username))
-
-        # menampilkan usrname di consle
-        print(username)
-
+        curse.execute(query, (id_tugas,))
         ambildata = curse.fetchone()
+
         if ambildata:
-                id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
-                self.id_tugas.setText(f'id Tugas            : {id_tugas}')
-                self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
-                self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
-                self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
-                self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
+            id_tugas, id_mk, deskripsi_tugas, tanggal_pemberian, tanggal_pengumpulan = ambildata
+            self.idTugas = id_tugas
+            self.idmk = id_mk
+            self.deskripsi = deskripsi_tugas
+            self.id_tugas.setText(f'ID Tugas\t\t\t: {id_tugas}')
+            self.mataKuliah.setText(f'ID Mata Kuliah\t\t: {id_mk}')
+            self.judulTugas.setText(f'Judul Tugas\t\t: {deskripsi_tugas}')
+            self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
+            self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
+
+    def kirim (self):
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        queryNim = ("select dataMahasiswa.nim from datamahasiswa join loginmahasiswa on loginmahasiswa.username = datamahasiswa.nim where loginmahasiswa.username = %s")
+        curse.execute(queryNim,(self.username,))
+        nimdata = curse.fetchone()
+        nim = nimdata[0]
+
+        queryCheck = """
+        SELECT file_tugas 
+        FROM pengumpulantugas 
+        WHERE id_tugas = %s AND nim = %s
+    """
+        curse.execute(queryCheck, (self.idTugas, nim))
+        ambildata = curse.fetchone()
+
+        if ambildata:
+            QMessageBox.warning(self, "Duplikasi", "Tugas ini sudah pernah dikumpulkan.")
+            return
+
+        tglPengumpulan = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+        fileTgs = self.FileTugas.toPlainText()
+
+        if not fileTgs:
+            QMessageBox.warning(self, "Peringatan", "File Tugas kosong,silahkan lengkapi file tugas.")
+            return
+        else:
+            query = """
+                    Insert into pengumpulantugas (id_tugas,id_mk,nim,tanggal_pengumpulan,file_tugas)
+                    values (%s,%s,%s,%s,%s)
+                """
+            curse.execute(query,(self.idTugas,self.idmk,nim,tglPengumpulan,fileTgs))
+            Jdltugas = self.deskripsi
+            massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
+            if massage == QMessageBox.Yes : 
+                connection.commit()
+                print("berhasil")
+                QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
+                self.close()
+                self.tugas()
+
+# class HalamanKumpulkanTugas(QWidget):
+#     def __init__(self,username,id_tugas):
+#         super().__init__()
+#         self.username = username
+#         self.idTugas = id_tugas
+#         self.setWindowTitle("Kumpulkan Tugas")
+#         self.setFixedSize(450,450)
+
+#         layout = QVBoxLayout()
+
+#         # membuat kontent
+#         self.id_tugas = QLabel()
+#         self.mataKuliah = QLabel()
+#         self.judulTugas = QLabel()
+#         self.tanggalPemberian = QLabel()
+#         self.tanggalDeadline = QLabel()
+#         self.FileTugas = QPlainTextEdit()
+        
+#         # menambahkan ke layout
+#         layout.addWidget(self.id_tugas)
+#         layout.addWidget(self.mataKuliah)
+#         layout.addWidget(self.judulTugas)
+#         layout.addWidget(self.tanggalPemberian)
+#         layout.addWidget(self.tanggalDeadline)
+#         layout.addWidget(self.FileTugas)
+
+#         # mengsetlayout
+#         self.setLayout(layout)
+#         self.ambilDataTugas(username)
+    
+#     def ambilDataTugas(self,username):
+#         connection,curse = buat_koneksi()
+#         curse = connection.cursor()
+#         query = """
+#                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
+#                 FROM tugas
+#                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
+#                 JOIN loginmahasiswa ON loginmahasiswa.username = %s
+#                 WHERE loginmahasiswa.username = %s;
+#             """
+#         curse.execute(query,(username,username))
+
+#         # menampilkan usrname di consle
+#         print(username)
+
+#         ambildata = curse.fetchone()
+#         if ambildata:
+#                 id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
+#                 self.id_tugas.setText(f'id Tugas            : {id_tugas}')
+#                 self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
+#                 self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
+#                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
+#                 self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
                 
 class HalamanSetting(QWidget):
     def __init__(self, username):
@@ -640,47 +742,6 @@ class HalamanSetting(QWidget):
                 self.judulTugas.setText(f'Judul Tugas\t\t: {self.deskripsi_tugas}')
                 self.tanggalPemberian.setText(f'Tanggal Pemberian\t: {tanggal_pemberian}')
                 self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
-
-    def kirim (self):
-        connection,curse = buat_koneksi()
-        curse = connection.cursor()
-        queryNim = ("select dataMahasiswa.nim from datamahasiswa join loginmahasiswa on loginmahasiswa.username = datamahasiswa.nim where loginmahasiswa.username = %s")
-        curse.execute(queryNim,(self.username,))
-        nimdata = curse.fetchone()
-        nim = nimdata[0]
-
-        queryCheck = """
-        SELECT file_tugas 
-        FROM pengumpulantugas 
-        WHERE id_tugas = %s AND nim = %s
-    """
-        curse.execute(queryCheck, (self.idTugas, nim))
-        ambildata = curse.fetchone()
-
-        if ambildata:
-            QMessageBox.warning(self, "Duplikasi", "Tugas ini sudah pernah dikumpulkan.")
-            return
-
-        tglPengumpulan = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
-        fileTgs = self.FileTugas.toPlainText()
-
-        if not fileTgs:
-            QMessageBox.warning(self, "Peringatan", "File Tugas kosong,silahkan lengkapi file tugas.")
-            return
-        else:
-            query = """
-                    Insert into pengumpulantugas (id_tugas,id_mk,nim,tanggal_pengumpulan,file_tugas)
-                    values (%s,%s,%s,%s,%s)
-                """
-            curse.execute(query,(self.idTugas,self.idmk,nim,tglPengumpulan,fileTgs))
-            Jdltugas = self.deskripsi_tugas
-            massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
-            if massage == QMessageBox.Yes : 
-                connection.commit()
-                print("berhasil")
-                QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
-                self.close()
-                self.tugas()
 
 # # untuk melihat tugas yang sudah diinputkan
 class HalamanViewTugas(QWidget):
