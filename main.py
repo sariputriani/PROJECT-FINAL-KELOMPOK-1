@@ -149,17 +149,10 @@ class LoginWindow(QMainWindow):
         #     print("Username tidak ditemukan")
         #     QMessageBox.warning(self, "Login Gagal", "password salah!")
 
-def apply_stylesheet(app, path):
-    with open(path, "r") as file:
-        qss = file.read()
-        app.setStyleSheet(qss)
 
-
+# run aplikasi
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stylesheet_path = "style.qss"
-    apply_stylesheet(app, stylesheet_path)
-
     window = LoginWindow()
     window.show()
     sys.exit(app.exec())
