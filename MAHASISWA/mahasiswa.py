@@ -310,7 +310,7 @@ class HalamanMahasiswa(QMainWindow):
 
     # ini method pemanggilan class halamanKumpulkantugas
     def kumpulkan(self,id_tugas):
-        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username)
+        self.ShowHalamanKumpulkanTugas = HalamanKumpulkanTugas(id_tugas,self.username,self)
         self.ShowHalamanKumpulkanTugas.show()
     
     # ini method pemanggilan class halaman penampilan tuags
@@ -384,9 +384,10 @@ class HalamanMahasiswa(QMainWindow):
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
 class HalamanKumpulkanTugas(QWidget):
-    def __init__(self,id_tugas,username):
+    def __init__(self,id_tugas,username,parent_window):
         super().__init__()
         self.username = username
+        self.parent_window = parent_window 
         # self.tugas = id_tugas
         self.setWindowTitle("View Tugas")
         self.setFixedSize(450,450)
@@ -482,7 +483,7 @@ class HalamanKumpulkanTugas(QWidget):
                 print("berhasil")
                 QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
                 self.close()
-                self.tugas()
+                self.parent_window.tugas()
                 
 class HalamanSetting(QWidget):
     def __init__(self, username):
