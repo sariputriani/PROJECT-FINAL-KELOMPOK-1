@@ -153,20 +153,6 @@ class HalamanDosen(QMainWindow):
         else:
             QMessageBox.information(self, "Info", "Tidak ada data yang ditemukan di tabel tugas.")
 
-    
-    # ini fungsi untuk menampilkan halaman view
-    # def halamanView(self):
-    #     # # mendapatkan baris dari button yang diclik
-    #     # row = self.sender().property("row") 
-    #     # # menamdapatkan id tugas dari table
-    #     # task_id = self.tableTugas.item(row, 0).text()  
-    #     # self.showView = HalamanView()
-    #     # # lewati id tugas untuk melihat (view) halaman
-    #     # self.showView.mengaturDataTugas(task_id)
-    #     # self.showView.show()
-    #     self.showHalamanView = HalamanView()
-    #     self.showHalamanView.show()
-
 
     # menampilkan halaman setting
     def show_setting(self):
@@ -181,130 +167,18 @@ class HalamanDosen(QMainWindow):
                     print("aplikasi di close")
 
     def halamanView(self):
-         self.showView = HalamanView()
+         self.showView = HalamanView(self.username)
          self.showView.show()
 
-
-# class HalamanAddtugas(QWidget):
-    # def __init__(self,parent=None):
-    #     super().__init__()
-    #     self.parent = parent
-    #     self.setWindowTitle("Halaman Tambah Tugas")
-    #     self.setFixedSize(300,350)
-    #     # container = QWidget()
-    #     layout = QVBoxLayout()
-
-    #     # LOGO
-    #     logo = QLabel()
-    #     logoGambar = QPixmap(os.path.join(basedir,"./tugas.png"))
-    #     logo.setPixmap(logoGambar)
-    #     logo.setAlignment(Qt.AlignCenter)
-    #     layout.addWidget(logo)
-
-    #     # ID_TUGAS
-    #     self.layoutidTugas = QHBoxLayout()
-    #     self.llbidTugas = QLabel("No Tugas")
-    #     self.llbidTugas.setObjectName("idtugas")
-    #     self.layoutidTugas.addWidget(self.llbidTugas)
-    #     self.ldidTugas = QLineEdit()
-    #     self.ldidTugas.setObjectName("self.ldidTugas")
-    #     self.ldidTugas.setPlaceholderText("Judul Tugas")
-    #     self.layoutidTugas.addWidget(self.ldidTugas)
-    #     layout.addLayout(self.layoutidTugas)
-
-    #     # ID_MK
-    #     layoutIdMk = QHBoxLayout()
-    #     self.lbMkTugas = QLabel("Id Mata Kuliah")
-    #     self.lbMkTugas.setObjectName("idMk")
-    #     layoutIdMk.addWidget(self.lbMkTugas)
-    #     self.spMk = QComboBox()
-    #     self.spMk.addItems(['NM','PPV'])
-    #     layoutIdMk.addWidget(self.spMk)
-    #     layout.addLayout(layoutIdMk)
-
-    #     # JDL TUGAS
-    #     layoutjdlTugas = QHBoxLayout()
-    #     self.lbjdlTugas = QLabel("No Tugas")
-    #     self.lbjdlTugas.setObjectName("jdltugas")
-    #     layoutjdlTugas.addWidget(self.lbjdlTugas)
-    #     self.ldjdlTugas = QLineEdit()
-    #     self.ldjdlTugas.setObjectName("jdlldtugas")
-    #     self.ldjdlTugas.setPlaceholderText("Judul Tugas")
-    #     layoutjdlTugas.addWidget(self.ldjdlTugas)
-    #     layout.addLayout(layoutjdlTugas)
-    #     # layout.addLayout(layoutIdMk)
-
-    #     # DESKRIPSI TUGAS
-    #     layoutDSTugas = QHBoxLayout()
-    #     self.lbDSTugas = QLabel("Deskripsi tugas")
-    #     self.lbDSTugas.setObjectName("jdltugas")
-    #     layoutDSTugas.addWidget(self.lbDSTugas)
-    #     self.ldDSTugas = QLineEdit()
-    #     self.ldDSTugas.setObjectName("DSldtugas")
-    #     self.ldDSTugas.setPlaceholderText("Deskripsi Tugas")
-    #     layoutDSTugas.addWidget(self.ldDSTugas)
-    #     layout.addLayout(layoutDSTugas)
-
-    #     # TANGGAL PEMBERIAN
-    #     layoutTglMl = QHBoxLayout()
-    #     self.lbtglml = QLabel("Tanggal Pemberian")
-    #     layoutTglMl.addWidget(self.lbtglml)
-    #     self.tglmulai = QDateTimeEdit()
-    #     layoutTglMl.addWidget(self.tglmulai)
-    #     layout.addLayout(layoutTglMl)
-
-    #     # TANGGAL DEADLINE
-    #     layoutTglEnd = QHBoxLayout()
-    #     self.lbtglend = QLabel("Tanggal Pegumpulan")
-    #     layoutTglEnd.addWidget(self.lbtglend)
-    #     self.tglEnd = QDateTimeEdit()
-    #     layoutTglEnd.addWidget(self.tglEnd)
-    #     layout.addLayout(layoutTglEnd)
-
-    #     # btn add
-    #     btnTambah = QPushButton("Tambah")
-    #     layout.addWidget(btnTambah)
-    #     btnTambah.clicked.connect(self.tambah)
-
-    #     # layoutDSTugas.addStretch()
-    #     layout.addStretch()
-
-    #     self.setLayout(layout)
-
-    # def tambah (self):
-    #     idtgs = self.ldidTugas.text()
-    #     idmk = self.spMk.currentText()
-    #     idDsMk = self.ldDSTugas.text()
-    #     idtglml = self.tglmulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
-    #     idtglend = self.tglEnd.dateTime().toString("yyyy-MM-dd HH:mm:ss")
-
-    #     if not idtgs or not idmk or not idDsMk or not idtglml or not idtglend:
-    #         QMessageBox.warning(self, "Peringatan", "Lengkapi semua data sebelum menambahkan tugas.")
-    #         return
-
-    #     else:    
-    #         conection, curse = buat_koneksi()
-    #         curse = conection.cursor()
-    #         query = ("INSERT INTO tugas (id_tugas, id_mk, deskripsi_tugas, tanggal_pemberian, tanggal_pengumpulan) "
-    #                 "VALUES (%s, %s, %s, %s, %s)")
-    #         ambil = (idtgs, idmk, idDsMk, idtglml, idtglend)
-    #         curse.execute(query, ambil)
-    #         conection.commit()
-    #         QMessageBox.information(self,"Peringatan","Tugas berhasil DItambahkan")
-        
-    #         self.parent.updateDataTableTugas()
-    #         self.ldidTugas.clear()
-    #         self.ldDSTugas.clear()
-    #         self.tglmulai.setDateTime(QDateTime.currentDateTime())
-    #         self.tglEnd.setDateTime(QDateTime.currentDateTime())
-    
+# ini halaman menmabah tugas
 class HalamanAddtugas(QWidget):
     def __init__(self,parent=None):
         super().__init__()
+        # ini membuat sebuah variabel untuk mengakses method variabel di luar kelas
         self.parent = parent
         self.setWindowTitle("Halaman Tambah Tugas")
         self.setFixedSize(300,350)
-        container = QWidget()
+        # container = QWidget()
         layout = QVBoxLayout()
 
         # LOGO
@@ -392,26 +266,38 @@ class HalamanAddtugas(QWidget):
         idtglml = self.tglmulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
         idtglend = self.tglEnd.dateTime().toString("yyyy-MM-dd HH:mm:ss")
 
+        # ini analogi jika salah satu widget yang didalam alaman tersebut tidka terisi maka akan menimbulkan pesan
         if not idtgs or not idmk or not idDsMk or not idtglml or not idtglend:
             QMessageBox.warning(self, "Peringatan", "Lengkapi semua data sebelum menambahkan tugas.")
             return
-
+        # jika widget widget tersebut telah terisi semua maka akan menambhakan data kedalam database table tugas
         else:    
+            # ini menghubungkan ke database
             conection, curse = buat_koneksi()
             curse = conection.cursor()
+            # ini query untuk menambahkan tugas 
             query = ("INSERT INTO tugas (id_tugas, id_mk, deskripsi_tugas, tanggal_pemberian, tanggal_pengumpulan) "
                     "VALUES (%s, %s, %s, %s, %s)")
+            # ini mengambil data yang telah diisikan didalam widget tersebut
             ambil = (idtgs, idmk, idDsMk, idtglml, idtglend)
+            # setelah itu ambil perintah query dan ambil data 
             curse.execute(query, ambil)
+            # ini memperbaharui databases
             conection.commit()
-            QMessageBox.information(self,"Peringatan","Tugas berhasil DItambahkan")
-        
+            # pesan jika tugas telah berhasil ditambahkan 
+            QMessageBox.information(self,"Berhasil","Tugas berhasil DItambahkan")
+
+            # ini memnggil update table tugas sehingga tugas yang telah ditambahkan langsung terload didalam
             self.parent.updateDataTableTugas()
+            # ini menghapus widget widget ketika sudah ditamabhkan
             self.ldidTugas.clear()
             self.ldDSTugas.clear()
             self.tglmulai.setDateTime(QDateTime.currentDateTime())
             self.tglEnd.setDateTime(QDateTime.currentDateTime())
+            # ini mengcolse halaman tambah tugas
+            self.close()
 
+# ini halaman untuk setting yaitu edit password dan data profile
 class HalamanSetting(QWidget):
     def __init__(self,username):
         super().__init__()
@@ -436,6 +322,7 @@ class HalamanSetting(QWidget):
         self.user(username)
         self.changePw(username)
 
+    # content dari tab user
     def user(self,username):
         # layout awal
         layout = QVBoxLayout()
@@ -501,6 +388,7 @@ class HalamanSetting(QWidget):
         self.ambilDataUser(username)
         return widget
     
+    # ini mengambil data user dari databases
     def ambilDataUser(self,username):
         connction,curse = buat_koneksi()
         curse = connction.cursor()
@@ -518,6 +406,7 @@ class HalamanSetting(QWidget):
             self.ldNip.setText(nip)
             self.ldUsername.setText(username)
 
+    # ini fungsi untuk merubah password
     def changePw(self,username):
         # layout pertama
         layout = QVBoxLayout()
@@ -565,7 +454,8 @@ class HalamanSetting(QWidget):
 
         # button ubah
         self.edit = QPushButton("SIMPAN")
-        # self.edit.clicked.connect(self.simpan)
+        self.edit.setObjectName("editPW")
+        self.edit.clicked.connect(self.simpan)
 
         # menambah layout didalam layout utama
         layout.addLayout(layoutHUsernamePw)
@@ -575,13 +465,47 @@ class HalamanSetting(QWidget):
 
         container = QWidget()
         container.setLayout(layout)
-        # self.simpan(username)
+        self.simpan(username)
         return container
-
     
+    # ini fungsi untuk menyimpan password didatabases ketika sudah di simpan 
+    def simpan(self,username):
+        connection, curse = buat_koneksi()
+        curse = connection.cursor()
+
+        # ini mengambil username dari user yang login
+        query_check = """
+            select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
+"""
+        curse.execute(query_check,(username,))
+        ambildata = curse.fetchone()
+
+        if ambildata:
+            username = ambildata[0]
+            self.ldUsernamePw.setText(username)
+
+        # ini membuat varibael yang berisikan string dari pw,dan konfirpw
+        username = self.ldUsernamePw.text()
+        pw = self.ldPw.text()
+        konfirPw = self.ldKonfirPw.text()
+
+        # ini mengeck logika jika pw tidka sama dengan konfirpw maka ada pesan
+        if pw != konfirPw:
+            QMessageBox.warning(self, "Warning", "Password baru dan Konfirmasi password tidak sama!")
+            return  # Keluar jika tidak sama
+        
+        # ini yaitu mengupdate pw jika pw dan konfirpw sama 
+        query = """
+            UPDATE loginmahasiswa SET password = %s WHERE username = %s;
+        """
+        curse.execute(query, (pw, self.username))  # Gunakan self.username untuk update
+        connection.commit()
+        QMessageBox.information(self, "Berhasil", "Password berhasil diubah!")
+        
+
 # halaman view nama mahasiswa kumpulkan tugas
 class HalamanView(QWidget):
-    def __init__(self):
+    def __init__(self,username):
         super().__init__()
         self.setWindowTitle("Detail Tugas")
         # mengatur ukuran window
@@ -590,11 +514,11 @@ class HalamanView(QWidget):
         # MEMBUAT LAYOUT UNTUK HALAMAN 
         self.layout = QVBoxLayout()
 
-        self.tableView = QTableWidget()
-        self.tableView.setColumnCount(7)
-        self.tableView.setHorizontalHeaderLabels(["Id Pengumpulan","Nama Kuliah","Nim Mahasiswa","Nama Mahasiswa","Deskripsi Tugas","Tanggal Pengumpulan","Action"])
-        self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.layout.addWidget(self.tableView)
+        self.tableViewMahasiswa = QTableWidget()
+        self.tableViewMahasiswa.setColumnCount(7)
+        self.tableViewMahasiswa.setHorizontalHeaderLabels(["Id Pengumpulan","Nama Kuliah","Nim Mahasiswa","Nama Mahasiswa","Deskripsi Tugas","Tanggal Pengumpulan","Action"])
+        self.tableViewMahasiswa.horizontalHeader().setStretchLastSection(True)
+        self.layout.addWidget(self.tableViewMahasiswa)
 
         # MENAMBAHKN BUTTON UNTUK MENUTUP VIEW
         btnClose = QPushButton("Tutup")
@@ -603,77 +527,148 @@ class HalamanView(QWidget):
 
         # UNTUK MELIHAT LAYOUT ATAU MEMANGGIL LAYOUT
         self.setLayout(self.layout)
+        self.TableDaftarPengumpulanTugas(username)
 
-    def mengaturDataTugas(self, tugas_id,username):
-        """Set task details based on the task ID."""
-        # koneksi kedalam databases
-        connection, cursor = buat_koneksi()
-        try:
-            query = """
-                SELECT 
-                tugas.ID_Tugas,
-                tugas.ID_MK,
-                matakuliah.Nama_MK,
-                tugas.Deskripsi_Tugas,
-                tugas.Tanggal_Pemberian,
-                tugas.Tanggal_Pengumpulan
-            FROM tugas
-            JOIN matakuliah ON tugas.ID_MK = matakuliah.ID_MK
-            JOIN logindosen ON matakuliah.NIP_Dosen = logindosen.Username
-            WHERE logindosen.Username = %s;
-            """
+    # def mengaturDataTugas(self, tugas_id,username):
+    #     """Set task details based on the task ID."""
+    #     # koneksi kedalam databases
+    #     connection, cursor = buat_koneksi()
+    #     try:
+    #         query = """
+    #             SELECT 
+    #             tugas.ID_Tugas,
+    #             tugas.ID_MK,
+    #             matakuliah.Nama_MK,
+    #             tugas.Deskripsi_Tugas,
+    #             tugas.Tanggal_Pemberian,
+    #             tugas.Tanggal_Pengumpulan
+    #         FROM tugas
+    #         JOIN matakuliah ON tugas.ID_MK = matakuliah.ID_MK
+    #         JOIN logindosen ON matakuliah.NIP_Dosen = logindosen.Username
+    #         WHERE logindosen.Username = %s;
+    #         """
             
-            cursor.execute(query, (tugas_id,username))
-            task_data = cursor.fetchall()
-
-            if task_data:
-                # membokar/megulik/mengkoreksi data tugas dengan benar (8 values)
-                nama_mahasiswa, nim, tugas_id, matakuliah, deskripsi, tgl_pemberian, tgl_deadline, nama_pengumpul = task_data
-
-                # mengatur format tanggal untuk tampilan ke 
-                tgl_pemberian = QDate.fromString(tgl_pemberian, "yyyy-MM-dd").toString("dd MMM yyyy")
-                tgl_deadline = QDate.fromString(tgl_deadline, "yyyy-MM-dd").toString("dd MMM yyyy")
-
-                # menyiapkan table 
-                self.tableWidget.setRowCount(8)  # satu baris per detail tugas + mahasiswa yang mengumpulkan 
-                self.tableWidget.setColumnCount(2)  #dua colom : label dan data
-                
-                # menyiapkan header
-                self.tableWidget.setHorizontalHeaderLabels(["Detail", "Informasi"])
-
-                # menambah detail tugas ke dalam table
-                details = [
-                    ("Nama Mahasiswa", nama_mahasiswa),
-                    ("NIM", nim),
-                    ("ID Tugas", str(tugas_id)),
-                    ("Mata Kuliah", matakuliah),
-                    ("Deskripsi Tugas", deskripsi),
-                    ("Tanggal Pemberian", tgl_pemberian),
-                    ("Tanggal Deadline", tgl_deadline),
-                    ("Pengumpul", nama_pengumpul if nama_pengumpul else "Belum Dikirim"),
-                ]
-                
-                # mengisi table
-                for row, (label, value) in enumerate(details):
-                    self.tableWidget.setItem(row, 0, QTableWidgetItem(label))
-                    self.tableWidget.setItem(row, 1, QTableWidgetItem(value))
-
-                # mengatur lebar kolom untuk tampilan baca yang lebih baik
-                self.tableWidget.setColumnWidth(0, 150)  #menyesuaikan lebar kolom untuk label
-                self.tableWidget.setColumnWidth(1, 300)  # menyesuailkan lebar colom untuk data 
-
-            else:
-                QMessageBox.warning(self, "Tidak Ditemukan", "Tugas tidak ditemukan.")
-                self.tableWidget.clear() #membersihkan table jika tidak menemukan tugas
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            cursor.close()
-            connection.close()
+    #         cursor.execute(query, (tugas_id,username))
+    #         task_data = cursor.fetchall()
     
-    def view(self):
-        conncetion,curse = buat_koneksi()
-        curse = conncetion.cursor()
+    #         if task_data:
+    #             # membokar/megulik/mengkoreksi data tugas dengan benar (8 values)
+    #             nama_mahasiswa, nim, tugas_id, matakuliah, deskripsi, tgl_pemberian, tgl_deadline, nama_pengumpul = task_data
+
+    #             # mengatur format tanggal untuk tampilan ke 
+    #             tgl_pemberian = QDate.fromString(tgl_pemberian, "yyyy-MM-dd").toString("dd MMM yyyy")
+    #             tgl_deadline = QDate.fromString(tgl_deadline, "yyyy-MM-dd").toString("dd MMM yyyy")
+
+    #             # menyiapkan table 
+    #             self.tableWidget.setRowCount(8)  # satu baris per detail tugas + mahasiswa yang mengumpulkan 
+    #             self.tableWidget.setColumnCount(2)  #dua colom : label dan data
+                
+    #             # menyiapkan header
+    #             self.tableWidget.setHorizontalHeaderLabels(["Detail", "Informasi"])
+
+    #             # menambah detail tugas ke dalam table
+    #             details = [
+    #                 ("Nama Mahasiswa", nama_mahasiswa),
+    #                 ("NIM", nim),
+    #                 ("ID Tugas", str(tugas_id)),
+    #                 ("Mata Kuliah", matakuliah),
+    #                 ("Deskripsi Tugas", deskripsi),
+    #                 ("Tanggal Pemberian", tgl_pemberian),
+    #                 ("Tanggal Deadline", tgl_deadline),
+    #                 ("Pengumpul", nama_pengumpul if nama_pengumpul else "Belum Dikirim"),
+    #             ]
+                
+    #             # mengisi table
+    #             for row, (label, value) in enumerate(details):
+    #                 self.tableWidget.setItem(row, 0, QTableWidgetItem(label))
+    #                 self.tableWidget.setItem(row, 1, QTableWidgetItem(value))
+
+    #             # mengatur lebar kolom untuk tampilan baca yang lebih baik
+    #             self.tableWidget.setColumnWidth(0, 150)  #menyesuaikan lebar kolom untuk label
+    #             self.tableWidget.setColumnWidth(1, 300)  # menyesuailkan lebar colom untuk data 
+
+    #         else:
+    #             QMessageBox.warning(self, "Tidak Ditemukan", "Tugas tidak ditemukan.")
+    #             self.tableWidget.clear() #membersihkan table jika tidak menemukan tugas
+    #     except Exception as e:
+    #         QMessageBox.critical(self, "Error", f"Terjadi kesalahan: {str(e)}")
+    #     finally:
+    #         cursor.close()
+    #         connection.close()
+    
+    def TableDaftarPengumpulanTugas(self,username):
+    # Buat koneksi dan cursor
+        connection, curse = buat_koneksi()
+        curse = connection.cursor()
+
+        # Query untuk mengambil data tugas
+        query = """
+            SELECT 
+            pengumpulantugas.id_pengumpulan,
+            matakuliah.nama_mk,
+            datamahasiswa.nim,
+            datamahasiswa.nama,
+            tugas.deskripsi_tugas,
+            pengumpulantugas.tanggal_pengumpulan
+        FROM pengumpulantugas
+        JOIN matakuliah ON pengumpulantugas.id_mk = matakuliah.id_mk
+        JOIN datamahasiswa ON pengumpulantugas.nim = datamahasiswa.nim
+        JOIN tugas ON pengumpulantugas.id_tugas = tugas.id_tugas
+        JOIN logindosen ON matakuliah.NIP_Dosen = logindosen.Username
+        WHERE logindosen.Username = %s;
+        """
+        
+        # Eksekusi query
+        curse.execute(query, (username,))
+        ambildata = curse.fetchall()  # Mengambil semua baris data, bukan hanya satu baris
+        # Cek jika data ditemukan
+        if ambildata:
+            self.tableViewMahasiswa.setRowCount(len(ambildata))  # Menentukan jumlah baris di QTableWidget
+            for barisnumber, barisData in enumerate(ambildata):
+                for col, data in enumerate(barisData):
+                    self.tableViewMahasiswa.setItem(barisnumber, col, QTableWidgetItem(str(data)))
+                
+                # Menambahkan tombol 'View' pada kolom 6 (kolom terakhir)
+                self.btnView = QPushButton("View")
+                # self.btnView.clicked.connect(self.halamanView)  # Pastikan Anda memiliki fungsi halamanView
+                self.tableViewMahasiswa.setCellWidget(barisnumber, 6, self.btnView)
+
+            # Menyesuaikan lebar kolom agar muat dengan konten
+            self.tableViewMahasiswa.resizeColumnsToContents()
+
+#     # def view(self,tugas_id,username):
+#         conncetion,curse = buat_koneksi()
+#         curse = conncetion.cursor()
+
+#         query = """
+#             SELECT 
+#             pengumpulantugas.id_pengumpulan,
+#             matakuliah.nama_mk,
+#             datamahasiswa.nim,
+#             datamahasiswa.nama,
+#             tugas.deskripsi_tugas,
+#             pengumpulantugas.tanggal_pengumpulan
+#         FROM pengumpulantugas
+#         JOIN matakuliah ON pengumpulantugas.id_mk = matakuliah.id_mk
+#         JOIN datamahasiswa ON pengumpulantugas.nim = datamahasiswa.nim
+#         JOIN tugas ON pengumpulantugas.id_tugas = tugas.id_tugas
+#         JOIN logindosen ON matakuliah.NIP_Dosen = logindosen.Username
+#         WHERE logindosen.Username = %s;
+
+# """
+#         curse.execute(query,(username,))
+#         ambildata = curse.fetchall()
+#         if ambildata:
+#             self.tableView.setRowCount(len(ambildata))
+#             for barisnumber, barisData in enumerate(ambildata):
+#                 for col, data in enumerate(barisData):
+#                     self.tableView.setItem(barisnumber, col, QTableWidgetItem(str(data)))
+#                     self.btnView = QPushButton(" View")
+#                     # self.btnView.clicked.connect(self.halamanView)
+#                     # self.btnView.setProperty("row",barisnumber)
+#                     self.tableView.setCellWidget(barisnumber, 5, self.btnView)
+#             self.tableView.resizeColumnsToContents()
+
 
     def close_view(self):
         """Close the view page."""
