@@ -12,8 +12,7 @@ from PySide6.QtWidgets import(
     QMessageBox
 )
 
-# from MAHASISWA.mahasiswa import HalamanM  ahasiswa
-from PySide6.QtSql import QSqlDatabase,QSqlTableModel,QSqlQuery
+# from MAHASISWA.mahasiswa import HalamanM  Mahasiswa
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
 
@@ -150,8 +149,6 @@ class LoginWindow(QMainWindow):
             print("Username tidak ditemukan")
             QMessageBox.warning(self, "Login Gagal", "password salah!")
 
-
-# run aplikasi
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = LoginWindow()

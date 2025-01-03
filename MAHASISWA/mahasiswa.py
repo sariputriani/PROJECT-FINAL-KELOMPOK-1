@@ -386,7 +386,453 @@ class HalamanMahasiswa(QMainWindow):
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
 
+# class HalamanKumpulkanTugas(QWidget):
+#     def __init__(self,username):
+#         super().__init__()
+#         self.setWindowTitle("Kumpulkan Tugas")
+#         self.setFixedSize(450,450)
+
+#         layout = QVBoxLayout()
+
+#         # membuat kontent
+#         self.id_tugas = QLabel()
+#         self.mataKuliah = QLabel()
+#         self.judulTugas = QLabel()
+#         self.tanggalPemberian = QLabel()
+#         self.tanggalDeadline = QLabel()
+#         self.FileTugas = QPlainTextEdit()
+        
+#         # menambahkan ke layout
+#         layout.addWidget(self.id_tugas)
+#         layout.addWidget(self.mataKuliah)
+#         layout.addWidget(self.judulTugas)
+#         layout.addWidget(self.tanggalPemberian)
+#         layout.addWidget(self.tanggalDeadline)
+#         layout.addWidget(self.FileTugas)
+
+#         # mengsetlayout
+#         self.setLayout(layout)
+#         self.ambilDataTugas(username)
+    
+#     def ambilDataTugas(self,username):
+#         connection,curse = buat_koneksi()
+#         curse = connection.cursor()
+#         query = """
+#                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
+#                 FROM tugas
+#                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
+#                 JOIN loginmahasiswa ON loginmahasiswa.username = %s
+#                 WHERE loginmahasiswa.username = %s;
+#             """
+#         curse.execute(query,(username,username))
+
+#         # menampilkan usrname di consle
+#         print(username)
+
+#         ambildata = curse.fetchone()
+#         if ambildata:
+#                 id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
+#                 self.id_tugas.setText(f'id Tugas            : {id_tugas}')
+#                 self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
+#                 self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
+#                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
+#                 self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
+                
 # ini class menampilkan data data yang didalam setting
+# class HalamanSetting(QWidget):
+#     def __init__(self,username):
+#         super().__init__()
+#         self.userame = username
+#         self.setWindowTitle("Halaman Pengaturan")
+#         self.setFixedSize(300,350)
+#         layout = QVBoxLayout()
+
+#         # membuat tab
+#         tabs = QTabWidget()
+#         tabs.setTabPosition(QTabWidget.North)
+
+#         # menmabhkan tab didalam tabs(QTabWidget)
+#         tabs.addTab(self.user(username), "Profile")
+#         tabs.addTab(self.changePw(username), "Change Password")   
+#         # tabs.addTab(self.logout(), "Logout")   
+
+#         # menmapilkan tabs
+#         # self.setCentralWidget(tabs)
+#         layout.addWidget(tabs)
+#         self.setLayout(layout)
+#         self.user(username)
+#         self.changePw(username)
+
+#     def user(self,username):
+#         # layout awal
+#         layout = QVBoxLayout()
+        
+#         # memberikan margin
+#         layout.setContentsMargins(4,4,4,4)
+        
+#         # ini memberikan spacing antar content
+#         layout.setSpacing(5)
+
+#         #ini  content
+#         foto = QLabel()
+#         fotouser = QPixmap(os.path.join(basedir,"./gambarMahasiswa/13.png"))
+#         foto.setPixmap(fotouser)
+#         foto.setAlignment(Qt.AlignCenter)
+#         layout.addWidget(foto)
+
+#         # layout nama
+#         layoutHNama = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbNama = QLabel("Nama")
+#         self.lbNama.setStyleSheet("margin-right: 15px")
+#         self.ldNama = QLineEdit()
+#         layoutHNama.addWidget(self.lbNama)
+#         layoutHNama.addWidget(self.ldNama)
+
+#         # layout nim
+#         layoutHNim = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbNim = QLabel("Nim")
+#         self.lbNim.setStyleSheet("margin-right : 25px")
+#         self.ldNim = QLineEdit()
+#         layoutHNim.addWidget(self.lbNim)
+#         layoutHNim.addWidget(self.ldNim)
+
+#         # layout jurusan
+#         layoutHJurusan = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbJurusan = QLabel("Jurusan")
+#         self.lbJurusan.setStyleSheet("margin-right : 8px")
+#         self.ldJurusan = QLineEdit()
+#         layoutHJurusan.addWidget(self.lbJurusan)
+#         layoutHJurusan.addWidget(self.ldJurusan)
+
+#         # layout prodi
+#         layoutHProdi = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbProdi = QLabel("Prodi")
+#         self.lbProdi.setStyleSheet("margin-right : 20px")
+#         self.ldProdi = QLineEdit()
+#         layoutHProdi.addWidget(self.lbProdi)
+#         layoutHProdi.addWidget(self.ldProdi)
+
+#         # layout nim
+#         layoutHUsername = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbUsername = QLabel("Username")
+#         self.lbUsername.setStyleSheet("margin-right : 5px")
+#         self.ldUsername = QLineEdit()
+#         layoutHUsername.addWidget(self.lbUsername)
+#         layoutHUsername.addWidget(self.ldUsername)
+
+#         # ini membuat widget yang menampung layout vertikal
+#         widget = QWidget()
+#         layout.addLayout(layoutHNama)
+#         layout.addLayout(layoutHNim)
+#         layout.addLayout(layoutHJurusan)
+#         layout.addLayout(layoutHProdi)
+#         layout.addLayout(layoutHUsername)
+
+
+#         # merapikan layout
+#         layoutHNama.setContentsMargins(4,4,4,4)
+#         layoutHNama.setSpacing(5)
+#         layoutHNim.setContentsMargins(4,4,4,4)
+#         layoutHNim.setSpacing(5)
+#         layoutHJurusan.setContentsMargins(4,4,4,4)
+#         layoutHJurusan.setSpacing(5)
+#         layoutHProdi.setContentsMargins(4,4,4,4)
+#         layoutHProdi.setSpacing(5)
+#         layoutHUsername.setContentsMargins(4,4,4,4)
+#         layoutHUsername.setSpacing(5)
+#         widget.setLayout(layout)
+#         self.ambilDataUser(username)
+#         return widget
+    
+#     def ambilDataUser(self,username):
+#         connction,curse = buat_koneksi()
+#         curse = connction.cursor()
+
+#         query = """
+#                 SELECT datamahasiswa.nama, datamahasiswa.nim, datamahasiswa.jurusan,
+#                    datamahasiswa.prodi, loginmahasiswa.username
+#             FROM datamahasiswa
+#             JOIN loginmahasiswa ON datamahasiswa.nim = loginmahasiswa.username
+#             WHERE loginmahasiswa.username = %s;       
+#                 """
+#         curse.execute(query,(username,))
+#         ambildata = curse.fetchall()
+#         if ambildata:
+#             nama,nim,jurusan,prodi,username = ambildata[0]
+#             self.ldNama.setText(nama)
+#             self.ldNim.setText(nim)
+#             self.ldJurusan.setText(jurusan)
+#             self.ldProdi.setText(prodi)
+#             self.ldUsername.setText(username)
+
+#     def changePw(self,username):
+#         # layout pertama
+#         layout = QVBoxLayout()
+
+#         # layout username
+#         layoutHUsernamePw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbUsernamePw = QLabel("Username")
+#         self.lbUsernamePw.setStyleSheet("margin-right : 58px")
+#         self.ldUsernamePw = QLineEdit()
+#         self.ldUsername.setEnabled(False)
+#         layoutHUsernamePw.addWidget(self.lbUsernamePw)
+#         layoutHUsernamePw.addWidget(self.ldUsernamePw)
+
+#         connection,curse = buat_koneksi()
+#         curse = connection.cursor()
+
+#         query = """
+#             select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
+# """
+
+#         curse.execute(query,(username,))
+#         ambildata = curse.fetchone()
+#         if ambildata:
+#             username = ambildata[0]
+#             self.ldUsernamePw.setText(username)
+
+#         # layout pw baru
+#         layoutHPw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbPw = QLabel("New Password")
+#         self.lbPw.setStyleSheet("margin-right : 35px")
+#         self.ldPw = QLineEdit()
+#         layoutHPw.addWidget(self.lbPw)
+#         layoutHPw.addWidget(self.ldPw)
+
+#         # layout konfir pw
+#         layoutHKonfirPw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbKonfirPw = QLabel("Konfirmasi Password")
+#         self.lbKonfirPw.setStyleSheet("margin-right : 5px")
+#         self.ldKonfirPw = QLineEdit()
+#         layoutHKonfirPw.addWidget(self.lbKonfirPw)
+#         layoutHKonfirPw.addWidget(self.ldKonfirPw)
+
+#         # button ubah
+#         self.edit = QPushButton("SIMPAN")
+#         self.edit.clicked.connect(self.simpan)
+
+#         # menambah layout didalam layout utama
+#         layout.addLayout(layoutHUsernamePw)
+#         layout.addLayout(layoutHPw)
+#         layout.addLayout(layoutHKonfirPw)
+#         layout.addWidget(self.edit) 
+
+#         container = QWidget()
+#         container.setLayout(layout)
+#         self.simpan(username)
+#         return container
+
+#     def simpan(self,username):
+#         print("simpan")
+#         connection,curse = buat_koneksi()
+#         curse = connection.cursor()
+
+#         query_check = """
+#             select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
+# """
+#         curse.execute(query_check,(username,))
+#         ambildata = curse.fetchone()
+
+#         if ambildata:
+#             username = ambildata[0]
+#             self.ldUsernamePw.setText(username)
+
+#         pw = self.ldPw.text()
+#         konfirPw = self.ldKonfirPw.text()
+
+#         if pw != konfirPw:
+#             QMessageBox.warning(self,"Warning","Password baru dan Konfirmasi password tidak sama!")
+
+#         query = """
+#             UPDATE loginmahasiswa SET password = %s  where username = %s;
+# """
+#         curse.execute(query,(username, pw))
+#         connection.commit()
+
+# class HalamanSetting(QWidget):
+#     def __init__(self,username):
+#         super().__init__()
+#         self.userame = username
+#         self.setWindowTitle("Halaman Pengaturan")
+#         self.setFixedSize(300,350)
+#         layout = QVBoxLayout()
+
+#         # membuat tab
+#         tabs = QTabWidget()
+#         tabs.setTabPosition(QTabWidget.North)
+
+#         # menmabhkan tab didalam tabs(QTabWidget)
+#         tabs.addTab(self.user(username), "Profile")
+#         tabs.addTab(self.changePw(username), "Change Password")   
+#         # tabs.addTab(self.logout(), "Logout")   
+
+#         # menmapilkan tabs
+#         # self.setCentralWidget(tabs)
+#         layout.addWidget(tabs)
+#         self.setLayout(layout)
+#         self.user(username)
+
+#     def user(self,username):
+#         # layout awal
+#         layout = QVBoxLayout()
+        
+#         # memberikan margin
+#         layout.setContentsMargins(4,4,4,4)
+        
+#         # ini memberikan spacing antar content
+#         layout.setSpacing(5)
+
+#         #ini  content
+#         foto = QLabel()
+#         fotouser = QPixmap(os.path.join(basedir,"./gambarMahasiswa/13.png"))
+#         foto.setPixmap(fotouser)
+#         foto.setAlignment(Qt.AlignCenter)
+#         layout.addWidget(foto)
+
+#         # layout nama
+#         layoutHNama = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbNama = QLabel("Nama")
+#         self.lbNama.setStyleSheet("margin-right: 15px")
+#         self.ldNama = QLineEdit()
+#         layoutHNama.addWidget(self.lbNama)
+#         layoutHNama.addWidget(self.ldNama)
+
+#         # layout nim
+#         layoutHNim = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbNim = QLabel("Nim")
+#         self.lbNim.setStyleSheet("margin-right : 25px")
+#         self.ldNim = QLineEdit()
+#         layoutHNim.addWidget(self.lbNim)
+#         layoutHNim.addWidget(self.ldNim)
+
+#         # layout jurusan
+#         layoutHJurusan = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbJurusan = QLabel("Jurusan")
+#         self.lbJurusan.setStyleSheet("margin-right : 8px")
+#         self.ldJurusan = QLineEdit()
+#         layoutHJurusan.addWidget(self.lbJurusan)
+#         layoutHJurusan.addWidget(self.ldJurusan)
+
+#         # layout prodi
+#         layoutHProdi = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbProdi = QLabel("Prodi")
+#         self.lbProdi.setStyleSheet("margin-right : 20px")
+#         self.ldProdi = QLineEdit()
+#         layoutHProdi.addWidget(self.lbProdi)
+#         layoutHProdi.addWidget(self.ldProdi)
+
+#         # layout nim
+#         layoutHUsername = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbUsername = QLabel("Username")
+#         self.lbUsername.setStyleSheet("margin-right : 5px")
+#         self.ldUsername = QLineEdit()
+#         layoutHUsername.addWidget(self.lbUsername)
+#         layoutHUsername.addWidget(self.ldUsername)
+
+#         # ini membuat widget yang menampung layout vertikal
+#         widget = QWidget()
+#         layout.addLayout(layoutHNama)
+#         layout.addLayout(layoutHNim)
+#         layout.addLayout(layoutHJurusan)
+#         layout.addLayout(layoutHProdi)
+#         layout.addLayout(layoutHUsername)
+
+
+#         # merapikan layout
+#         layoutHNama.setContentsMargins(4,4,4,4)
+#         layoutHNama.setSpacing(5)
+#         layoutHNim.setContentsMargins(4,4,4,4)
+#         layoutHNim.setSpacing(5)
+#         layoutHJurusan.setContentsMargins(4,4,4,4)
+#         layoutHJurusan.setSpacing(5)
+#         layoutHProdi.setContentsMargins(4,4,4,4)
+#         layoutHProdi.setSpacing(5)
+#         layoutHUsername.setContentsMargins(4,4,4,4)
+#         layoutHUsername.setSpacing(5)
+#         self.ambilDataUser(username)
+#         widget.setLayout(layout)
+#         return widget
+    
+#     def ambilDataUser(self,username):
+#         connction,curse = buat_koneksi()
+#         curse = connction.cursor()
+
+#         query = """
+#                 SELECT datamahasiswa.nama, datamahasiswa.nim, datamahasiswa.jurusan,
+#                    datamahasiswa.prodi, loginmahasiswa.username
+#             FROM datamahasiswa
+#             JOIN loginmahasiswa ON datamahasiswa.nim = loginmahasiswa.username
+#             WHERE loginmahasiswa.username = %s;       
+#                 """
+#         curse.execute(query,(username,))
+#         ambildata = curse.fetchall()
+#         if ambildata:
+#             nama,nim,jurusan,prodi,username = ambildata[0]
+#             self.ldNama.setText(nama)
+#             self.ldNim.setText(nim)
+#             self.ldJurusan.setText(jurusan)
+#             self.ldProdi.setText(prodi)
+#             self.ldUsername.setText(username)
+
+#     def changePw(self):
+#         # layout pertama
+#         layout = QVBoxLayout()
+
+#         # layout username
+#         layoutHUsernamePw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbUsernamePw = QLabel("Username")
+#         self.lbUsernamePw.setStyleSheet("margin-right : 58px")
+#         self.ldUsernamePw = QLineEdit()
+#         layoutHUsernamePw.addWidget(self.lbUsernamePw)
+#         layoutHUsernamePw.addWidget(self.ldUsernamePw)
+
+#         # layout pw baru
+#         layoutHPw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbPw = QLabel("New Password")
+#         self.lbPw.setStyleSheet("margin-right : 35px")
+#         self.ldPw = QLineEdit()
+#         layoutHPw.addWidget(self.lbPw)
+#         layoutHPw.addWidget(self.ldPw)
+
+#         # layout konfir pw
+#         layoutHKonfirPw = QHBoxLayout()
+#         # ini content label dan line edit nama
+#         self.lbKonfirPw = QLabel("Konfirmasi Password")
+#         self.lbKonfirPw.setStyleSheet("margin-right : 5px")
+#         self.ldKonfirPw = QLineEdit()
+#         layoutHKonfirPw.addWidget(self.lbKonfirPw)
+#         layoutHKonfirPw.addWidget(self.ldKonfirPw)
+
+#         # button ubah
+#         self.edit = QPushButton("SIMPAN")
+#         self.edit.clicked.connect(self.simpan)
+
+#         # menambah layout didalam layout utama
+#         layout.addLayout(layoutHUsernamePw)
+#         layout.addLayout(layoutHPw)
+#         layout.addLayout(layoutHKonfirPw)
+#         layout.addWidget(self.edit) 
+
+#         self.simpan()
+#         container = QWidget()
+#         container.setLayout(layout)
+#         return container
+
 class HalamanSetting(QWidget):
     def __init__(self, username):
         super().__init__()
@@ -406,7 +852,7 @@ class HalamanSetting(QWidget):
         # Menampilkan tabs
         layout.addWidget(tabs)
         self.setLayout(layout)
-
+        
     def user(self, username):
         layout = QVBoxLayout()
 
@@ -631,7 +1077,7 @@ class HalamanSetting(QWidget):
                 self.close()
                 self.tugas()
 
-# untuk melihat tugas yang sudah diinputkan
+# # untuk melihat tugas yang sudah diinputkan
 class HalamanViewTugas(QWidget):
     def __init__(self,id_tugas,username):
         super().__init__()
