@@ -270,7 +270,6 @@ class HalamanAddtugas(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
-        # container.setLayout(layout)
 
     def tambah (self):
         idtgs = self.ldidTugas.text()
@@ -623,10 +622,6 @@ class HalamanView(QWidget):
         self.tableView.setHorizontalHeaderLabels(["Id Pengumpulan","Nama Kuliah","Nim Mahasiswa","Nama Mahasiswa","Deskripsi Tugas","Tanggal Pengumpulan","Action"])
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.layout.addWidget(self.tableView)
-        
-        # # MEMBUAT TABLE WIGET UNTUK MENUNJUKKAN DETAIL TUGAS 
-        # self.tableWidget = QTableWidget()
-        # self.layout.addWidget(self.tableWidget)
 
         # MENAMBAHKN BUTTON UNTUK MENUTUP VIEW
         btnClose = QPushButton("Tutup")
@@ -702,6 +697,14 @@ class HalamanView(QWidget):
         finally:
             cursor.close()
             connection.close()
+    
+    def view(self):
+        conncetion,curse = buat_koneksi()
+        curse = conncetion.cursor()
+
+        query = """
+                select 
+"""
 
     def close_view(self):
         """Close the view page."""

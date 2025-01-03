@@ -391,93 +391,58 @@ class HalamanMahasiswa(QMainWindow):
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
 
-# ini halamanuser
-# class DataUser(QWidget):
-#     def __init__(self,username):
-#         super().__init__()
-#         self.setWindowTitle("Data User")
-#         self.setFixedSize(350,350)
-#         self.setStyleSheet("""
-#             background-color:rgb(235, 241, 243);
-#             font-family:Poppins;
-#             font-weight:bold;
-#             font-size:15px;
-#                            """)
+class HalamanKumpulkanTugas(QWidget):
+    def __init__(self,username):
+        super().__init__()
+        self.setWindowTitle("Kumpulkan Tugas")
+        self.setFixedSize(450,450)
 
-#         container = QWidget()
-#         layout = QVBoxLayout()
+        layout = QVBoxLayout()
+
+        # membuat kontent
+        self.id_tugas = QLabel()
+        self.mataKuliah = QLabel()
+        self.judulTugas = QLabel()
+        self.tanggalPemberian = QLabel()
+        self.tanggalDeadline = QLabel()
+        self.FileTugas = QPlainTextEdit()
         
-#         lbFoto = QLabel()
-#         pixmap = QPixmap(os.path.join(basedir, "./gambarMahasiswa/13.png"))
-#         lbFoto.setPixmap(pixmap)
-        
-#         lbFoto.setAlignment(Qt.AlignCenter)
-#         layout.addWidget(lbFoto)
+        # menambahkan ke layout
+        layout.addWidget(self.id_tugas)
+        layout.addWidget(self.mataKuliah)
+        layout.addWidget(self.judulTugas)
+        layout.addWidget(self.tanggalPemberian)
+        layout.addWidget(self.tanggalDeadline)
+        layout.addWidget(self.FileTugas)
 
-#         # nim
-#         self.lb2Nim = QLabel("")
-#         self.lb2Nim.setObjectName("nim")
-        
-#         # nama
-#         self.lb2Nama = QLabel("")
-#         self.lb2Nama.setObjectName("nama")
-        
-#         # menambahakan jurusan
-#         self.lb2Jurusan = QLabel("")
-#         self.lb2Jurusan.setObjectName("jurusan")
-
-#         # menambahkaan prodi
-#         self.lb2Prodi = QLabel("")
-#         self.lb2Prodi.setObjectName("prodi")
-
-#         # menmbhkan smester
-#         self.lb2Semester = QLabel("")
-#         self.lb2Semester.setObjectName("semester")
-
-#         # menambhakn widget kedalam layout 
-#         layout.addWidget(self.lb2Nim)
-#         layout.addWidget(self.lb2Nama)
-#         layout.addWidget(self.lb2Jurusan)
-#         layout.addWidget(self.lb2Prodi)
-#         layout.addWidget(self.lb2Semester)
-
-#         # setlayout (layout) kedalam container
-#         container.setLayout(layout)
-#         layout.addStretch()
-#         self.setLayout(layout)
-#         self.ambil_dataUser(username)
+        # mengsetlayout
+        self.setLayout(layout)
+        self.ambilDataTugas(username)
     
-#     def ambil_dataUser(self,username):
-#         connection,curse = buat_koneksi()
-#         curse = connection.cursor()
-#         query = """
-#                 SELECT datamahasiswa.nim , datamahasiswa.nama, datamahasiswa.jurusan, datamahasiswa.prodi , datamahasiswa.semester
-#                 FROM datamahasiswa 
-#                 JOIN loginmahasiswa 
-#                 ON datamahasiswa.nim = loginmahasiswa.username 
-#                 WHERE loginmahasiswa.username = %s;
-#             """
-#         curse.execute(query,(username,))
+    def ambilDataTugas(self,username):
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
+                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
+                FROM tugas
+                JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
+                JOIN loginmahasiswa ON loginmahasiswa.username = %s
+                WHERE loginmahasiswa.username = %s;
+            """
+        curse.execute(query,(username,username))
 
-#         # menampilkan usrname di consle
-#         print(username)
+        # menampilkan usrname di consle
+        print(username)
 
-#         ambildata = curse.fetchone()
-#         if ambildata:
-#                 nim,nama,jurusan,prodi,semester = ambildata
-#                 self.lb2Nim.setText(f'Nim            : {nim}')
-#                 self.lb2Nama.setText(f'Nama         : {nama}')
-#                 self.lb2Jurusan.setText(f'Jurusan     : {jurusan}')
-#                 self.lb2Prodi.setText(f'Prodi          : {prodi}')
-#                 self.lb2Semester.setText(f'Semester  : {semester}')
-#         else:
-#                 self.lb2Nim.setText(f"Data Tidak ditemukan")
-#                 self.lb2Nama.setText("Data Tidak ditemukan")
-#                 self.lb2Jurusan.setText("Data Tidak ditemukan")
-#                 self.lb2Prodi.setText("Data Tidak ditemukan")
-#                 self.lb2Semester.setText("Data Tidak ditemukan")
-
-
+        ambildata = curse.fetchone()
+        if ambildata:
+                id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
+                self.id_tugas.setText(f'id Tugas            : {id_tugas}')
+                self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
+                self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
+                self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
+                self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
+                
 # ini class menampilkan data data yang didalam setting
 class HalamanSetting(QWidget):
     def __init__(self,username):
