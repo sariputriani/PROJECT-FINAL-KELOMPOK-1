@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
 # from databases.database_main import database
-from connectionDatabase import buat_koneksi
+from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)
 
 class HalamanDosen(QMainWindow):
