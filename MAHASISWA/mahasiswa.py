@@ -160,9 +160,7 @@ class HalamanMahasiswa(QMainWindow):
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
         self.tugas()
-        # self.pesanPengingat()
         self.pengingat()
-        # self.tugas()
     
     def DashboardJadwal(self):
         container = QWidget()
@@ -485,60 +483,6 @@ class HalamanKumpulkanTugas(QWidget):
                 QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
                 self.close()
                 self.tugas()
-
-# class HalamanKumpulkanTugas(QWidget):
-#     def __init__(self,username,id_tugas):
-#         super().__init__()
-#         self.username = username
-#         self.idTugas = id_tugas
-#         self.setWindowTitle("Kumpulkan Tugas")
-#         self.setFixedSize(450,450)
-
-#         layout = QVBoxLayout()
-
-#         # membuat kontent
-#         self.id_tugas = QLabel()
-#         self.mataKuliah = QLabel()
-#         self.judulTugas = QLabel()
-#         self.tanggalPemberian = QLabel()
-#         self.tanggalDeadline = QLabel()
-#         self.FileTugas = QPlainTextEdit()
-        
-#         # menambahkan ke layout
-#         layout.addWidget(self.id_tugas)
-#         layout.addWidget(self.mataKuliah)
-#         layout.addWidget(self.judulTugas)
-#         layout.addWidget(self.tanggalPemberian)
-#         layout.addWidget(self.tanggalDeadline)
-#         layout.addWidget(self.FileTugas)
-
-#         # mengsetlayout
-#         self.setLayout(layout)
-#         self.ambilDataTugas(username)
-    
-#     def ambilDataTugas(self,username):
-#         connection,curse = buat_koneksi()
-#         curse = connection.cursor()
-#         query = """
-#                 SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan
-#                 FROM tugas
-#                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk
-#                 JOIN loginmahasiswa ON loginmahasiswa.username = %s
-#                 WHERE loginmahasiswa.username = %s;
-#             """
-#         curse.execute(query,(username,username))
-
-#         # menampilkan usrname di consle
-#         print(username)
-
-#         ambildata = curse.fetchone()
-#         if ambildata:
-#                 id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan = ambildata
-#                 self.id_tugas.setText(f'id Tugas            : {id_tugas}')
-#                 self.mataKuliah.setText(f'MataKuliah         : {id_mk}')
-#                 self.judulTugas.setText(f'judul tugas     : {deskripsi_tugas}')
-#                 self.tanggalPemberian.setText(f'tanggal pemberian          : {tanggal_pemberian}')
-#                 self.tanggalDeadline.setText(f'deadline  : {tanggal_pengumpulan}')
                 
 class HalamanSetting(QWidget):
     def __init__(self, username):
@@ -554,7 +498,7 @@ class HalamanSetting(QWidget):
 
         # Menambahkan tab di dalam tabs(QTabWidget)
         tabs.addTab(self.user(self.username), "Profile")
-        tabs.addTab(self.changePw(), "Change Password")
+        tabs.addTab(self.changePw(self.username), "Change Password")
 
         # Menampilkan tabs
         layout.addWidget(tabs)
@@ -579,6 +523,7 @@ class HalamanSetting(QWidget):
         self.lbNama = QLabel("Nama")
         self.lbNama.setStyleSheet("margin-right: 15px")
         self.ldNama = QLineEdit()
+        self.ldNama.setEnabled(False)
         layoutHNama.addWidget(self.lbNama)
         layoutHNama.addWidget(self.ldNama)
 
@@ -587,6 +532,7 @@ class HalamanSetting(QWidget):
         self.lbNim = QLabel("Nim")
         self.lbNim.setStyleSheet("margin-right : 25px")
         self.ldNim = QLineEdit()
+        self.ldNim.setEnabled(False)
         layoutHNim.addWidget(self.lbNim)
         layoutHNim.addWidget(self.ldNim)
 
@@ -595,6 +541,7 @@ class HalamanSetting(QWidget):
         self.lbJurusan = QLabel("Jurusan")
         self.lbJurusan.setStyleSheet("margin-right : 8px")
         self.ldJurusan = QLineEdit()
+        self.ldJurusan.setEnabled(False)
         layoutHJurusan.addWidget(self.lbJurusan)
         layoutHJurusan.addWidget(self.ldJurusan)
 
@@ -603,6 +550,7 @@ class HalamanSetting(QWidget):
         self.lbProdi = QLabel("Prodi")
         self.lbProdi.setStyleSheet("margin-right : 20px")
         self.ldProdi = QLineEdit()
+        self.ldProdi.setEnabled(False)
         layoutHProdi.addWidget(self.lbProdi)
         layoutHProdi.addWidget(self.ldProdi)
 
@@ -611,6 +559,7 @@ class HalamanSetting(QWidget):
         self.lbUsername = QLabel("Username")
         self.lbUsername.setStyleSheet("margin-right : 5px")
         self.ldUsername = QLineEdit()
+        self.ldUsername.setEnabled(False)
         layoutHUsername.addWidget(self.lbUsername)
         layoutHUsername.addWidget(self.ldUsername)
 
@@ -647,7 +596,7 @@ class HalamanSetting(QWidget):
             self.ldProdi.setText(prodi)
             self.ldUsername.setText(username)
 
-    def changePw(self):
+    def changePw(self,username):
         layout = QVBoxLayout()
 
         # Layout Username
@@ -655,8 +604,23 @@ class HalamanSetting(QWidget):
         self.lbUsernamePw = QLabel("Username")
         self.lbUsernamePw.setStyleSheet("margin-right : 58px")
         self.ldUsernamePw = QLineEdit()
+        self.ldUsernamePw.setEnabled(False)
         layoutHUsernamePw.addWidget(self.lbUsernamePw)
         layoutHUsernamePw.addWidget(self.ldUsernamePw)
+
+        # mengambil username untuk halaman change password
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+
+        query = """
+            select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
+""" 
+        curse.execute(query,(username,))
+        ambildata = curse.fetchone()
+
+        if ambildata:
+            username = ambildata[0]
+            self.ldUsernamePw.setText(username)
 
         # Layout Password Baru
         layoutHPw = QHBoxLayout()
