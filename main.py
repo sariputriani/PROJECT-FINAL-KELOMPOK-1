@@ -137,23 +137,23 @@ class LoginWindow(QMainWindow):
             return
         
         # dosen
-        # queryDosen = 'select * from logindosen where username = %s AND password = %s'
-        # curse.execute(queryDosen,(username,password))
-        # resultDosen = curse.fetchall()
-        # if resultDosen: 
-        #     print("Dosen ditemukan")
-        #     self.showDSN = HalamanDosen(username)
-        #     self.showDSN.show()
-        #     self.close()
-        # else:
-        #     print("Username tidak ditemukan")
-        #     QMessageBox.warning(self, "Login Gagal", "password salah!")
+        queryDosen = 'select * from logindosen where username = %s AND password = %s'
+        curse.execute(queryDosen,(username,password))
+        resultDosen = curse.fetchall()
+        if resultDosen: 
+            print("Dosen ditemukan")
+            self.showDSN = HalamanDosen(username)
+            self.showDSN.show()
+            self.close()
+        else:
+            print("Username tidak ditemukan")
+            QMessageBox.warning(self, "Login Gagal", "password salah!")
+
 
 def apply_stylesheet(app, path):
     with open(path, "r") as file:
         qss = file.read()
         app.setStyleSheet(qss)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
