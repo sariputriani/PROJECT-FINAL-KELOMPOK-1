@@ -9,6 +9,7 @@ from PySide6.QtWidgets import(
     QLabel,
     QLineEdit,
     QPushButton,
+    QMessageBox
 )
 
 # from MAHASISWA.mahasiswa import HalamanM  ahasiswa
@@ -137,17 +138,17 @@ class LoginWindow(QMainWindow):
             return
         
         # dosen
-        # queryDosen = 'select * from logindosen where username = %s AND password = %s'
-        # curse.execute(queryDosen,(username,password))
-        # resultDosen = curse.fetchall()
-        # if resultDosen: 
-        #     print("Dosen ditemukan")
-        #     self.showDSN = HalamanDosen(username)
-        #     self.showDSN.show()
-        #     self.close()
-        # else:
-        #     print("Username tidak ditemukan")
-        #     QMessageBox.warning(self, "Login Gagal", "password salah!")
+        queryDosen = 'select * from logindosen where username = %s AND password = %s'
+        curse.execute(queryDosen,(username,password))
+        resultDosen = curse.fetchall()
+        if resultDosen: 
+            print("Dosen ditemukan")
+            self.showDSN = HalamanDosen(username)
+            self.showDSN.show()
+            self.close()
+        else:
+            print("Username tidak ditemukan")
+            QMessageBox.warning(self, "Login Gagal", "password salah!")
 
 
 # run aplikasi

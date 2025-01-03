@@ -4,7 +4,7 @@ def buat_koneksi():
     connection = mysql.connector.connect(
         user = "root",
         password = "",
-        database = "tugas_jadwal"
+        database = "kelompok1"
     )
     cursor = connection.cursor()
     return connection, cursor
