@@ -12,13 +12,10 @@ from PySide6.QtWidgets import (
     QToolBar,
     QSizePolicy,
     QMessageBox,
-    QDialog,
     QFrame,
     QTableWidget,
-    QFileDialog,
     QComboBox,
     QDateTimeEdit,
-    QSpinBox,
     QTableWidgetItem,
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
@@ -160,10 +157,13 @@ class HalamanDosen(QMainWindow):
     
 
     def halamanView(self):
-        row = self.sender().property("row")  # Get row number from the clicked button
-        task_id = self.tableTugas.item(row, 0).text()  # Get the task ID from the table
+        # mendapatkan baris dari button yang diclik
+        row = self.sender().property("row") 
+        # menamdapatkan id tugas dari table
+        task_id = self.tableTugas.item(row, 0).text()  
         self.showView = HalamanView()
-        self.showView.set_task_data(task_id)  # Pass task ID to the view page
+        # lewati id tugas untuk melihat (view) halaman
+        self.showView.mengaturDataTugas(task_id)
         self.showView.show()
 
 
@@ -441,31 +441,33 @@ class HalamanSetting(QWidget):
         self.close()  # Tutup halaman pengaturan
 
     
-    # halaman view nama mahasiswa kumpulkan tugas
+# halaman view nama mahasiswa kumpulkan tugas
 class HalamanView(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Detail Tugas")
-        self.setFixedSize(500, 400)  # Adjusted size to accommodate the table
+        # mengatur ukuran window
+        self.setFixedSize(500, 400) 
         
-        # Create a layout for the page
+        # MEMBUAT LAYOUT UNTUK HALAMAN 
         self.layout = QVBoxLayout()
         
-        # Create a table widget to display the task details
+        # MEMBUAT TABLE WIGET UNTUK MENUNJUKKAN DETAIL TUGAS 
         self.tableWidget = QTableWidget()
         self.layout.addWidget(self.tableWidget)
 
-        # Add a button to close the view
+        # MENAMBAHKN BUTTON UNTUK MENUTUP VIEW
         btnClose = QPushButton("Tutup")
         btnClose.clicked.connect(self.close_view)
         self.layout.addWidget(btnClose)
 
-        # Set the layout
+        # UNTUK MELIHAT LAYOUT ATAU MEMANGGIL LAYOUT
         self.setLayout(self.layout)
 
-    def set_task_data(self, tugas_id):
+    def mengaturDataTugas(self, tugas_id):
         """Set task details based on the task ID."""
-        connection, cursor = buat_koneksi()  # Assuming buat_koneksi returns a valid connection and cursor
+        # koneksi kedalam databases
+        connection, cursor = buat_koneksi()
         try:
             query = """
                 SELECT m.nama, m.nim, t.id_tugas, mk.nama, t.deskripsi_tugas, t.tanggal_pemberian, t.tanggal_deadline, s.nama
@@ -480,21 +482,21 @@ class HalamanView(QWidget):
             task_data = cursor.fetchone()
 
             if task_data:
-                # Unpack task data correctly (8 values)
+                # membokar/megulik/mengkoreksi data tugas dengan benar (8 values)
                 nama_mahasiswa, nim, tugas_id, matakuliah, deskripsi, tgl_pemberian, tgl_deadline, nama_pengumpul = task_data
 
-                # Formatting dates for better display
+                # mengatur format tanggal untuk tampilan ke 
                 tgl_pemberian = QDate.fromString(tgl_pemberian, "yyyy-MM-dd").toString("dd MMM yyyy")
                 tgl_deadline = QDate.fromString(tgl_deadline, "yyyy-MM-dd").toString("dd MMM yyyy")
 
-                # Set up the table
-                self.tableWidget.setRowCount(8)  # One row per task detail + student who submitted
-                self.tableWidget.setColumnCount(2)  # Two columns: label and data
+                # menyiapkan table 
+                self.tableWidget.setRowCount(8)  # satu baris per detail tugas + mahasiswa yang mengumpulkan 
+                self.tableWidget.setColumnCount(2)  #dua colom : label dan data
                 
-                # Set the headers
+                # menyiapkan header
                 self.tableWidget.setHorizontalHeaderLabels(["Detail", "Informasi"])
 
-                # Insert task details into the table
+                # menambah detail tugas ke dalam table
                 details = [
                     ("Nama Mahasiswa", nama_mahasiswa),
                     ("NIM", nim),
@@ -506,18 +508,18 @@ class HalamanView(QWidget):
                     ("Pengumpul", nama_pengumpul if nama_pengumpul else "Belum Dikirim"),
                 ]
                 
-                # Populate the table with details
+                # mengisi table
                 for row, (label, value) in enumerate(details):
                     self.tableWidget.setItem(row, 0, QTableWidgetItem(label))
                     self.tableWidget.setItem(row, 1, QTableWidgetItem(value))
 
-                # Adjust column widths for better readability
-                self.tableWidget.setColumnWidth(0, 150)  # Adjust column width for labels
-                self.tableWidget.setColumnWidth(1, 300)  # Adjust column width for data
+                # mengatur lebar kolom untuk tampilan baca yang lebih baik
+                self.tableWidget.setColumnWidth(0, 150)  #menyesuaikan lebar kolom untuk label
+                self.tableWidget.setColumnWidth(1, 300)  # menyesuailkan lebar colom untuk data 
 
             else:
                 QMessageBox.warning(self, "Tidak Ditemukan", "Tugas tidak ditemukan.")
-                self.tableWidget.clear()  # Clear table if no task found
+                self.tableWidget.clear() #membersihkan table jika tidak menemukan tugas
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Terjadi kesalahan: {str(e)}")
         finally:
