@@ -224,7 +224,7 @@ class HalamanMahasiswa(QMainWindow):
         self.btnTambahKegiatan = QPushButton("Tambah Kegiatan")
         # self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
         self.btnTambahKegiatan.setGeometry(200, 150, 100, 40)
-        # self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
+        self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
         layoutHKegiatan.addWidget(self.btnTambahKegiatan) 
         layoutDs.addLayout(layoutHKegiatan)
 
@@ -277,6 +277,10 @@ class HalamanMahasiswa(QMainWindow):
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
 
+    def addKegiatan(self):
+        self.showTambahKegiatan = HalamanTambahKegiatan()
+        self.showTambahKegiatan.show()
+        self.hide()        
        
     # method menampilkan data tugas
     def tugas(self):
@@ -429,6 +433,7 @@ class HalamanMahasiswa(QMainWindow):
                 pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
+# ini halaman kumpulkan tugas
 class HalamanKumpulkanTugas(QWidget):
     def __init__(self,id_tugas,username,parent_window):
         super().__init__()
@@ -530,7 +535,9 @@ class HalamanKumpulkanTugas(QWidget):
                 QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
                 self.close()
                 self.parent_window.tugas()
-                
+
+
+#halaman setting 
 class HalamanSetting(QWidget):
     def __init__(self, username):
         super().__init__()
@@ -792,3 +799,31 @@ class HalamanViewTugas(QWidget):
                 self.tanggalDeadline.setText(f'Deadline\t\t\t: {tanggal_pengumpulan}')
                 self.tanggal.setText(f'Tanggal Pengumpulan\t: {tanggal}')
                 self.FileTugas.setPlainText(f'{file_tugas}')
+
+# halaman menambahkan kegiatan
+class HalamanTambahKegiatan(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(300,350)
+        self.setStyleSheet("Background-color:white")
+
+        # layout utama
+        layout = QVBoxLayout()
+
+        logo = QLabel()
+        fotoLogo = (QPixmap(os.path.join(basedir,"./gambarMahasiswa/rb_2148552956 copy.png")))
+        logo.setPixmap(fotoLogo)
+        logo.setAlignment(Qt.AlignCenter)
+        # logo.setSi
+        layout.addWidget(logo)
+
+        # ini content widget
+        layoutHhari = QHBoxLayout()
+        self.Hari = QLabel("Hari")
+        self.ldHari = QLineEdit()
+        layoutHhari.addWidget(self.Hari)
+        layoutHhari.addWidget(self.ldHari)
+        layout.addLayout(layoutHhari)
+
+        layout.addStretch()
+        self.setLayout(layout)
