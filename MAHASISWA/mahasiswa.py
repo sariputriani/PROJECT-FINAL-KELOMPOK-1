@@ -30,11 +30,11 @@ from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)
 
 class HalamanMahasiswa(QMainWindow):
-    def __init__(self,username,id_tugas=None,id_jadwalkegiatan=None):
+    def __init__(self,username,id_tugas=None,id_kegiatan=None):
         super().__init__()
         self.username = username  # Simpan username
         self.id_tugas = id_tugas
-        self.id_jadwalkegiatan = id_jadwalkegiatan
+        self.id_kegiatan = id_kegiatan
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         self.setFixedSize(650,650)
         self.setGeometry(450,50,650,700)
@@ -253,10 +253,10 @@ class HalamanMahasiswa(QMainWindow):
                     self.daftarJadwal.setItem(barisnumber, col, QTableWidgetItem(str(data)))
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
-
-    def DashboardJadwalKegiatan(self):
-        layoutDs = QVBoxLayout()
         
+    def DashboardJadwalKegiatan(self):
+        container = QWidget()
+        layoutDs = QVBoxLayout()
         # ini judul jadwal kegiatan
         self.judul = QLabel("Jadwal Kegiatan")
         self.judul.setObjectName("lbJudul")        
@@ -289,7 +289,9 @@ class HalamanMahasiswa(QMainWindow):
         layoutDs.addWidget(self.daftarJadwalKegiatan)
 
         layoutDs.addStretch()
-        self.setLayout(layoutDs)
+        # self.setLayout(layoutDs)
+        container.setLayout(layoutDs)
+        self.setCentralWidget(container)
         self.jadwalKegiatan()
 
     # ini method menampilkan data table jadwal kegiatan di databses ke QtabeWIged
@@ -297,7 +299,7 @@ class HalamanMahasiswa(QMainWindow):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
-            select jadwalkegiatan.Hari,jadwalkegiatan.nama_kegiatan,jadwalkegiatan.tanggal_kegiatan,jadwalkegiatan.jam_mulai,jadwalkegiatan.jam_selesai from jadwalkegiatan
+            select jadwalkegiatan.id_kegiatan,jadwalkegiatan.Hari,jadwalkegiatan.nama_kegiatan,jadwalkegiatan.tanggal_kegiatan,jadwalkegiatan.jam_mulai,jadwalkegiatan.jam_selesai from jadwalkegiatan
 """
         curse.execute(query)
         ambildata = curse.fetchall()
@@ -305,28 +307,55 @@ class HalamanMahasiswa(QMainWindow):
         for barisnumber,barisData in enumerate(ambildata):
             for col,data in enumerate(barisData):
                 self.daftarJadwalKegiatan.setItem(barisnumber,col,QTableWidgetItem(str(data)))
+
+
+            id_kegiatan = barisData[0]
+            # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
             layoutAction = QHBoxLayout(action)
             layoutAction.setContentsMargins(0,0,0,0)
-            
-            self.btnbatal = QPushButton("batal")
-            self.btnbatal.setProperty("row",barisnumber)
+            # mebuatn content button hapus
+            self.btnHapus = QPushButton("Hapus")
+            self.btnHapus.setProperty("row",barisnumber)
+            self.btnHapus.clicked.connect(partial(self.Hapus, id_kegiatan=id_kegiatan))
+            # membuat content konfir
             self.btnkonfir = QPushButton("Konfir")
             self.btnkonfir.setProperty("row",barisnumber)
+            self.btnkonfir.clicked.connect(self.konfir)
             
-            layoutAction.addWidget(self.btnbatal)
+            # menmabhkn content onte tersebut kedalam layout
+            layoutAction.addWidget(self.btnHapus)
             layoutAction.addWidget(self.btnkonfir)
+            # meletakkan content tersebut atau action tersebut kedalam colom cel ke 5 setiap barisnumber (row)
             self.daftarJadwalKegiatan.setCellWidget(barisnumber, 5, action)
+        # merapikan colom sesuai panjang data
         self.daftarJadwalKegiatan.resizeColumnsToContents
 
+    # membuat method add kegiatan untuk memaanggil class halamantambahkegiatan
     def addKegiatan(self):
         self.showTambahKegiatan = HalamanTambahKegiatan(self)
         self.showTambahKegiatan.show()
         # self.hide()
 
-    def batal(self):
-        print("batal")        
-       
+    def Hapus(self,id_kegiatan):
+        print(f"ID yang diterima: {id_kegiatan}")
+        print("Hapus")
+        connction,curse = buat_koneksi()
+        curse = connction.cursor()
+        massage = QMessageBox.question(self,"question","Apakah anda yakin ingin menghapus jadwal kegiatan ini? ", QMessageBox.Yes | QMessageBox.No)
+        if massage == QMessageBox.Yes:
+            query = """
+                DELETE FROM jadwalkegiatan WHERE id_kegiatan = %s;
+
+    """     
+            curse.execute(query,(id_kegiatan,))
+            connction.commit()
+            QMessageBox.information(self,"Konfirmasi","Jadwal kegiatan berhasil dihapus")
+            self.jadwalKegiatan()
+   
+    def konfir(self):
+        print("konfir")
+
     # method menampilkan data tugas
     def tugas(self):
         connection, curse = buat_koneksi()
