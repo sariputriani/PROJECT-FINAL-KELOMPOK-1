@@ -112,3 +112,14 @@ QWidget#nim,#nama,#jurusan,#prodi,#semester{
             padding: 5px;           
 }
 
+QPushButton#btnJadwalKegiatan{
+    background-color: #6AE0E8;
+    border-radius:5px;  
+    font-family:Poppins;
+    font-size:12px; 
+    width : 10px;
+    height : 20px;
+}
+QPushButton#btnJadwalKegiatan::pressed{
+    background-color: white;
+}

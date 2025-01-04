@@ -34,7 +34,8 @@ class HalamanMahasiswa(QMainWindow):
         self.username = username  # Simpan username
         self.id_tugas = id_tugas
         self.setWindowTitle(f"Selamat Datang, {self.username}")
-        self.setFixedSize(600,500)
+        self.setFixedSize(650,650)
+        self.setGeometry(450,50,650,700)
         self.styleqss()
 
         # Layout dan Widget
@@ -183,6 +184,18 @@ class HalamanMahasiswa(QMainWindow):
         self.celender.setGridVisible(True)
         self.current_date = self.celender.selectedDate()  # Ambil tanggal default dari QCalendarWidget
         layoutDs.addWidget(self.celender)
+        
+        # ini judul jadwal kegiatan
+        self.judul = QLabel("Jadwal Kuliah")
+        self.judul.setObjectName("lbJudul")        
+        layoutDs.addWidget(self.judul)
+
+        # ini garis pemisah jadwalkagitan
+        self.lineJadwal = QFrame()
+        self.lineJadwal.setObjectName("line")
+        self.lineJadwal.setFrameShape(QFrame.HLine)
+        self.lineJadwal.setFrameShadow(QFrame.Sunken)
+        layoutDs.addWidget(self.lineJadwal)
 
         # memembuat table jadwal
         self.daftarJadwal = QTableWidget()
@@ -192,9 +205,42 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarJadwal.setHorizontalHeaderLabels(["Hari","Jam/Waktu", "Nama Ruangan", "Mata Kuliah", "Nama Dosen","SKS"])
         layoutDs.addWidget(self.daftarJadwal)
 
+        # ini judul jadwal kegiatan
+        self.judul = QLabel("Jadwal Kegiatan")
+        self.judul.setObjectName("lbJudul")        
+        layoutDs.addWidget(self.judul)
+        # ini garis pemisal jadwal kegiatan
+        self.lineJadwalKegiatan = QFrame()
+        self.lineJadwalKegiatan.setObjectName("line")
+        self.lineJadwalKegiatan.setFrameShape(QFrame.HLine)
+        self.lineJadwalKegiatan.setFrameShadow(QFrame.Sunken)
+        layoutDs.addWidget(self.lineJadwalKegiatan)
+
+        # ini layout untuk Horizontal btn tambah jadwal kegiatan
+        layoutHKegiatan = QHBoxLayout()
+        spasi = QWidget()
+        spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        layoutHKegiatan.addWidget(spasi)
+        self.btnTambahKegiatan = QPushButton("Tambah Kegiatan")
+        # self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
+        self.btnTambahKegiatan.setGeometry(200, 150, 100, 40)
+        # self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
+        layoutHKegiatan.addWidget(self.btnTambahKegiatan) 
+        layoutDs.addLayout(layoutHKegiatan)
+
+        # membuat jadwal kegiatan
+        self.daftarJadwalKegiatan = QTableWidget()
+        self.daftarJadwalKegiatan.setObjectName("daftarKegiatan")
+        self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
+        self.daftarJadwalKegiatan.setColumnCount(4)
+        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Hari","Nama Kegiatan","Tanggal Kegiatan","Action"])
+        layoutDs.addWidget(self.daftarJadwalKegiatan)
+
+        # ini magtura layout ke container atau membukur layout utama dengan container
         layoutDs.addStretch()
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
+        # ini memanggil method jadwal
         self.jadwal()
 
     # menampilkan data jadwal 
@@ -215,9 +261,9 @@ class HalamanMahasiswa(QMainWindow):
                 INNER JOIN 
                     MataKuliah ON Jadwal.ID_MK = MataKuliah.ID_MK
                 INNER JOIN 
-                    Dosen ON Jadwal.ID_Dosen = Dosen.ID_Dosen
+                    Dosen ON Jadwal.Nip_Dosen = Dosen.Nip_Dosen
                 INNER JOIN 
-                    Ruang ON Jadwal.ID_Ruang = Ruang.ID_Ruang;
+                    Ruang ON Jadwal.nama_Ruang = Ruang.nama_Ruang;
             """
         curse.execute(query)
         # ambil data semua pada table jadwal
@@ -231,7 +277,7 @@ class HalamanMahasiswa(QMainWindow):
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
 
-
+       
     # method menampilkan data tugas
     def tugas(self):
         connection, curse = buat_koneksi()
