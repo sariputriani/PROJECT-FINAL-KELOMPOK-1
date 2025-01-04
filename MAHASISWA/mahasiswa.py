@@ -308,7 +308,6 @@ class HalamanMahasiswa(QMainWindow):
             for col,data in enumerate(barisData):
                 self.daftarJadwalKegiatan.setItem(barisnumber,col,QTableWidgetItem(str(data)))
 
-
             id_kegiatan = barisData[0]
             # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
@@ -319,14 +318,32 @@ class HalamanMahasiswa(QMainWindow):
             self.btnHapus.setProperty("row",barisnumber)
             self.btnHapus.clicked.connect(partial(self.Hapus, id_kegiatan=id_kegiatan))
             # membuat content konfir
-            self.btnkonfir = QPushButton("Konfir")
-            self.btnkonfir.setProperty("row",barisnumber)
-            self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
-            self.btnkonfir.clicked.connect(self.konfir)
+            query_check = """
+            SELECT COUNT(*) FROM daftarkegiatanselesai where id_kegiatan = %s;
+"""
+            curse.execute(query_check,(id_kegiatan,))
+            sudah_selesai = curse.fetchone()[0] > 0
+            self.btnkonfir = QPushButton()
+            tombolNonAktif = sudah_selesai
+            if sudah_selesai:
+                self.btnkonfir.setText("SELESAI")
+                self.btnkonfir.setStyleSheet("Background-color:green")
+            else:
+                self.btnkonfir.setText("KONFIRMASI")
+                self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
             
+            # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
+            self.btnkonfir.setEnabled(not tombolNonAktif)
+            self.btnHapus.setEnabled(not tombolNonAktif)
+            
+            # menepatlan button konrif kedalam setproperty di setia barisnumber
+            self.btnkonfir.setProperty("row",barisnumber)
+            self.btnkonfir.clicked.connect(self.konfir)
+
             # menmabhkn content onte tersebut kedalam layout
             layoutAction.addWidget(self.btnHapus)
             layoutAction.addWidget(self.btnkonfir)
+            
             # meletakkan content tersebut atau action tersebut kedalam colom cel ke 5 setiap barisnumber (row)
             self.daftarJadwalKegiatan.setCellWidget(barisnumber, 5, action)
         # merapikan colom sesuai panjang data
@@ -358,33 +375,17 @@ class HalamanMahasiswa(QMainWindow):
         print("konfir")
         connection,curse = buat_koneksi()
         curse = connection.cursor()
-
-        query_check = """
-            SELECT COUNT (*) FROM daftarKegiatanSelesai where id_kegiatan = (Select jadwalkegiatan.id_kegiatan from 
-            jadwalkegiatan join daftarKegiatanSelesai on daftarkegiatanselesai.id_kegiatan = jadwalkegiatan.id_kegiatan
-            where jadwalkegiatan.id_kegiatn = %s);
-"""
-        curse.execute(query_check,(id_kegiatan,))
-        sudah_selesai = curse.fetchone()[0]> 0
-
-        if sudah_selesai:
-            self.btnkonfir.setStyleSheet("background-color : green")
-            self.btnkonfir.setEnabled(False)
-        if not sudah_selesai :
-            self.btnkonfir.setStyleSheet("background - color : red")
-            self.btnkonfir.setEnabled(False)
-        else :
-            query = """
+        query = """
                     INSERT INTO daftarKegiatanSelesai (id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan)
                     SELECT id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan
                     FROM jadwalKegiatan
                     WHERE id_kegiatan = %s;
     """ 
-            curse.execute(query, (id_kegiatan,))
+        curse.execute(query,(id_kegiatan,))
+        massage = QMessageBox.question(self,"question","Apakah ini tugas ini telah selesai ? " , QMessageBox.Yes | QMessageBox.No)
+        if massage == QMessageBox.Yes:
             connection.commit()
-            self.btnkonfir.setEnabled(False)
-            # self.btnkonfir.setStyleSheet("background-color:yellow")
-            QMessageBox.information(self,"Informasi","Tugas kegiatan ini ")
+            self.jadwalKegiatan()
 
     # method menampilkan data tugas
     def tugas(self):
