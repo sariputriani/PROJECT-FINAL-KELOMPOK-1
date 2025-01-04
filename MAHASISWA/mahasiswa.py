@@ -321,6 +321,7 @@ class HalamanMahasiswa(QMainWindow):
             # membuat content konfir
             self.btnkonfir = QPushButton("Konfir")
             self.btnkonfir.setProperty("row",barisnumber)
+            self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
             self.btnkonfir.clicked.connect(self.konfir)
             
             # menmabhkn content onte tersebut kedalam layout
@@ -353,8 +354,37 @@ class HalamanMahasiswa(QMainWindow):
             QMessageBox.information(self,"Konfirmasi","Jadwal kegiatan berhasil dihapus")
             self.jadwalKegiatan()
    
-    def konfir(self):
+    def konfir(self,id_kegiatan):
         print("konfir")
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+
+        query_check = """
+            SELECT COUNT (*) FROM daftarKegiatanSelesai where id_kegiatan = (Select jadwalkegiatan.id_kegiatan from 
+            jadwalkegiatan join daftarKegiatanSelesai on daftarkegiatanselesai.id_kegiatan = jadwalkegiatan.id_kegiatan
+            where jadwalkegiatan.id_kegiatn = %s);
+"""
+        curse.execute(query_check,(id_kegiatan,))
+        sudah_selesai = curse.fetchone()[0]> 0
+
+        if sudah_selesai:
+            self.btnkonfir.setStyleSheet("background-color : green")
+            self.btnkonfir.setEnabled(False)
+        if not sudah_selesai :
+            self.btnkonfir.setStyleSheet("background - color : red")
+            self.btnkonfir.setEnabled(False)
+        else :
+            query = """
+                    INSERT INTO daftarKegiatanSelesai (id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan)
+                    SELECT id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan
+                    FROM jadwalKegiatan
+                    WHERE id_kegiatan = %s;
+    """ 
+            curse.execute(query, (id_kegiatan,))
+            connection.commit()
+            self.btnkonfir.setEnabled(False)
+            # self.btnkonfir.setStyleSheet("background-color:yellow")
+            QMessageBox.information(self,"Informasi","Tugas kegiatan ini ")
 
     # method menampilkan data tugas
     def tugas(self):
