@@ -123,3 +123,7 @@ QPushButton#btnJadwalKegiatan{
 QPushButton#btnJadwalKegiatan::pressed{
     background-color: white;
 }
+
+QLabel#LabelHari,#LabelTanggal{
+    margi-left : 60px;
+}

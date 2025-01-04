@@ -18,7 +18,8 @@ from PySide6.QtWidgets import (
     QCalendarWidget,
     QTableWidgetItem,
     QPlainTextEdit,
-    QTabWidget
+    QTabWidget,
+    QSpinBox
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
@@ -29,10 +30,11 @@ from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)
 
 class HalamanMahasiswa(QMainWindow):
-    def __init__(self,username,id_tugas=None):
+    def __init__(self,username,id_tugas=None,id_jadwalkegiatan=None):
         super().__init__()
         self.username = username  # Simpan username
         self.id_tugas = id_tugas
+        self.id_jadwalkegiatan = id_jadwalkegiatan
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         self.setFixedSize(650,650)
         self.setGeometry(450,50,650,700)
@@ -55,10 +57,15 @@ class HalamanMahasiswa(QMainWindow):
         self.toolbar.addAction(dataMHS)
         dataMHS.triggered.connect(self.Dashboard)
 
-        jadwal = QAction("Jadwal", self)
-        jadwal.setCheckable(True)
-        self.toolbar.addAction(jadwal)
-        jadwal.triggered.connect(self.DashboardJadwal)
+        jadwalKuliah = QAction("Jadwal Kuliah", self)
+        jadwalKuliah.setCheckable(True)
+        self.toolbar.addAction(jadwalKuliah)
+        jadwalKuliah.triggered.connect(self.DashboardJadwal)
+
+        jadwalKegiatan = QAction("Jadwal Kegiatan", self)
+        jadwalKegiatan.setCheckable(True)
+        self.toolbar.addAction(jadwalKegiatan)
+        jadwalKegiatan.triggered.connect(self.DashboardJadwalKegiatan)
 
         spasi = QWidget()
         spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -205,36 +212,6 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarJadwal.setHorizontalHeaderLabels(["Hari","Jam/Waktu", "Nama Ruangan", "Mata Kuliah", "Nama Dosen","SKS"])
         layoutDs.addWidget(self.daftarJadwal)
 
-        # ini judul jadwal kegiatan
-        self.judul = QLabel("Jadwal Kegiatan")
-        self.judul.setObjectName("lbJudul")        
-        layoutDs.addWidget(self.judul)
-        # ini garis pemisal jadwal kegiatan
-        self.lineJadwalKegiatan = QFrame()
-        self.lineJadwalKegiatan.setObjectName("line")
-        self.lineJadwalKegiatan.setFrameShape(QFrame.HLine)
-        self.lineJadwalKegiatan.setFrameShadow(QFrame.Sunken)
-        layoutDs.addWidget(self.lineJadwalKegiatan)
-
-        # ini layout untuk Horizontal btn tambah jadwal kegiatan
-        layoutHKegiatan = QHBoxLayout()
-        spasi = QWidget()
-        spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        layoutHKegiatan.addWidget(spasi)
-        self.btnTambahKegiatan = QPushButton("Tambah Kegiatan")
-        # self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
-        self.btnTambahKegiatan.setGeometry(200, 150, 100, 40)
-        self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
-        layoutHKegiatan.addWidget(self.btnTambahKegiatan) 
-        layoutDs.addLayout(layoutHKegiatan)
-
-        # membuat jadwal kegiatan
-        self.daftarJadwalKegiatan = QTableWidget()
-        self.daftarJadwalKegiatan.setObjectName("daftarKegiatan")
-        self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
-        self.daftarJadwalKegiatan.setColumnCount(4)
-        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Hari","Nama Kegiatan","Tanggal Kegiatan","Action"])
-        layoutDs.addWidget(self.daftarJadwalKegiatan)
 
         # ini magtura layout ke container atau membukur layout utama dengan container
         layoutDs.addStretch()
@@ -277,10 +254,78 @@ class HalamanMahasiswa(QMainWindow):
         # merapikan table
         self.daftarJadwal.resizeColumnsToContents()
 
+    def DashboardJadwalKegiatan(self):
+        layoutDs = QVBoxLayout()
+        
+        # ini judul jadwal kegiatan
+        self.judul = QLabel("Jadwal Kegiatan")
+        self.judul.setObjectName("lbJudul")        
+        layoutDs.addWidget(self.judul)
+        # ini garis pemisal jadwal kegiatan
+        self.lineJadwalKegiatan = QFrame()
+        self.lineJadwalKegiatan.setObjectName("line")
+        self.lineJadwalKegiatan.setFrameShape(QFrame.HLine)
+        self.lineJadwalKegiatan.setFrameShadow(QFrame.Sunken)
+        layoutDs.addWidget(self.lineJadwalKegiatan)
+
+        # ini layout untuk Horizontal btn tambah jadwal kegiatan
+        layoutHKegiatan = QHBoxLayout()
+        spasi = QWidget()
+        spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        layoutHKegiatan.addWidget(spasi)
+        self.btnTambahKegiatan = QPushButton("Tambah Kegiatan")
+        # self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
+        self.btnTambahKegiatan.setGeometry(200, 150, 100, 40)
+        self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
+        layoutHKegiatan.addWidget(self.btnTambahKegiatan) 
+        layoutDs.addLayout(layoutHKegiatan)
+
+        # membuat jadwal kegiatan
+        self.daftarJadwalKegiatan = QTableWidget()
+        self.daftarJadwalKegiatan.setObjectName("daftarKegiatan")
+        self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
+        self.daftarJadwalKegiatan.setColumnCount(6)
+        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Hari","Nama Kegiatan","Tanggal Kegiatan","Jam Mulai","Jam Selesa","Action"])
+        layoutDs.addWidget(self.daftarJadwalKegiatan)
+
+        layoutDs.addStretch()
+        self.setLayout(layoutDs)
+        self.jadwalKegiatan()
+
+    # ini method menampilkan data table jadwal kegiatan di databses ke QtabeWIged
+    def jadwalKegiatan(self):
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
+            select jadwalkegiatan.Hari,jadwalkegiatan.nama_kegiatan,jadwalkegiatan.tanggal_kegiatan,jadwalkegiatan.jam_mulai,jadwalkegiatan.jam_selesai from jadwalkegiatan
+"""
+        curse.execute(query)
+        ambildata = curse.fetchall()
+        self.daftarJadwalKegiatan.setRowCount(len(ambildata))
+        for barisnumber,barisData in enumerate(ambildata):
+            for col,data in enumerate(barisData):
+                self.daftarJadwalKegiatan.setItem(barisnumber,col,QTableWidgetItem(str(data)))
+            action = QWidget()
+            layoutAction = QHBoxLayout(action)
+            layoutAction.setContentsMargins(0,0,0,0)
+            
+            self.btnbatal = QPushButton("batal")
+            self.btnbatal.setProperty("row",barisnumber)
+            self.btnkonfir = QPushButton("Konfir")
+            self.btnkonfir.setProperty("row",barisnumber)
+            
+            layoutAction.addWidget(self.btnbatal)
+            layoutAction.addWidget(self.btnkonfir)
+            self.daftarJadwalKegiatan.setCellWidget(barisnumber, 5, action)
+        self.daftarJadwalKegiatan.resizeColumnsToContents
+
     def addKegiatan(self):
-        self.showTambahKegiatan = HalamanTambahKegiatan()
+        self.showTambahKegiatan = HalamanTambahKegiatan(self)
         self.showTambahKegiatan.show()
-        self.hide()        
+        # self.hide()
+
+    def batal(self):
+        print("batal")        
        
     # method menampilkan data tugas
     def tugas(self):
@@ -802,28 +847,158 @@ class HalamanViewTugas(QWidget):
 
 # halaman menambahkan kegiatan
 class HalamanTambahKegiatan(QWidget):
-    def __init__(self):
+    def __init__(self,parent = None):
         super().__init__()
-        self.setFixedSize(300,350)
-        self.setStyleSheet("Background-color:white")
+        self.parent = parent
+        self.setFixedSize(400,400)
+        self.setStyleSheet("background-color:rgb(235, 241, 243);")
 
         # layout utama
         layout = QVBoxLayout()
 
         logo = QLabel()
-        fotoLogo = (QPixmap(os.path.join(basedir,"./gambarMahasiswa/rb_2148552956 copy.png")))
+        fotoLogo = (QPixmap(os.path.join(basedir,"./gambarMahasiswa/rb_2148552956_copy-removebg-preview.png")))
         logo.setPixmap(fotoLogo)
         logo.setAlignment(Qt.AlignCenter)
         # logo.setSi
         layout.addWidget(logo)
 
         # ini content widget
+        # layout hari
         layoutHhari = QHBoxLayout()
+        # layoutHhari.setContentsMargins(5,50,0,5)
+        layoutHhari.setSpacing(10)
+        # content layout hari
         self.Hari = QLabel("Hari")
+        self.Hari.setObjectName("LabelHari")
         self.ldHari = QLineEdit()
         layoutHhari.addWidget(self.Hari)
         layoutHhari.addWidget(self.ldHari)
         layout.addLayout(layoutHhari)
 
+        # layout nama kegiatab
+        layoutHkegitan = QHBoxLayout()
+        # content kegiatan
+        self.kegiatan = QLabel("Nama Kegiatan")
+        self.kegiatan.setObjectName("LabelKegiatan")
+        self.ldkegiatan =QLineEdit()
+        layoutHkegitan.addWidget(self.kegiatan)
+        layoutHkegitan.addWidget(self.ldkegiatan)
+        layout.addLayout(layoutHkegitan)
+
+        # layout tanggal
+        layoutHTanggal = QHBoxLayout()
+        # contente layout tanggal
+        self.Tanggal = QLabel("Tanggal")
+        self.Tanggal.setObjectName("LabelTanggal")
+        self.spin_tahun = QSpinBox()
+        self.spin_tahun.setRange(1900, 2100)  # Rentang tahun
+        self.spin_tahun.setPrefix("Tahun: ")
+        self.spin_tahun.setStyleSheet("padding: 3px 10px;")
+
+        # SpinBox untuk input bulan
+        self.spin_bulan = QSpinBox()
+        self.spin_bulan.setRange(1, 12)  # Rentang bulan
+        self.spin_bulan.setPrefix("Bulan: ")
+        self.spin_bulan.setStyleSheet("padding: 3px 10px;")
+
+        # SpinBox untuk input tanggal
+        self.spin_tanggal = QSpinBox()
+        self.spin_tanggal.setRange(1, 31)  # Rentang tanggal
+        self.spin_tanggal.setPrefix("Tanggal: ")
+        self.spin_tanggal.setStyleSheet("padding: 3px 10px;")
+        layoutHTanggal.addWidget(self.Tanggal)
+        layoutHTanggal.addWidget(self.spin_tahun)
+        layoutHTanggal.addWidget(self.spin_bulan)
+        layoutHTanggal.addWidget(self.spin_tanggal)
+        layout.addLayout(layoutHTanggal)
+
+        # layout jam mulai
+        layoutjam = QHBoxLayout()
+        # contente layout jam
+        self.lbjam = QLabel("Jam Mulai")
+        self.lbjam.setObjectName("LabelJam")
+        layoutjam.addWidget(self.lbjam)
+        # jam mulai
+        self.spin_JmMulai = QSpinBox()
+        self.spin_JmMulai.setRange(0, 23)  # Rentang tanggal
+        self.spin_JmMulai.setPrefix("Jam: ")
+        self.spin_tanggal.setStyleSheet("padding: 3px 10px;")
+        
+        # menit mulai
+        self.spin_MenitMulai = QSpinBox()
+        self.spin_MenitMulai.setRange(0, 59)  # Rentang tanggal
+        self.spin_MenitMulai.setPrefix("Menit: ")
+        self.spin_MenitMulai.setStyleSheet("padding: 3px 10px;")
+        # detik mulai
+        self.spin_detikMulai = QSpinBox()
+        self.spin_detikMulai.setRange(0, 59)  # Rentang tanggal
+        self.spin_detikMulai.setPrefix("Detik: ")
+        self.spin_detikMulai.setStyleSheet("padding: 3px 10px;")
+        #menmabah content layout jam mulai
+        layoutjam.addWidget(self.spin_JmMulai)
+        layoutjam.addWidget(self.spin_MenitMulai)
+        layoutjam.addWidget(self.spin_detikMulai)
+        layout.addLayout(layoutjam)
+
+        # layout jam selesai
+        layoutjamSelesai = QHBoxLayout()
+        self.lbjamSelesai = QLabel("Jam Selesai")
+        self.lbjamSelesai.setObjectName("LabelJamSelesai")
+        layoutjamSelesai.addWidget(self.lbjamSelesai)
+        # jam selesai
+        self.spin_Jmselesai = QSpinBox()
+        self.spin_Jmselesai.setRange(0, 23)  # Rentang tanggal
+        self.spin_Jmselesai.setPrefix("Jam: ")
+        self.spin_Jmselesai.setStyleSheet("padding: 3px 10px;")
+        
+        # menit selesai
+        self.spin_Menitselesai = QSpinBox()
+        self.spin_Menitselesai.setRange(0, 59)  # Rentang tanggal
+        self.spin_Menitselesai.setPrefix("Menit: ")
+        self.spin_Menitselesai.setStyleSheet("padding: 3px 10px;")
+        # detik selesai
+        self.spin_detikSelesai = QSpinBox()
+        self.spin_detikSelesai.setRange(0, 59)  # Rentang tanggal
+        self.spin_detikSelesai.setPrefix("Detik: ")
+        self.spin_detikSelesai.setStyleSheet("padding: 3px 10px;")
+        #menmabah content layout jam 
+        layoutjamSelesai.addWidget(self.spin_Jmselesai)
+        layoutjamSelesai.addWidget(self.spin_Menitselesai)
+        layoutjamSelesai.addWidget(self.spin_detikSelesai)
+        layout.addLayout(layoutjamSelesai)
+
+        # btn tambah
+        self.btntambah = QPushButton("Tambah")
+        self.btntambah.clicked.connect(self.tambah)
+        layout.addWidget(self.btntambah)
+
+        # mengatur layout utama
         layout.addStretch()
         self.setLayout(layout)
+    
+    def tambah (self):
+        hari = self.ldHari.text()
+        nama_kegiatan = self.ldkegiatan.text()
+        tanggal = f"{self.spin_tahun.value():01d}-{self.spin_bulan.value():02d}-{self.spin_tanggal.value()}"
+        jam_mulai = f"{self.spin_JmMulai.value()}:{self.spin_MenitMulai.value()}:{self.spin_detikMulai.value()}"
+        jam_selesai = f"{self.spin_Jmselesai.value()}:{self.spin_Menitselesai.value()}:{self.spin_detikSelesai.value()}"
+
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        if not hari or not nama_kegiatan or not tanggal or not jam_mulai or not jam_selesai:
+            QMessageBox.warning(self, "Peringatan", "Silahkan lengkapi file tugas.")
+            return
+        else:
+            query = """
+                INSERT INTO jadwalkegiatan (hari, nama_kegiatan, Tanggal_kegiatan, jam_mulai, jam_selesai) 
+    VALUES (%s, %s, %s, %s, %s);
+    """ 
+            curse.execute(query,(hari,nama_kegiatan,tanggal,jam_mulai,jam_selesai))
+            massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
+            if massage == QMessageBox.Yes : 
+                connection.commit()
+                print("berhasil")
+                QMessageBox.information(self,"Berhasil",f"Penmabahan Jadwal Kegiatan Berhasil")
+                self.close()
+                self.parent.jadwalKegiatan()
