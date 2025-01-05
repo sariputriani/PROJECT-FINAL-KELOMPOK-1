@@ -33,7 +33,7 @@ class HalamanDosen(QMainWindow):
         # self.setWindowTitle("Mahasiswa")
         self.username = username  # Simpan username
         self.setWindowTitle(f"Selamat Datang, {self.username}")
-        self.setFixedSize(600,400)
+        self.setFixedSize(700,400)
 
 
         # ini fungsi memanggil metode styleqss
