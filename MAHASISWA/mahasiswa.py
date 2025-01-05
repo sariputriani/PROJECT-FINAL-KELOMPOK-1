@@ -329,7 +329,7 @@ class HalamanMahasiswa(QMainWindow):
             self.btnEditKegiatan = QPushButton("Edit")
             self.btnEditKegiatan.setObjectName("btnhEdit")
             self.btnEditKegiatan.setProperty("row",barisnumber)
-            self.btnEditKegiatan.clicked.connect(partial(self.Edit, id_kegiatan=id_kegiatan))
+            self.btnEditKegiatan.clicked.connect(partial(self.Edit, id_kegiatan= id_kegiatan))
 
             # mebuatn content button hapus
             self.btnHapus = QPushButton("Hapus")
@@ -387,7 +387,7 @@ class HalamanMahasiswa(QMainWindow):
 
 
     def Edit (self,id_kegiatan):
-        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan)
+        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
@@ -1114,10 +1114,12 @@ class HalamanTambahKegiatan(QWidget):
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
 
 class halamanEditkegiatan(QWidget):
-    def __init__(self,id_kegiatan):
+    def __init__(self, id_kegiatan, window=None):
         super().__init__()
         self.id_kegiatan = id_kegiatan
+        self.windows = window
         print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
+
         # layout utama
         layout = QVBoxLayout()
 
@@ -1131,7 +1133,7 @@ class halamanEditkegiatan(QWidget):
 
         # layout nama kegiatan
         layoutHKegiatan = QHBoxLayout()
-        # content layout hari
+        # content layout nama kegiatan
         self.lbKegiatan = QLabel("Nama Kegiatan")
         self.ldKegiatan = QLineEdit()
         layoutHKegiatan.addWidget(self.lbKegiatan)
@@ -1139,24 +1141,24 @@ class halamanEditkegiatan(QWidget):
 
         # layout tanggal mulai
         layoutHtangggal_mulai = QHBoxLayout()
-        # content layout hari
-        self.lbtangggal_mulai = QLabel("Tangggal Mulai Kegiatan")
+        # content layout tanggal mulai
+        self.lbtangggal_mulai = QLabel("Tanggal Mulai Kegiatan")
         self.ldtangggal_mulai = QDateTimeEdit()
         layoutHtangggal_mulai.addWidget(self.lbtangggal_mulai)
         layoutHtangggal_mulai.addWidget(self.ldtangggal_mulai)
-        
-        # layout tanggal mulai
+
+        # layout tanggal akhir
         layoutHtanggal_akhir = QHBoxLayout()
-        # content layout hari
+        # content layout tanggal akhir
         self.lbtanggal_akhir = QLabel("Tanggal Akhir Kegiatan")
         self.ldtanggal_akhir = QDateTimeEdit()
         layoutHtanggal_akhir.addWidget(self.lbtanggal_akhir)
         layoutHtanggal_akhir.addWidget(self.ldtanggal_akhir)
 
-        # button edit
+        # button simpan
         btnEditkegiatan1 = QPushButton("SIMPAN")
         btnEditkegiatan1.setObjectName("Edit_kegiatan")
-        btnEditkegiatan1.clicked.connect(self.simpan)
+        btnEditkegiatan1.clicked.connect(partial(self.simpan, id_kegiatan=self.id_kegiatan))
 
         # atur layout
         layout.addLayout(layoutHHari)
@@ -1165,44 +1167,65 @@ class halamanEditkegiatan(QWidget):
         layout.addLayout(layoutHtanggal_akhir)
         layout.addWidget(btnEditkegiatan1)
 
-        layout.addStretch()
-        self.setLayout(layout)
-
-    def simpan(self, id_kegiatan):
-        # def simpan(self, id_kegiatan):
-        print("ini id_kegiatan:", id_kegiatan)  # Debug: Pastikan ID diteruskan dengan benar
-        connection, cursor = buat_koneksi()  # assuming buat_koneksi() is defined somewhere
+        # Ambil data dari jadwalkegiatan
+        connection, cursor = buat_koneksi()
         cursor = connection.cursor()
 
         query = """
-            SELECT jadwalkegiatan.Nama_kegiatan, jadwalkegiatan.Hari, 
-                jadwalkegiatan.TanggalMulai_Kegiatan, jadwalkegiatan.tanggal_AkhirKegiatan 
+            SELECT Nama_kegiatan, Hari, TanggalMulai_Kegiatan, tanggal_AkhirKegiatan
             FROM jadwalkegiatan 
-            WHERE jadwalkegiatan.id_kegiatan = %s;
-        """ 
+            WHERE id_kegiatan = %s;
+        """
 
         cursor.execute(query, (id_kegiatan,))
         ambildata = cursor.fetchall()
-
         print("Ambildata:", ambildata)  # Debug: Cek data yang diterima dari database
 
         if ambildata:
             nama, hari, tanggalmulai, tanggal_akhir = ambildata[0]
-            print("Nama Kegiatan:", nama)
-            print("Hari:", hari)
-            print("Tanggal Mulai:", tanggalmulai)
-            print("Tanggal Akhir:", tanggal_akhir)
-
             self.ldKegiatan.setText(nama)
             self.ldHari.setText(hari)
-            self.ldtangggal_mulai.setDateTime(QDateTime.fromString(tanggalmulai, "yyyy-MM-dd HH:mm:ss"))
-            self.ldtanggal_akhir.setDateTime(QDateTime.fromString(tanggal_akhir, "yyyy-MM-dd HH:mm:ss"))
+            # Konversi datetime ke string dan set ke QDateTimeEdit
+            self.ldtangggal_mulai.setDateTime(tanggalmulai)
+            self.ldtanggal_akhir.setDateTime(tanggal_akhir)
 
-            message = QMessageBox.question(self, "Konfirmasi", 
-                                        "Apakah anda ingin menyimpan editan ini?", 
-                                        QMessageBox.Yes | QMessageBox.No)
-            if message == QMessageBox.Yes:
-                print("Data kegiatan berhasil di edit")
+        # Mengatur layout
+        layout.addStretch()
+        self.setLayout(layout)
+
+    def simpan(self, id_kegiatan):
+        # Cek data yang dimasukkan
+        print("ini id_kegiatan:", id_kegiatan)
+
+        # Ambil data yang baru dimasukkan oleh pengguna
+        namakegiatan = self.ldKegiatan.text()
+        hari = self.ldHari.text()
+        tglmulai = self.ldtangggal_mulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
+        tglAkhir = self.ldtanggal_akhir.dateTime().toString("yyyy-MM-dd HH:mm:ss")
+
+        # Membuat koneksi ke database
+        connection, curse = buat_koneksi()
+        curse = connection.cursor()
+
+        # ini mengambil data lama yang akan dibandingkn dengan data yang baru
+        query_check = """
+            SELECT Nama_kegiatan, Hari, TanggalMulai_Kegiatan, tanggal_AkhirKegiatan
+            FROM jadwalkegiatan 
+            WHERE id_kegiatan = %s;
+        """
+        curse.execute(query_check, (id_kegiatan,))
+        datalama = curse.fetchone()
+
+        if datalama:
+            old_nama, old_hari, old_tglmulai, old_tglakhir = datalama
+            if (namakegiatan != old_nama or hari != old_hari or tglmulai != old_tglmulai or tglAkhir != old_tglakhir):
+                query_update = """
+                    UPDATE jadwalkegiatan
+                    SET Nama_kegiatan = %s, Hari = %s, TanggalMulai_Kegiatan = %s, Tanggal_AkhirKegiatan = %s
+                    WHERE id_kegiatan = %s
+                """
+                curse.execute(query_update, (namakegiatan, hari, tglmulai, tglAkhir, id_kegiatan))
+                QMessageBox.information(self, "Informasi", "Data berhasil diubah")
                 connection.commit()
-        else:
-            print("No data found.")
+                self.close()
+                self.windows.jadwalKegiatan()
