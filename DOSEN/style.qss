@@ -1,0 +1,84 @@
+QMainWindow{
+    background-color:rgb(235, 241, 243);
+}
+QToolBar {
+    background-color: rgb(235, 241, 243);
+    border: none;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+QToolBar QToolButton {
+    background: transparent;
+    border: none;
+    padding: 5px 10px;
+    margin: 0 2px;
+}
+QToolBar QToolButton:hover {
+    background: #e0e0e0;
+    border-radius: 4px;
+}
+QToolBar QToolButton::pressed {
+    background: white;
+    border-radius: 4px;
+}
+QToolButton {
+    color: #333;
+    font-family:Poppins;
+    font-size:24;
+    font-weight: bold;
+}
+
+QLabel#lbJudul{
+    font-family:"cambria";
+    font-weight: "SemiBold";
+    font-size:26px;
+    margin:5,5,5;
+}
+
+QLineEdit#search{
+    font-family:Poppins;
+    font-size:12px;
+    margin : 15,20,5;
+    border: 2px solid #125370;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+QFrame#line{
+    border: 2px solid #125370;
+    margin-bottom: 50px;
+}
+
+QTableWidget QHeaderView::section{
+    font-weight:bold;
+    background-color: #4DA1A9;
+    color:white;
+}
+
+QTableWidget{
+    alternate-background-color: #BDEDFB;
+    background-color: #F4F9FA;
+}
+QMessageBox{
+    background-color:rgb(235, 241, 243);
+    font-family: Poppins;
+    font-size: 12px;
+}
+
+QMessageBox QPushButton {
+        background-color: rgb(235, 241, 243);
+        border-radius: 5px;
+        border: 2px solid #125370;
+        padding: 5px;
+        width: 60px;
+        height: 15px;
+
+}
+
+QMessageBox QPushButton::hover {
+        background-color: green;
+}
+
+QMessageBox QPushButton::pressed {
+        background-color: white;
+}

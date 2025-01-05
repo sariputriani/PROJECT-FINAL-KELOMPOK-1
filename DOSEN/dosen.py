@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
+from functools import partial
 # from databases.database_main import database
 from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)
@@ -31,6 +32,8 @@ class HalamanDosen(QMainWindow):
         super().__init__()
         # self.setWindowTitle("Mahasiswa")
         self.username = username  # Simpan username
+        # self.id_pengumpulan = id_pengumpulan
+        # self.nim = nim
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         self.setFixedSize(600,400)
 
@@ -146,10 +149,10 @@ class HalamanDosen(QMainWindow):
             for barisnumber, barisData in enumerate(ambildata):
                 for col, data in enumerate(barisData):
                     self.tableTugas.setItem(barisnumber, col, QTableWidgetItem(str(data)))
-                    self.btnView = QPushButton(" View")
-                    self.btnView.clicked.connect(self.halamanView)
-                    self.btnView.setProperty("row",barisnumber)
-                    self.tableTugas.setCellWidget(barisnumber, 6, self.btnView)
+                self.btnView = QPushButton(" View")
+                self.btnView.clicked.connect(self.halamanView)
+                self.btnView.setProperty("row",barisnumber)
+                self.tableTugas.setCellWidget(barisnumber, 6, self.btnView)
             self.tableTugas.resizeColumnsToContents()
         else:
             QMessageBox.information(self, "Info", "Tidak ada data yang ditemukan di tabel tugas.")
@@ -521,11 +524,6 @@ class HalamanView(QWidget):
         self.tableViewMahasiswa.horizontalHeader().setStretchLastSection(True)
         self.layout.addWidget(self.tableViewMahasiswa)
 
-        # # MENAMBAHKN BUTTON UNTUK MENUTUP VIEW
-        # btnClose = QPushButton("Tutup")
-        # btnClose.clicked.connect(self.close_view)
-        # self.layout.addWidget(btnClose)
-
         # UNTUK MELIHAT LAYOUT ATAU MEMANGGIL LAYOUT
         self.setLayout(self.layout)
         self.TableDaftarPengumpulanTugas(username)
@@ -564,70 +562,21 @@ class HalamanView(QWidget):
                 
                 # Menambahkan tombol 'View' pada kolom 6 (kolom terakhir)
                 self.btnView = QPushButton("View")
-                self.btnView.clicked.connect(self.halamanViewFileTugas)  # Pastikan Anda memiliki fungsi halamanView
+                nim = barisData[2]
+                id_pengumpulan = barisData[0]
+                self.btnView.clicked.connect(partial(self.halamanViewFileTugas, nim, id_pengumpulan))
+                # self.btnView.clicked.connect(partial(self.halamanViewFileTugas))  # Pastikan Anda memiliki fungsi halamanView
+                
                 self.tableViewMahasiswa.setCellWidget(barisnumber, 6, self.btnView)
 
             # Menyesuaikan lebar kolom agar muat dengan konten
             self.tableViewMahasiswa.resizeColumnsToContents()
     
-
-class HalamanView(QWidget):
-    def __init__(self, username):
-        super().__init__()
-        self.setWindowTitle("Detail Tugas")
-        self.setFixedSize(500, 400)
-        
-        # Layout utama
-        self.layout = QVBoxLayout()
-        
-        # Tabel untuk menampilkan data
-        self.tableViewMahasiswa = QTableWidget()
-        self.tableViewMahasiswa.setColumnCount(7)
-        self.tableViewMahasiswa.setHorizontalHeaderLabels(["Id Pengumpulan", "Nama Kuliah", "NIM Mahasiswa", "Nama Mahasiswa", "Deskripsi Tugas", "Tanggal Pengumpulan", "Action"])
-        self.tableViewMahasiswa.horizontalHeader().setStretchLastSection(True)
-        self.layout.addWidget(self.tableViewMahasiswa)
-        
-        self.setLayout(self.layout)
-        self.TableDaftarPengumpulanTugas(username)
-    
-    def TableDaftarPengumpulanTugas(self, username):
-        # Koneksi ke database
-        connection, curse = buat_koneksi()
-        curse = connection.cursor()
-
-        query = """
-                SELECT 
-                    pengumpulantugas.id_pengumpulan,
-                    matakuliah.nama_mk,
-                    datamahasiswa.nim,
-                    datamahasiswa.nama,
-                    tugas.deskripsi_tugas,
-                    pengumpulantugas.tanggal_pengumpulan
-                FROM pengumpulantugas
-                JOIN matakuliah ON pengumpulantugas.id_mk = matakuliah.id_mk
-                JOIN datamahasiswa ON pengumpulantugas.nim = datamahasiswa.nim
-                JOIN tugas ON pengumpulantugas.id_tugas = tugas.id_tugas
-                JOIN logindosen ON matakuliah.NIP_Dosen = logindosen.Username
-                WHERE logindosen.Username = %s;
-"""
-        curse.execute(query,(username,))
-        ambildata = curse.fetchall()
-        if ambildata:
-            self.tableViewMahasiswa.setRowCount(len(ambildata))
-            for barisnumber,barisData in enumerate(ambildata):
-                for col,data in enumerate(barisData):
-                    self.tableViewMahasiswa.setItem(barisnumber,col,QTableWidgetItem(str(data)))
-                    self.buttonViewfile = QPushButton("View")
-                    self.buttonViewfile.clicked.connect(self.halamanViewFileTugas)
-                    self.buttonViewfile.setProperty("row",barisnumber)
-                    self.tableViewMahasiswa.setCellWidget(barisnumber,6,self.buttonViewfile)
-                self.tableViewMahasiswa.resizeColumnsToContents()
-
-
     def halamanViewFileTugas(self, nim, id_pengumpulan):
+        print(f"halamanViewFileTugas called with NIM: {nim}, ID Pengumpulan: {id_pengumpulan}")
         self.showHalamanfileTugasMhs = HalamanFileTugasMhs(nim, id_pengumpulan)
         self.showHalamanfileTugasMhs.show()
-
+    
 
 class HalamanFileTugasMhs(QWidget):
     def __init__(self, nim, id_pengumpulan):
@@ -657,35 +606,25 @@ class HalamanFileTugasMhs(QWidget):
         self.tampilkan_file(nim, id_pengumpulan)
 
     def tampilkan_file(self, nim, id_pengumpulan):
-        connection, cursor = buat_koneksi()
-        try:
-            query = """
+        connection, curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
                 SELECT 
                     datamahasiswa.nama,
                     pengumpulantugas.nim,
-                    pengumpulantugas.deskripsi_tugas,
+                    tugas.deskripsi_tugas,
                     pengumpulantugas.file_tugas 
                 FROM pengumpulantugas
                 JOIN datamahasiswa ON pengumpulantugas.nim = datamahasiswa.nim
+                join tugas on tugas.id_tugas = pengumpulantugas.id_tugas
                 WHERE pengumpulantugas.nim = %s AND pengumpulantugas.id_pengumpulan = %s;
             """
-            cursor.execute(query, (nim, id_pengumpulan))
-            data = cursor.fetchone()
+        curse.execute(query, (nim, id_pengumpulan))
+        data = curse.fetchone()
 
-            if data:
-                nama, nim, deskripsi_tugas, file_tugas = data
+        if data:
+                nama, nim, deskripsi_tugas,file_tugas = data
                 self.lbNama.setText(f"Nama Mahasiswa: {nama}")
                 self.lbNim.setText(f"NIM Mahasiswa: {nim}")
                 self.lbdeskripsiTugas.setText(f"Deskripsi Tugas: {deskripsi_tugas}")
-                
-                if file_tugas:
-                    self.fileTugas.setPlainText(file_tugas.decode('utf-8'))
-                else:
-                    self.fileTugas.setPlainText("File tugas tidak ditemukan.")
-            else:
-                QMessageBox.warning(self, "Tidak Ditemukan", "Data tidak ditemukan.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            cursor.close()
-            connection.close()
+                self.fileTugas.setPlainText(f"{file_tugas}")
