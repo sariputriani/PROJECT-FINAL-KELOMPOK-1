@@ -57,7 +57,7 @@ class HalamanDosen(QMainWindow):
         self.toolbar.addWidget(spasi)
 
         setting = QAction(
-            QIcon(os.path.join(basedir, "./image.png")),
+            QIcon(os.path.join(basedir, "./gambardosen/image.png")),
             "Setting",self
         )
         self.toolbar.addAction(setting)
@@ -65,7 +65,7 @@ class HalamanDosen(QMainWindow):
         
 
         exit = QAction(
-            QIcon(os.path.join(basedir, "./logout.png")),
+            QIcon(os.path.join(basedir, "./gambardosen/langout.png")),
             "logout",self
         )
         self.toolbar.addAction(exit)
@@ -372,7 +372,7 @@ class HalamanSetting(QWidget):
 
         #ini  content
         foto = QLabel()
-        fotouser = QPixmap(os.path.join(basedir,"./13.png"))
+        fotouser = QPixmap(os.path.join(basedir,"./gambardosen/13.png"))
         foto.setPixmap(fotouser)
         foto.setAlignment(Qt.AlignCenter)
         layout.addWidget(foto)
