@@ -365,7 +365,7 @@ class HalamanMahasiswa(QMainWindow):
             # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
             self.btnkonfir.setEnabled(not tombolNonAktif)
             self.btnHapus.setEnabled(not tombolNonAktif)
-            # self.btnEditKegiatan.setEnabled(not tombolNonAktif)
+            self.btnEditKegiatan.setEnabled(not tombolNonAktif)
             
             # menepatlan button konrif kedalam setproperty di setia barisnumber
             self.btnkonfir.setProperty("row",barisnumber)

@@ -78,6 +78,7 @@ class LoginWindow(QMainWindow):
         layoutHPassword.addWidget(lbPw)
 
         self.password = QLineEdit()
+        self.password.setEchoMode(QLineEdit.Password)
         # self.password.setObjectName("password")
         self.password.setStyleSheet("""
         font-family : "Cabliri";
