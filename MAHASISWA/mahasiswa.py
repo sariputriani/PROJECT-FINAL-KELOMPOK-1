@@ -19,7 +19,8 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QPlainTextEdit,
     QTabWidget,
-    QDateTimeEdit
+    QDateTimeEdit,
+    QComboBox
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
@@ -285,7 +286,7 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarJadwalKegiatan.setFixedSize(700,400)
         self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
         self.daftarJadwalKegiatan.setColumnCount(6)
-        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Id_kegiatan","Nama Kegiatan","Hari","Tanggal Kegiatan","Jam Mulai","Jam Selesa","Action"])
+        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Id_kegiatan","Nama Kegiatan","Hari","Tanggal Kegiatan","Tanggal Akhir Kegiatan","Action"])
         layoutDs.addWidget(self.daftarJadwalKegiatan)
 
         layoutDs.addStretch()
@@ -381,7 +382,7 @@ class HalamanMahasiswa(QMainWindow):
 
     # membuat method add kegiatan untuk memaanggil class halamantambahkegiatan
     def addKegiatan(self):
-        self.showTambahKegiatan = HalamanTambahKegiatan(self.username)
+        self.showTambahKegiatan = HalamanTambahKegiatan(self.username,self)
         self.showTambahKegiatan.show()
         # self.hide()
 
@@ -512,6 +513,7 @@ class HalamanMahasiswa(QMainWindow):
             self.buttonKmpl.setEnabled(not tombol_nonaktif) 
             self.buttonKmpl.setProperty("row", barisnumber)
             self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
+
         self.daftarTugas.resizeColumnsToContents()
 
     # ini method pemanggilan class halamanKumpulkantugas
@@ -521,7 +523,7 @@ class HalamanMahasiswa(QMainWindow):
     
     # ini method pemanggilan class halaman penampilan tuags
     def view(self,id_tugas):
-        self.ShowHalamanViewTugas = HalamanViewTugas(id_tugas,self.username)
+        self.ShowHalamanViewTugas = HalamanViewTugas(id_tugas)
         self.ShowHalamanViewTugas.show()
 
     # ini method untuk filter
@@ -602,15 +604,13 @@ class HalamanMahasiswa(QMainWindow):
         hariIni = QDateTime.currentDateTime()
 
         for  data in ambildata:
-            id_kegiatan = data[0]
-            tanggal_kegiatan = data[4].strftime("%Y-%m-%d %H:%M:%S")  # Data ini adalah tipe datetime.date
-
-            if tanggal_kegiatan is None:
-                print(f"Warning: Tanggal kegiatan untuk ID {id_kegiatan} kosong.")
-                continue
+            # mengambil  nama kegiatan di kolom 2
+            nama_kegiatan = data[2]
+            # mengambil tanggal kegiatan di kolom 5
+            tanggal_Akhirkegiatan = data[5].strftime("%Y-%m-%d %H:%M:%S")  # Data ini adalah tipe datetime.date
 
             # Konversi tanggal_kegiatan ke QDate
-            formatDeadline = QDateTime.fromString(tanggal_kegiatan, "yyyy-MM-dd HH:mm:ss")  
+            formatDeadline = QDateTime.fromString(tanggal_Akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
 
@@ -628,12 +628,12 @@ class HalamanMahasiswa(QMainWindow):
 
             # deadline hari ini
             elif sisaHari == 0 :
-                pesan = f"Tugas '{id_kegiatan}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
+                pesan = f"Kegiatan '{nama_kegiatan}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
                 QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
             
             # tenggal hari <= 3 hari
             elif sisaHari > 3:  
-                pesan = f"Tugas '{id_kegiatan}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
+                pesan = f"Kegiatan '{nama_kegiatan}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
 # ini halaman kumpulkan tugas
@@ -941,9 +941,10 @@ class HalamanSetting(QWidget):
 
 # # untuk melihat tugas yang sudah diinputkan
 class HalamanViewTugas(QWidget):
-    def __init__(self,id_tugas,username):
+    def __init__(self,id_tugas):
         super().__init__()
-        self.username = username
+        self.id_tugas = id_tugas
+        # self.username = username
         self.setWindowTitle("View Tugas")
         self.setFixedSize(450,450)
         layout = QVBoxLayout()
@@ -1003,9 +1004,9 @@ class HalamanViewTugas(QWidget):
 
 # halaman menambahkan kegiatan
 class HalamanTambahKegiatan(QWidget):
-    def __init__(self,username,parent = None):
+    def __init__(self,username,window = None):
         super().__init__()
-        self.parent = parent
+        self.windowss = window
         # ini menyimpan username
         self.username = username
         self.setFixedSize(400,450)
@@ -1026,13 +1027,13 @@ class HalamanTambahKegiatan(QWidget):
         layoutHhari = QHBoxLayout()
         layoutHhari.setObjectName("layoutHharikegiatan")
         # layoutHhari.setContentsMargins(5,50,0,5)
-        layoutHhari.setSpacing(10)
+        # layoutHhari.setSpacing(10)
         # content layout hari
-        self.Hari = QLabel("Hari")
-        self.Hari.setObjectName("LabelHari")
-        self.ldHari = QLineEdit()
-        layoutHhari.addWidget(self.Hari)
-        layoutHhari.addWidget(self.ldHari)
+        self.lbHari = QLabel("Hari")
+        self.cbHari = QComboBox()
+        self.cbHari.addItems(["Senin","Selesai","Rabu","Kamis","Jumat","Sabtu","Minggu"])
+        layoutHhari.addWidget(self.lbHari)
+        layoutHhari.addWidget(self.cbHari)
         layout.addLayout(layoutHhari)
 
         # layout nama kegiatab
@@ -1071,7 +1072,8 @@ class HalamanTambahKegiatan(QWidget):
         self.setLayout(layout)
     
     def tambah(self, username):
-        hari = self.ldHari.text()
+        # ini mengubah combo boc dalam string
+        hari = self.cbHari.currentText()
         nama_kegiatan = self.ldkegiatan.text()
         idtglml = self.tglmulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
         idtglend = self.tglEnd.dateTime().toString("yyyy-MM-dd HH:mm:ss")
@@ -1098,7 +1100,7 @@ class HalamanTambahKegiatan(QWidget):
             if user:
                 nim = user[0]
                 query = """
-                            INSERT INTO jadwalkegiatan (hari, nama_kegiatan, Tanggal_kegiatan, jam_mulai, jam_selesai) 
+                            INSERT INTO jadwalkegiatan (nim,hari, nama_kegiatan, TanggalMulai_kegiatan, Tanggal_Akhirkegiatan) 
                 VALUES (%s, %s, %s, %s, %s);
                 """ 
                 curse.execute(query,(nim,hari,nama_kegiatan,idtglml,idtglend))
@@ -1108,7 +1110,7 @@ class HalamanTambahKegiatan(QWidget):
                     print("berhasil")
                     QMessageBox.information(self,"Berhasil",f"Penmabahan Jadwal Kegiatan Berhasil")
                     self.close()
-                    self.parent.jadwalKegiatan()
+                    self.windowss.jadwalKegiatan()
             else:
                 print("Username tidak ditemukan!")  # Debugging jika username tidak ditemukan
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
@@ -1123,14 +1125,6 @@ class halamanEditkegiatan(QWidget):
         # layout utama
         layout = QVBoxLayout()
 
-        # layout Hari
-        layoutHHari = QHBoxLayout()
-        # content layout hari
-        self.lbHari = QLabel("Hari")
-        self.ldHari = QLineEdit()
-        layoutHHari.addWidget(self.lbHari)
-        layoutHHari.addWidget(self.ldHari)
-
         # layout nama kegiatan
         layoutHKegiatan = QHBoxLayout()
         # content layout nama kegiatan
@@ -1138,6 +1132,16 @@ class halamanEditkegiatan(QWidget):
         self.ldKegiatan = QLineEdit()
         layoutHKegiatan.addWidget(self.lbKegiatan)
         layoutHKegiatan.addWidget(self.ldKegiatan)
+
+        
+        # layout Hari
+        layoutHHari = QHBoxLayout()
+        # content layout hari
+        self.lbHari = QLabel("Hari")
+        self.cbHari = QComboBox()
+        self.cbHari.addItems(["Senin","Selesai","Rabu","Kamis","Jumat","Sabtu","Minggu"])
+        layoutHHari.addWidget(self.lbHari)
+        layoutHHari.addWidget(self.cbHari)
 
         # layout tanggal mulai
         layoutHtangggal_mulai = QHBoxLayout()
@@ -1184,7 +1188,7 @@ class halamanEditkegiatan(QWidget):
         if ambildata:
             nama, hari, tanggalmulai, tanggal_akhir = ambildata[0]
             self.ldKegiatan.setText(nama)
-            self.ldHari.setText(hari)
+            self.cbHari.setCurrentIndex(hari)
             # Konversi datetime ke string dan set ke QDateTimeEdit
             self.ldtangggal_mulai.setDateTime(tanggalmulai)
             self.ldtanggal_akhir.setDateTime(tanggal_akhir)
@@ -1199,7 +1203,7 @@ class halamanEditkegiatan(QWidget):
 
         # Ambil data yang baru dimasukkan oleh pengguna
         namakegiatan = self.ldKegiatan.text()
-        hari = self.ldHari.text()
+        hari = self.cbHari.currentText()
         tglmulai = self.ldtangggal_mulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
         tglAkhir = self.ldtanggal_akhir.dateTime().toString("yyyy-MM-dd HH:mm:ss")
 

@@ -40,9 +40,9 @@ class LoginWindow(QMainWindow):
         layout.setContentsMargins(20,5,5,5)
         layout.setSpacing(10)
 
-        # gambar
+        # gambarUtama
         iconLogin = QLabel()
-        iconLogin.setPixmap(QIcon("./gambar/gambarlogin.jpg").pixmap(QSize(260, 260)))
+        iconLogin.setPixmap(QIcon("./gambarUtama/gambarlogin.jpg").pixmap(QSize(260, 260)))
         iconLogin.setAlignment(Qt.AlignCenter)
         layout.addWidget(iconLogin)
         
@@ -50,7 +50,7 @@ class LoginWindow(QMainWindow):
         # layout h username
         layoutHUser = QHBoxLayout()
         lbUser = QLabel()
-        lbUser.setPixmap(QIcon("./gambar/userhh.png").pixmap(QSize(25, 25)))
+        lbUser.setPixmap(QIcon("./gambarUtama/userhh.png").pixmap(QSize(25, 25)))
         lbUser.setStyleSheet("margin: 30,20,0")
         layoutHUser.addWidget(lbUser)
 
@@ -73,7 +73,7 @@ class LoginWindow(QMainWindow):
         # layout h password
         layoutHPassword = QHBoxLayout()
         lbPw = QLabel()
-        lbPw.setPixmap(QIcon("./gambar/iconpw.png").pixmap(QSize(25, 25)))
+        lbPw.setPixmap(QIcon("./gambarUtama/iconpw.png").pixmap(QSize(25, 25)))
         lbPw.setStyleSheet("margin:0,20,0")
         layoutHPassword.addWidget(lbPw)
 
