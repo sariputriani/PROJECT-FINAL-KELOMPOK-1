@@ -36,8 +36,8 @@ class HalamanMahasiswa(QMainWindow):
         self.id_tugas = id_tugas
         self.id_kegiatan = id_kegiatan
         self.setWindowTitle(f"Selamat Datang, {self.username}")
-        self.setFixedSize(650,650)
-        self.setGeometry(450,50,650,700)
+        # self.setFixedSize(650,650)
+        self.setGeometry(450,50,700,600)
         self.styleqss()
 
         # Layout dan Widget
@@ -122,7 +122,9 @@ class HalamanMahasiswa(QMainWindow):
         garis.setFrameShadow(QFrame.Sunken)
         layoutDs.addWidget(garis)
 
-        layoutTanggal = QHBoxLayout()
+        self.layoutTanggal = QHBoxLayout()
+        self.layoutTanggal.setObjectName("layoutTanggal")
+
 
         # Mengambil tanggal hari ini
         tangglHariIni = QDate.currentDate()
@@ -131,21 +133,21 @@ class HalamanMahasiswa(QMainWindow):
 
         self.tanggal = QLabel(format)
         self.tanggal.setObjectName("lbTanggal")
-        layoutTanggal.addWidget(self.tanggal)
+        self.layoutTanggal.addWidget(self.tanggal)
 
 
         # Membuat tombol
-        self.btnViewJadwal = QPushButton("  Jadwal")
-        self.btnViewJadwal.setObjectName("btnViewJadwal")
-        self.btnViewJadwal.setFixedSize(90, 30)
+        self.btnViewTanggal = QPushButton("  Tanggal")
+        self.btnViewTanggal.setObjectName("btnViewTanggal")
+        self.btnViewTanggal.setFixedSize(90, 30)
 
         # memberi icon di push button
         gambarMahasiswa_path = os.path.join(basedir, "gambarMahasiswa", "eyes.png")
-        self.btnViewJadwal.setIcon(QIcon(gambarMahasiswa_path))
-        self.btnViewJadwal.setIconSize(QSize(20,20))
-        self.btnViewJadwal.pressed.connect(self.DashboardJadwal)
-        layoutTanggal.addWidget(self.btnViewJadwal)
-        layoutDs.addLayout(layoutTanggal)
+        self.btnViewTanggal.setIcon(QIcon(gambarMahasiswa_path))
+        self.btnViewTanggal.setIconSize(QSize(20,20))
+        self.btnViewTanggal.pressed.connect(self.DashboardJadwal)
+        self.layoutTanggal.addWidget(self.btnViewTanggal)
+        layoutDs.addLayout(self.layoutTanggal)
 
 
         # serch
@@ -155,9 +157,10 @@ class HalamanMahasiswa(QMainWindow):
         self.search.textChanged.connect(self.apply_filter)
         layoutDs.addWidget(self.search)
 
-        # table
+        # table tugas
         self.daftarTugas = QTableWidget()
         self.daftarTugas.setObjectName("daftarTugas")
+        self.daftarTugas.setFixedSize(700,350)
         self.daftarTugas.setColumnCount(7)
         self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
         self.daftarTugas.horizontalHeader().setStretchLastSection(False)
@@ -174,7 +177,7 @@ class HalamanMahasiswa(QMainWindow):
         container = QWidget()
         layoutDs = QVBoxLayout()
         
-        self.judul = QLabel("Jadwal Overview")
+        self.judul = QLabel("Jadwal Kuliah")
         self.judul.setObjectName("lbJudul")        
         layoutDs.addWidget(self.judul)
 
@@ -191,11 +194,6 @@ class HalamanMahasiswa(QMainWindow):
         self.celender.setGridVisible(True)
         self.current_date = self.celender.selectedDate()  # Ambil tanggal default dari QCalendarWidget
         layoutDs.addWidget(self.celender)
-        
-        # ini judul jadwal kegiatan
-        self.judul = QLabel("Jadwal Kuliah")
-        self.judul.setObjectName("lbJudul")        
-        layoutDs.addWidget(self.judul)
 
         # ini garis pemisah jadwalkagitan
         self.lineJadwal = QFrame()
@@ -207,6 +205,7 @@ class HalamanMahasiswa(QMainWindow):
         # memembuat table jadwal
         self.daftarJadwal = QTableWidget()
         self.daftarJadwal.setObjectName("daftarJadwal")
+        self.daftarJadwal.setFixedSize(700,250)
         self.daftarJadwal.horizontalHeader().setStretchLastSection(True)
         self.daftarJadwal.setColumnCount(6)
         self.daftarJadwal.setHorizontalHeaderLabels(["Hari","Jam/Waktu", "Nama Ruangan", "Mata Kuliah", "Nama Dosen","SKS"])
@@ -273,8 +272,8 @@ class HalamanMahasiswa(QMainWindow):
         spasi = QWidget()
         spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         layoutHKegiatan.addWidget(spasi)
-        self.btnTambahKegiatan = QPushButton("Tambah Kegiatan")
-        # self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
+        self.btnTambahKegiatan = QPushButton("add Kegiatan")
+        self.btnTambahKegiatan.setObjectName("btnJadwalKegiatan")
         self.btnTambahKegiatan.setGeometry(200, 150, 100, 40)
         self.btnTambahKegiatan.clicked.connect(self.addKegiatan)
         layoutHKegiatan.addWidget(self.btnTambahKegiatan) 
@@ -283,6 +282,7 @@ class HalamanMahasiswa(QMainWindow):
         # membuat jadwal kegiatan
         self.daftarJadwalKegiatan = QTableWidget()
         self.daftarJadwalKegiatan.setObjectName("daftarKegiatan")
+        self.daftarJadwalKegiatan.setFixedSize(700,400)
         self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
         self.daftarJadwalKegiatan.setColumnCount(6)
         self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Hari","Nama Kegiatan","Tanggal Kegiatan","Jam Mulai","Jam Selesa","Action"])
@@ -298,6 +298,7 @@ class HalamanMahasiswa(QMainWindow):
     def jadwalKegiatan(self):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
+        # ini query menampilkan isi jadwalkegiatan
         query = """
             select jadwalkegiatan.id_kegiatan,jadwalkegiatan.Hari,jadwalkegiatan.nama_kegiatan,jadwalkegiatan.tanggal_kegiatan,jadwalkegiatan.jam_mulai,jadwalkegiatan.jam_selesai from jadwalkegiatan
 """
@@ -315,6 +316,7 @@ class HalamanMahasiswa(QMainWindow):
             layoutAction.setContentsMargins(0,0,0,0)
             # mebuatn content button hapus
             self.btnHapus = QPushButton("Hapus")
+            self.btnHapus.setObjectName("btnhapus")
             self.btnHapus.setProperty("row",barisnumber)
             self.btnHapus.clicked.connect(partial(self.Hapus, id_kegiatan=id_kegiatan))
             # membuat content konfir
@@ -322,14 +324,20 @@ class HalamanMahasiswa(QMainWindow):
             SELECT COUNT(*) FROM daftarkegiatanselesai where id_kegiatan = %s;
 """
             curse.execute(query_check,(id_kegiatan,))
-            sudah_selesai = curse.fetchone()[0] > 0
+            # ini mengek apakah id_kegiatan tersebut sudah dikumpulkan didalam daftarkegiatanselesai
+            sudah_selesai = curse.fetchone()[0] > 0 #ini mengecek jika lebih dari 1 maka sudah seesai
+            # ini membuat button konfir
             self.btnkonfir = QPushButton()
+            self.btnkonfir.setObjectName("buttonkonfir")
+            # ini membuat satu variabel yang dimana = sudah_selesai 
             tombolNonAktif = sudah_selesai
+            # ini jika syarat slesai terpenuhi mka btnkonfir akan diset selesai
             if sudah_selesai:
                 self.btnkonfir.setText("SELESAI")
                 self.btnkonfir.setStyleSheet("Background-color:green")
+            # jika button slesai belum terpenuhi maka diset konfirmasi
             else:
-                self.btnkonfir.setText("KONFIRMASI")
+                self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
             
             # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
@@ -338,8 +346,6 @@ class HalamanMahasiswa(QMainWindow):
             
             # menepatlan button konrif kedalam setproperty di setia barisnumber
             self.btnkonfir.setProperty("row",barisnumber)
-            self.btnkonfir.clicked.connect(self.konfir)
-
             # menmabhkn content onte tersebut kedalam layout
             layoutAction.addWidget(self.btnHapus)
             layoutAction.addWidget(self.btnkonfir)
@@ -910,8 +916,8 @@ class HalamanTambahKegiatan(QWidget):
     def __init__(self,parent = None):
         super().__init__()
         self.parent = parent
-        self.setFixedSize(400,400)
-        self.setStyleSheet("background-color:rgb(235, 241, 243);")
+        self.setFixedSize(400,450)
+        # self.setStyleSheet("background-color:rgb(235, 241, 243);")
 
         # layout utama
         layout = QVBoxLayout()
@@ -926,6 +932,7 @@ class HalamanTambahKegiatan(QWidget):
         # ini content widget
         # layout hari
         layoutHhari = QHBoxLayout()
+        layoutHhari.setObjectName("layoutHharikegiatan")
         # layoutHhari.setContentsMargins(5,50,0,5)
         layoutHhari.setSpacing(10)
         # content layout hari
@@ -1030,6 +1037,7 @@ class HalamanTambahKegiatan(QWidget):
 
         # btn tambah
         self.btntambah = QPushButton("Tambah")
+        self.btntambah.setObjectName("btntambahKegiatan")
         self.btntambah.clicked.connect(self.tambah)
         layout.addWidget(self.btntambah)
 

@@ -46,6 +46,7 @@ QLineEdit#search{
 
 QFrame#line{
     border: 2px solid #125370;
+    margin-bottom: 50px;
 }
 
 QTableWidget QHeaderView::section{
@@ -58,14 +59,19 @@ QTableWidget{
     alternate-background-color: #BDEDFB;
     background-color: #F4F9FA;
 }
-
-QPushButton#btnViewJadwal{
+QHBoxLayout#layoutTanggal{
+    margin-top:20px;
+}
+QPushButton#btnViewTanggal::pressed{
+    background-color: white;
+}
+QPushButton#btnViewTanggal{
     background-color: #6AE0E8;
     border-radius:5px;  
     font-family:Poppins;
     font-size:12px; 
 }
-QPushButton#btnViewJadwal::pressed{
+QPushButton#btnViewTanggal::pressed{
     background-color: white;
 }
 
@@ -111,19 +117,43 @@ QWidget#nim,#nama,#jurusan,#prodi,#semester{
             border-radius: 5px;
             padding: 5px;           
 }
-
 QPushButton#btnJadwalKegiatan{
-    background-color: #6AE0E8;
-    border-radius:5px;  
+    background-color: #007bff;
+    color : white;
+    border-radius:5px;
+    margin-top : 20px;  
     font-family:Poppins;
     font-size:12px; 
-    width : 10px;
-    height : 20px;
+    width : 100px;
+    height : 40px;
 }
 QPushButton#btnJadwalKegiatan::pressed{
     background-color: white;
 }
 
-QLabel#LabelHari,#LabelTanggal{
-    margin-left : 60px;
+QPushButton#btntambahKegiatan{
+    background-color:rgb(10, 212, 57);
+    color : white;
+    border-radius:5px; 
+    font-family:Poppins;
+    font-size:12px; 
+    height : 40px;
+    margin-top : 20px;
+}
+
+QPushButton#buttonkonfir{
+     background-color: blue;
+    color : white;
+    font-weight: bold;
+}
+QPushButton#buttonkonfir::hover{
+    color : black;
+}
+QPushButton#btnhapus{
+    background-color: red;
+    color : white;
+    font-weight: bold;
+}
+QPushButton#btnhapus::hover{
+    color : black;
 }
