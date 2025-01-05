@@ -162,8 +162,8 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarTugas = QTableWidget()
         self.daftarTugas.setObjectName("daftarTugas")
         self.daftarTugas.setFixedSize(700,350)
-        self.daftarTugas.setColumnCount(7)
-        self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
+        self.daftarTugas.setColumnCount(9)
+        self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Nama Mata Kuliah","Judul Tugas","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
         self.daftarTugas.horizontalHeader().setStretchLastSection(False)
         layoutDs.addWidget(self.daftarTugas)
         
@@ -444,7 +444,7 @@ class HalamanMahasiswa(QMainWindow):
         connection, curse = buat_koneksi()
         curse = connection.cursor()
         query = """
-                SELECT tugas.id_tugas, tugas.id_mk, tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, 
+                SELECT tugas.id_tugas, tugas.id_mk, matakuliah.nama_mk,tugas.judul_tugas,tugas.deskripsi_tugas, tugas.tanggal_pemberian, tugas.tanggal_pengumpulan, 
                 ABS(DATEDIFF(tugas.tanggal_pengumpulan, tugas.tanggal_pemberian)) AS selisih_hari
                 FROM tugas
                 JOIN matakuliah ON matakuliah.id_mk = tugas.id_mk;
@@ -460,7 +460,7 @@ class HalamanMahasiswa(QMainWindow):
                 self.daftarTugas.setItem(barisnumber, col, QTableWidgetItem(str(data)))
             
             id_tugas = barisData[0]
-            tanggal_deadline = QDate.fromString(barisData[4].strftime("%Y-%m-%d"), "yyyy-MM-dd")
+            tanggal_deadline = QDate.fromString(barisData[6].strftime("%Y-%m-%d"), "yyyy-MM-dd")
 
             # Cek apakah user sudah mengumpulkan tugas
             query_check = """
@@ -512,7 +512,7 @@ class HalamanMahasiswa(QMainWindow):
              # Disable tombol jika kondisi terpenuhi
             self.buttonKmpl.setEnabled(not tombol_nonaktif) 
             self.buttonKmpl.setProperty("row", barisnumber)
-            self.daftarTugas.setCellWidget(barisnumber, 6, self.buttonKmpl)
+            self.daftarTugas.setCellWidget(barisnumber, 8, self.buttonKmpl)
 
         self.daftarTugas.resizeColumnsToContents()
 
@@ -539,6 +539,60 @@ class HalamanMahasiswa(QMainWindow):
             self.daftarTugas.setRowHidden(row, not found)  # Sembunyikan baris jika teks tidak ditemukan
 
     # ini method pesan deadline
+    # def pengingatTugas(self):
+    #     connection,curse = buat_koneksi()
+    #     curse = connection.cursor()
+
+    #     # Query untuk mengambil data deadline
+    #     query = "SELECT * FROM tugas"
+    #     curse.execute(query)
+    #     ambildata = curse.fetchall()
+        
+    #     # ini mengambil tanggal hari ini
+    #     hariIni = QDateTime.currentDateTime()
+
+    #     for  data in ambildata:
+    #         # ambildata di kolom 1
+    #         namajudul = data[2]
+    #         # ambil data dikolom 2 dengan format tanggal
+    #         tanggalDeadline = data[4].strftime("%Y-%m-%d %H:%M:%S")
+            
+    #         # Konversi ke QDate
+    #         formatDeadline = QDateTime.fromSecsSinceEpoch(int(tanggalDeadline.timestamp()))  
+    #         # hitung sisa hari hingga deadline
+    #         sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
+
+    #         # sudah_kumpulkan = 
+    #         # Cek apakah user sudah mengumpulkan tugas
+    #         query_check = """
+    #         SELECT COUNT(*) 
+    #         FROM pengumpulantugas 
+    #         WHERE id_tugas = %s AND nim = (
+    #             SELECT dataMahasiswa.nim 
+    #             FROM dataMahasiswa 
+    #             JOIN loginMahasiswa ON loginMahasiswa.username = dataMahasiswa.nim 
+    #             WHERE loginMahasiswa.username = %s
+    #         )
+    #         """
+    #         curse.execute(query_check, (data[0], self.username))
+    #         sudah_dikumpulkan = curse.fetchone()[0] > 0
+
+    #         # menghilangkan pengingatTugas jika batasnya sudah melewati deadline
+    #         if sisaHari < 0 or sudah_dikumpulkan:
+    #             continue
+
+    #         # deadline hari ini
+    #         elif sisaHari == 0 :
+    #             pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
+    #             QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
+            
+    #         # tenggal hari <= 3 hari
+    #         elif sisaHari > 3:  
+    #             pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
+    #             QMessageBox.information(self, "pengingatTugas Deadline", pesan)
+
+
+     # ini method pesan deadline
     def pengingatTugas(self):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
@@ -555,7 +609,7 @@ class HalamanMahasiswa(QMainWindow):
             # ambildata di kolom 1
             namajudul = data[2]
             # ambil data dikolom 2 dengan format tanggal
-            tanggalDeadline = data[4].strftime("%Y-%m-%d %H:%M:%S")
+            tanggalDeadline = data[5].strftime("%Y-%m-%d %H:%M:%S")
             
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggalDeadline, "yyyy-MM-dd HH:mm:ss")  
@@ -584,42 +638,47 @@ class HalamanMahasiswa(QMainWindow):
             # deadline hari ini
             elif sisaHari == 0 :
                 pesan = f"Tugas '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
-                QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)
             
-            # tenggal hari <= 3 hari
-            elif sisaHari > 3:  
-                pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
-                QMessageBox.information(self, "pengingatTugas Deadline", pesan)
+            elif sisaHari <= 3 :
+                pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari , yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}!"
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)
 
     def pengingatKegiatan(self):
-        connection,curse = buat_koneksi()
+        connection, curse = buat_koneksi()
         curse = connection.cursor()
 
         # Query untuk mengambil data deadline
         query = "SELECT * FROM jadwalkegiatan"
         curse.execute(query)
         ambildata = curse.fetchall()
-        
+
         # ini mengambil tanggal hari ini
         hariIni = QDateTime.currentDateTime()
 
-        for  data in ambildata:
-            # mengambil  nama kegiatan di kolom 2
-            nama_kegiatan = data[2]
-            # mengambil tanggal kegiatan di kolom 5
-            tanggal_Akhirkegiatan = data[5].strftime("%Y-%m-%d %H:%M:%S")  # Data ini adalah tipe datetime.date
+        for data in ambildata:
+            # ambildata di kolom 1
+            namajudul = data[2]
+            # ambil data dikolom 2 dengan format tanggal
+            tanggal_akhirkegiatan = data[5].strftime("%Y-%m-%d %H:%M:%S")
 
-            # Konversi tanggal_kegiatan ke QDate
-            formatDeadline = QDateTime.fromString(tanggal_Akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
+            # Konversi ke QDate
+            formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
 
-            # sudah_kumpulkan = 
-            # Cek apakah user sudah mengumpulkan tugas
+            # Cek apakah mahasiswa sudah menyelesaikan kegiatan
             query_check = """
-            SELECT COUNT(*) FROM daftarkegiatanselesai where id_kegiatan = %s;
+            SELECT COUNT(*) 
+            FROM daftarkegiatanselesai 
+            WHERE id_kegiatan = %s AND nim = (
+                SELECT nim 
+                FROM dataMahasiswa 
+                JOIN loginMahasiswa ON loginMahasiswa.username = dataMahasiswa.nim 
+                WHERE loginMahasiswa.username = %s
+            )
             """
-            curse.execute(query_check, (data[0],))
+            curse.execute(query_check, (data[0], self.username))
             sudah_selesai = curse.fetchone()[0] > 0
 
             # menghilangkan pengingat jika batasnya sudah melewati deadline
@@ -627,14 +686,16 @@ class HalamanMahasiswa(QMainWindow):
                 continue
 
             # deadline hari ini
-            elif sisaHari == 0 :
-                pesan = f"Kegiatan '{nama_kegiatan}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
-                QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
-            
+            elif sisaHari == 0:
+                pesan = f"Kegiatan '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)
+
             # tenggal hari <= 3 hari
-            elif sisaHari > 3:  
-                pesan = f"Kegiatan '{nama_kegiatan}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
+            elif sisaHari <= 3:
+                pesan = f"Kegiatan '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
+
+
 
 # ini halaman kumpulkan tugas
 class HalamanKumpulkanTugas(QWidget):
@@ -1050,6 +1111,7 @@ class HalamanTambahKegiatan(QWidget):
         self.lbtglKegiatanEnd = QLabel("Tanggal dan Jam Akhir Kegiatan")
         layoutTglKegiatanEnd.addWidget(self.lbtglKegiatanEnd)
         self.tglEnd = QDateTimeEdit()
+        self.tglEnd.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         layoutTglKegiatanEnd.addWidget(self.tglEnd)
         layout.addLayout(layoutTglKegiatanEnd)
 
@@ -1057,6 +1119,7 @@ class HalamanTambahKegiatan(QWidget):
         self.lbtglKegiatanStart = QLabel("Tanggal dan Jam Mulai kegiatan")
         layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
         self.tglmulai = QDateTimeEdit()
+        self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         layoutTglKegiatanStart.addWidget(self.tglmulai)
         layout.addLayout(layoutTglKegiatanStart)
 
