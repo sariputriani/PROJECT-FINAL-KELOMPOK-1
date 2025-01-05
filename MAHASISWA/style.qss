@@ -157,3 +157,11 @@ QPushButton#btnhapus{
 QPushButton#btnhapus::hover{
     color : black;
 }
+QPushButton#btnhEdit{
+    background-color: #007BFF;
+    color : white;
+    font-weight: bold;
+}
+QPushButton#btnhEdit::hover{
+    color : black;
+}

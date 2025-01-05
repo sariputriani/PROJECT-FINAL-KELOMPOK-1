@@ -28,7 +28,7 @@ QToolButton {
     font-weight: bold;
 }
 
-QLabel#lbJudul{
+QLabel#lbjudul{
     font-family:"cambria";
     font-weight: "SemiBold";
     font-size:26px;
@@ -44,7 +44,7 @@ QLineEdit#search{
     padding: 5px;
 }
 
-QFrame#line{
+QFrame#garis{
     border: 2px solid #125370;
     margin-bottom: 50px;
 }
@@ -81,4 +81,14 @@ QMessageBox QPushButton::hover {
 
 QMessageBox QPushButton::pressed {
         background-color: white;
+}
+
+QPushButton#btnTambahTugas{
+    background-color:rgb(10, 212, 57);
+    color : white;
+    border-radius:5px; 
+    font-family:Poppins;
+    font-size:12px; 
+    height : 40px;
+    margin-top : 20px;
 }

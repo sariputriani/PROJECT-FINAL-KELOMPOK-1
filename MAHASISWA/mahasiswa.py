@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QPlainTextEdit,
     QTabWidget,
-    QSpinBox
+    QDateTimeEdit
 )
 from PySide6.QtCore import QSize, Qt,QDate,QDateTime
 from PySide6.QtGui import QAction, QIcon,QPixmap
@@ -166,12 +166,12 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarTugas.horizontalHeader().setStretchLastSection(False)
         layoutDs.addWidget(self.daftarTugas)
         
-        # 
+        # ini mengatur layout
         layoutDs.addStretch()
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
         self.tugas()
-        self.pengingat()
+        self.pengingatTugas()
     
     def DashboardJadwal(self):
         container = QWidget()
@@ -285,7 +285,7 @@ class HalamanMahasiswa(QMainWindow):
         self.daftarJadwalKegiatan.setFixedSize(700,400)
         self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
         self.daftarJadwalKegiatan.setColumnCount(6)
-        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Hari","Nama Kegiatan","Tanggal Kegiatan","Jam Mulai","Jam Selesa","Action"])
+        self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Id_kegiatan","Nama Kegiatan","Hari","Tanggal Kegiatan","Jam Mulai","Jam Selesa","Action"])
         layoutDs.addWidget(self.daftarJadwalKegiatan)
 
         layoutDs.addStretch()
@@ -293,6 +293,7 @@ class HalamanMahasiswa(QMainWindow):
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
         self.jadwalKegiatan()
+        self.pengingatKegiatan()
 
     # ini method menampilkan data table jadwal kegiatan di databses ke QtabeWIged
     def jadwalKegiatan(self):
@@ -300,41 +301,62 @@ class HalamanMahasiswa(QMainWindow):
         curse = connection.cursor()
         # ini query menampilkan isi jadwalkegiatan
         query = """
-            select jadwalkegiatan.id_kegiatan,jadwalkegiatan.Hari,jadwalkegiatan.nama_kegiatan,jadwalkegiatan.tanggal_kegiatan,jadwalkegiatan.jam_mulai,jadwalkegiatan.jam_selesai from jadwalkegiatan
+            SELECT jadwalkegiatan.id_kegiatan,
+               jadwalkegiatan.nama_kegiatan,
+               jadwalkegiatan.Hari,
+               jadwalkegiatan.TanggalMulai_kegiatan,
+               jadwalkegiatan.tanggal_AkhirKegiatan
+        FROM jadwalkegiatan
+        WHERE jadwalkegiatan.nim = %s
 """
-        curse.execute(query)
+        curse.execute(query, (self.username,))  # Menggunakan username untuk filter
         ambildata = curse.fetchall()
+
         self.daftarJadwalKegiatan.setRowCount(len(ambildata))
         for barisnumber,barisData in enumerate(ambildata):
             for col,data in enumerate(barisData):
                 self.daftarJadwalKegiatan.setItem(barisnumber,col,QTableWidgetItem(str(data)))
-
+            
+            # mengambil data di colom 0 yaitu untuk id_kegiatan
             id_kegiatan = barisData[0]
+            
             # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
             layoutAction = QHBoxLayout(action)
             layoutAction.setContentsMargins(0,0,0,0)
+            
+            # mebuatn content button edit
+            self.btnEditKegiatan = QPushButton("Edit")
+            self.btnEditKegiatan.setObjectName("btnhEdit")
+            self.btnEditKegiatan.setProperty("row",barisnumber)
+            self.btnEditKegiatan.clicked.connect(partial(self.Edit, id_kegiatan=id_kegiatan))
+
             # mebuatn content button hapus
             self.btnHapus = QPushButton("Hapus")
             self.btnHapus.setObjectName("btnhapus")
             self.btnHapus.setProperty("row",barisnumber)
             self.btnHapus.clicked.connect(partial(self.Hapus, id_kegiatan=id_kegiatan))
+            
             # membuat content konfir
             query_check = """
-            SELECT COUNT(*) FROM daftarkegiatanselesai where id_kegiatan = %s;
+            SELECT COUNT(*) FROM daftarkegiatanselesai WHERE id_kegiatan = %s AND nim = %s;
 """
-            curse.execute(query_check,(id_kegiatan,))
+            curse.execute(query_check,(id_kegiatan,self.username))
             # ini mengek apakah id_kegiatan tersebut sudah dikumpulkan didalam daftarkegiatanselesai
             sudah_selesai = curse.fetchone()[0] > 0 #ini mengecek jika lebih dari 1 maka sudah seesai
+
             # ini membuat button konfir
             self.btnkonfir = QPushButton()
             self.btnkonfir.setObjectName("buttonkonfir")
+            
             # ini membuat satu variabel yang dimana = sudah_selesai 
             tombolNonAktif = sudah_selesai
+            
             # ini jika syarat slesai terpenuhi mka btnkonfir akan diset selesai
             if sudah_selesai:
                 self.btnkonfir.setText("SELESAI")
                 self.btnkonfir.setStyleSheet("Background-color:green")
+            
             # jika button slesai belum terpenuhi maka diset konfirmasi
             else:
                 self.btnkonfir.setText("Konfirmasi")
@@ -343,10 +365,12 @@ class HalamanMahasiswa(QMainWindow):
             # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
             self.btnkonfir.setEnabled(not tombolNonAktif)
             self.btnHapus.setEnabled(not tombolNonAktif)
+            # self.btnEditKegiatan.setEnabled(not tombolNonAktif)
             
             # menepatlan button konrif kedalam setproperty di setia barisnumber
             self.btnkonfir.setProperty("row",barisnumber)
             # menmabhkn content onte tersebut kedalam layout
+            layoutAction.addWidget(self.btnEditKegiatan)
             layoutAction.addWidget(self.btnHapus)
             layoutAction.addWidget(self.btnkonfir)
             
@@ -357,9 +381,14 @@ class HalamanMahasiswa(QMainWindow):
 
     # membuat method add kegiatan untuk memaanggil class halamantambahkegiatan
     def addKegiatan(self):
-        self.showTambahKegiatan = HalamanTambahKegiatan(self)
+        self.showTambahKegiatan = HalamanTambahKegiatan(self.username)
         self.showTambahKegiatan.show()
         # self.hide()
+
+
+    def Edit (self,id_kegiatan):
+        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan)
+        self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
         print(f"ID yang diterima: {id_kegiatan}")
@@ -376,22 +405,38 @@ class HalamanMahasiswa(QMainWindow):
             connction.commit()
             QMessageBox.information(self,"Konfirmasi","Jadwal kegiatan berhasil dihapus")
             self.jadwalKegiatan()
-   
-    def konfir(self,id_kegiatan):
+
+    # ini fungsi untuk mengkonfirmasikan tugas
+    def konfir(self, id_kegiatan):
         print("konfir")
-        connection,curse = buat_koneksi()
+        connection, curse = buat_koneksi()
         curse = connection.cursor()
-        query = """
-                    INSERT INTO daftarKegiatanSelesai (id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan)
-                    SELECT id_kegiatan, nama_kegiatan, hari, tanggal_kegiatan
-                    FROM jadwalKegiatan
-                    WHERE id_kegiatan = %s;
-    """ 
-        curse.execute(query,(id_kegiatan,))
-        massage = QMessageBox.question(self,"question","Apakah ini tugas ini telah selesai ? " , QMessageBox.Yes | QMessageBox.No)
-        if massage == QMessageBox.Yes:
-            connection.commit()
-            self.jadwalKegiatan()
+
+        # Ambil NIM berdasarkan username yang sedang login
+        username = self.username  # Asumsikan 'self.username_login' menyimpan username pengguna yang sedang login
+        query_nim = "SELECT username FROM LoginMahasiswa WHERE username = %s"
+        curse.execute(query_nim, (username,))
+        nim = curse.fetchone()
+
+        if nim:
+            nim = nim[0]  # Ambil NIM dari hasil query (index ke-0 adalah NIM)
+
+            # Query untuk memasukkan data kegiatan selesai
+            query = """
+                INSERT INTO daftarkegiatanselesai (id_kegiatan, nim)
+                VALUES (%s, %s)
+            """
+            curse.execute(query, (id_kegiatan, nim))
+
+            # Menampilkan pesan konfirmasi untuk memastikan apakah tugas selesai
+            message = QMessageBox.question(self, "Konfirmasi", "Apakah tugas ini telah selesai?", QMessageBox.Yes | QMessageBox.No)
+
+            if message == QMessageBox.Yes:
+                connection.commit()  # Menyimpan perubahan ke database
+                self.jadwalKegiatan()  # Panggil fungsi untuk memperbarui jadwal kegiatan
+        else:
+            print("Username tidak ditemukan atau NIM tidak ada.")
+
 
     # method menampilkan data tugas
     def tugas(self):
@@ -492,7 +537,7 @@ class HalamanMahasiswa(QMainWindow):
             self.daftarTugas.setRowHidden(row, not found)  # Sembunyikan baris jika teks tidak ditemukan
 
     # ini method pesan deadline
-    def pengingat(self):
+    def pengingatTugas(self):
         connection,curse = buat_koneksi()
         curse = connection.cursor()
 
@@ -530,7 +575,7 @@ class HalamanMahasiswa(QMainWindow):
             curse.execute(query_check, (data[0], self.username))
             sudah_dikumpulkan = curse.fetchone()[0] > 0
 
-            # menghilangkan pengingat jika batasnya sudah melewati deadline
+            # menghilangkan pengingatTugas jika batasnya sudah melewati deadline
             if sisaHari < 0 or sudah_dikumpulkan:
                 continue
 
@@ -542,6 +587,53 @@ class HalamanMahasiswa(QMainWindow):
             # tenggal hari <= 3 hari
             elif sisaHari > 3:  
                 pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
+                QMessageBox.information(self, "pengingatTugas Deadline", pesan)
+
+    def pengingatKegiatan(self):
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+
+        # Query untuk mengambil data deadline
+        query = "SELECT * FROM jadwalkegiatan"
+        curse.execute(query)
+        ambildata = curse.fetchall()
+        
+        # ini mengambil tanggal hari ini
+        hariIni = QDateTime.currentDateTime()
+
+        for  data in ambildata:
+            id_kegiatan = data[0]
+            tanggal_kegiatan = data[4].strftime("%Y-%m-%d %H:%M:%S")  # Data ini adalah tipe datetime.date
+
+            if tanggal_kegiatan is None:
+                print(f"Warning: Tanggal kegiatan untuk ID {id_kegiatan} kosong.")
+                continue
+
+            # Konversi tanggal_kegiatan ke QDate
+            formatDeadline = QDateTime.fromString(tanggal_kegiatan, "yyyy-MM-dd HH:mm:ss")  
+            # hitung sisa hari hingga deadline
+            sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
+
+            # sudah_kumpulkan = 
+            # Cek apakah user sudah mengumpulkan tugas
+            query_check = """
+            SELECT COUNT(*) FROM daftarkegiatanselesai where id_kegiatan = %s;
+            """
+            curse.execute(query_check, (data[0],))
+            sudah_selesai = curse.fetchone()[0] > 0
+
+            # menghilangkan pengingat jika batasnya sudah melewati deadline
+            if sisaHari < 0 or sudah_selesai:
+                continue
+
+            # deadline hari ini
+            elif sisaHari == 0 :
+                pesan = f"Tugas '{id_kegiatan}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)    
+            
+            # tenggal hari <= 3 hari
+            elif sisaHari > 3:  
+                pesan = f"Tugas '{id_kegiatan}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
 
 # ini halaman kumpulkan tugas
@@ -550,7 +642,6 @@ class HalamanKumpulkanTugas(QWidget):
         super().__init__()
         self.username = username
         self.parent_window = parent_window 
-        # self.tugas = id_tugas
         self.setWindowTitle("View Tugas")
         self.setFixedSize(450,450)
         layout = QVBoxLayout()
@@ -868,8 +959,6 @@ class HalamanViewTugas(QWidget):
         self.FileTugas.setReadOnly(True)
         # self.FileTugas.setEnabled(False)
         self.lbFile = QLabel("File Tugas")
-        # self.btnKirim = QPushButton("Kirim")
-        # self.btnKirim.clicked.connect(self.kirim)
         
         # menambahkan ke layout
         layout.addWidget(self.id_tugas)
@@ -914,9 +1003,11 @@ class HalamanViewTugas(QWidget):
 
 # halaman menambahkan kegiatan
 class HalamanTambahKegiatan(QWidget):
-    def __init__(self,parent = None):
+    def __init__(self,username,parent = None):
         super().__init__()
         self.parent = parent
+        # ini menyimpan username
+        self.username = username
         self.setFixedSize(400,450)
         # self.setStyleSheet("background-color:rgb(235, 241, 243);")
 
@@ -954,120 +1045,164 @@ class HalamanTambahKegiatan(QWidget):
         layoutHkegitan.addWidget(self.ldkegiatan)
         layout.addLayout(layoutHkegitan)
 
-        # layout tanggal
-        layoutHTanggal = QHBoxLayout()
-        # contente layout tanggal
-        self.Tanggal = QLabel("Tanggal")
-        self.Tanggal.setObjectName("LabelTanggal")
-        self.spin_tahun = QSpinBox()
-        self.spin_tahun.setRange(1900, 2100)  # Rentang tahun
-        self.spin_tahun.setPrefix("Tahun: ")
-        self.spin_tahun.setStyleSheet("padding: 3px 10px;")
+        layoutTglKegiatanEnd = QHBoxLayout()
+        self.lbtglKegiatanEnd = QLabel("Tanggal dan Jam Akhir Kegiatan")
+        layoutTglKegiatanEnd.addWidget(self.lbtglKegiatanEnd)
+        self.tglEnd = QDateTimeEdit()
+        layoutTglKegiatanEnd.addWidget(self.tglEnd)
+        layout.addLayout(layoutTglKegiatanEnd)
 
-        # SpinBox untuk input bulan
-        self.spin_bulan = QSpinBox()
-        self.spin_bulan.setRange(1, 12)  # Rentang bulan
-        self.spin_bulan.setPrefix("Bulan: ")
-        self.spin_bulan.setStyleSheet("padding: 3px 10px;")
-
-        # SpinBox untuk input tanggal
-        self.spin_tanggal = QSpinBox()
-        self.spin_tanggal.setRange(1, 31)  # Rentang tanggal
-        self.spin_tanggal.setPrefix("Tanggal: ")
-        self.spin_tanggal.setStyleSheet("padding: 3px 10px;")
-        layoutHTanggal.addWidget(self.Tanggal)
-        layoutHTanggal.addWidget(self.spin_tahun)
-        layoutHTanggal.addWidget(self.spin_bulan)
-        layoutHTanggal.addWidget(self.spin_tanggal)
-        layout.addLayout(layoutHTanggal)
-
-        # layout jam mulai
-        layoutjam = QHBoxLayout()
-        # contente layout jam
-        self.lbjam = QLabel("Jam Mulai")
-        self.lbjam.setObjectName("LabelJam")
-        layoutjam.addWidget(self.lbjam)
-        # jam mulai
-        self.spin_JmMulai = QSpinBox()
-        self.spin_JmMulai.setRange(0, 23)  # Rentang tanggal
-        self.spin_JmMulai.setPrefix("Jam: ")
-        self.spin_tanggal.setStyleSheet("padding: 3px 10px;")
-        
-        # menit mulai
-        self.spin_MenitMulai = QSpinBox()
-        self.spin_MenitMulai.setRange(0, 59)  # Rentang tanggal
-        self.spin_MenitMulai.setPrefix("Menit: ")
-        self.spin_MenitMulai.setStyleSheet("padding: 3px 10px;")
-        # detik mulai
-        self.spin_detikMulai = QSpinBox()
-        self.spin_detikMulai.setRange(0, 59)  # Rentang tanggal
-        self.spin_detikMulai.setPrefix("Detik: ")
-        self.spin_detikMulai.setStyleSheet("padding: 3px 10px;")
-        #menmabah content layout jam mulai
-        layoutjam.addWidget(self.spin_JmMulai)
-        layoutjam.addWidget(self.spin_MenitMulai)
-        layoutjam.addWidget(self.spin_detikMulai)
-        layout.addLayout(layoutjam)
-
-        # layout jam selesai
-        layoutjamSelesai = QHBoxLayout()
-        self.lbjamSelesai = QLabel("Jam Selesai")
-        self.lbjamSelesai.setObjectName("LabelJamSelesai")
-        layoutjamSelesai.addWidget(self.lbjamSelesai)
-        # jam selesai
-        self.spin_Jmselesai = QSpinBox()
-        self.spin_Jmselesai.setRange(0, 23)  # Rentang tanggal
-        self.spin_Jmselesai.setPrefix("Jam: ")
-        self.spin_Jmselesai.setStyleSheet("padding: 3px 10px;")
-        
-        # menit selesai
-        self.spin_Menitselesai = QSpinBox()
-        self.spin_Menitselesai.setRange(0, 59)  # Rentang tanggal
-        self.spin_Menitselesai.setPrefix("Menit: ")
-        self.spin_Menitselesai.setStyleSheet("padding: 3px 10px;")
-        # detik selesai
-        self.spin_detikSelesai = QSpinBox()
-        self.spin_detikSelesai.setRange(0, 59)  # Rentang tanggal
-        self.spin_detikSelesai.setPrefix("Detik: ")
-        self.spin_detikSelesai.setStyleSheet("padding: 3px 10px;")
-        #menmabah content layout jam 
-        layoutjamSelesai.addWidget(self.spin_Jmselesai)
-        layoutjamSelesai.addWidget(self.spin_Menitselesai)
-        layoutjamSelesai.addWidget(self.spin_detikSelesai)
-        layout.addLayout(layoutjamSelesai)
+        layoutTglKegiatanStart = QHBoxLayout()
+        self.lbtglKegiatanStart = QLabel("Tanggal dan Jam Mulai kegiatan")
+        layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
+        self.tglmulai = QDateTimeEdit()
+        layoutTglKegiatanStart.addWidget(self.tglmulai)
+        layout.addLayout(layoutTglKegiatanStart)
 
         # btn tambah
         self.btntambah = QPushButton("Tambah")
         self.btntambah.setObjectName("btntambahKegiatan")
-        self.btntambah.clicked.connect(self.tambah)
+        # membuat signal dan slot yang dimana mengambil nilai username
+        self.btntambah.clicked.connect(partial(self.tambah, self.username))
         layout.addWidget(self.btntambah)
 
         # mengatur layout utama
         layout.addStretch()
         self.setLayout(layout)
     
-    def tambah (self):
+    def tambah(self, username):
         hari = self.ldHari.text()
         nama_kegiatan = self.ldkegiatan.text()
-        tanggal = f"{self.spin_tahun.value():01d}-{self.spin_bulan.value():02d}-{self.spin_tanggal.value()}"
-        jam_mulai = f"{self.spin_JmMulai.value()}:{self.spin_MenitMulai.value()}:{self.spin_detikMulai.value()}"
-        jam_selesai = f"{self.spin_Jmselesai.value()}:{self.spin_Menitselesai.value()}:{self.spin_detikSelesai.value()}"
+        idtglml = self.tglmulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
+        idtglend = self.tglEnd.dateTime().toString("yyyy-MM-dd HH:mm:ss")
 
-        connection,curse = buat_koneksi()
+        connection, curse = buat_koneksi()
         curse = connection.cursor()
-        if not hari or not nama_kegiatan or not tanggal or not jam_mulai or not jam_selesai:
+
+        if not hari or not nama_kegiatan or not idtglml or not idtglend:
             QMessageBox.warning(self, "Peringatan", "Silahkan lengkapi file tugas.")
             return
         else:
-            query = """
-                INSERT INTO jadwalkegiatan (hari, nama_kegiatan, Tanggal_kegiatan, jam_mulai, jam_selesai) 
-    VALUES (%s, %s, %s, %s, %s);
-    """ 
-            curse.execute(query,(hari,nama_kegiatan,tanggal,jam_mulai,jam_selesai))
-            massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
-            if massage == QMessageBox.Yes : 
+            # ini query mengambil username
+            query_username = """
+                SELECT username 
+                FROM LoginMahasiswa 
+                WHERE username = %s;
+            """
+
+            curse.execute(query_username, (username,))
+            user = curse.fetchone()  # Hanya mengambil satu hasil
+
+            print(f"Hasil query: {user}")  # Menampilkan hasil query untuk debugging
+
+            if user:
+                nim = user[0]
+                query = """
+                            INSERT INTO jadwalkegiatan (hari, nama_kegiatan, Tanggal_kegiatan, jam_mulai, jam_selesai) 
+                VALUES (%s, %s, %s, %s, %s);
+                """ 
+                curse.execute(query,(nim,hari,nama_kegiatan,idtglml,idtglend))
+                massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
+                if massage == QMessageBox.Yes : 
+                    connection.commit()
+                    print("berhasil")
+                    QMessageBox.information(self,"Berhasil",f"Penmabahan Jadwal Kegiatan Berhasil")
+                    self.close()
+                    self.parent.jadwalKegiatan()
+            else:
+                print("Username tidak ditemukan!")  # Debugging jika username tidak ditemukan
+                QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
+
+class halamanEditkegiatan(QWidget):
+    def __init__(self,id_kegiatan):
+        super().__init__()
+        self.id_kegiatan = id_kegiatan
+        print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
+        # layout utama
+        layout = QVBoxLayout()
+
+        # layout Hari
+        layoutHHari = QHBoxLayout()
+        # content layout hari
+        self.lbHari = QLabel("Hari")
+        self.ldHari = QLineEdit()
+        layoutHHari.addWidget(self.lbHari)
+        layoutHHari.addWidget(self.ldHari)
+
+        # layout nama kegiatan
+        layoutHKegiatan = QHBoxLayout()
+        # content layout hari
+        self.lbKegiatan = QLabel("Nama Kegiatan")
+        self.ldKegiatan = QLineEdit()
+        layoutHKegiatan.addWidget(self.lbKegiatan)
+        layoutHKegiatan.addWidget(self.ldKegiatan)
+
+        # layout tanggal mulai
+        layoutHtangggal_mulai = QHBoxLayout()
+        # content layout hari
+        self.lbtangggal_mulai = QLabel("Tangggal Mulai Kegiatan")
+        self.ldtangggal_mulai = QDateTimeEdit()
+        layoutHtangggal_mulai.addWidget(self.lbtangggal_mulai)
+        layoutHtangggal_mulai.addWidget(self.ldtangggal_mulai)
+        
+        # layout tanggal mulai
+        layoutHtanggal_akhir = QHBoxLayout()
+        # content layout hari
+        self.lbtanggal_akhir = QLabel("Tanggal Akhir Kegiatan")
+        self.ldtanggal_akhir = QDateTimeEdit()
+        layoutHtanggal_akhir.addWidget(self.lbtanggal_akhir)
+        layoutHtanggal_akhir.addWidget(self.ldtanggal_akhir)
+
+        # button edit
+        btnEditkegiatan1 = QPushButton("SIMPAN")
+        btnEditkegiatan1.setObjectName("Edit_kegiatan")
+        btnEditkegiatan1.clicked.connect(self.simpan)
+
+        # atur layout
+        layout.addLayout(layoutHHari)
+        layout.addLayout(layoutHKegiatan)
+        layout.addLayout(layoutHtangggal_mulai)
+        layout.addLayout(layoutHtanggal_akhir)
+        layout.addWidget(btnEditkegiatan1)
+
+        layout.addStretch()
+        self.setLayout(layout)
+
+    def simpan(self, id_kegiatan):
+        # def simpan(self, id_kegiatan):
+        print("ini id_kegiatan:", id_kegiatan)  # Debug: Pastikan ID diteruskan dengan benar
+        connection, cursor = buat_koneksi()  # assuming buat_koneksi() is defined somewhere
+        cursor = connection.cursor()
+
+        query = """
+            SELECT jadwalkegiatan.Nama_kegiatan, jadwalkegiatan.Hari, 
+                jadwalkegiatan.TanggalMulai_Kegiatan, jadwalkegiatan.tanggal_AkhirKegiatan 
+            FROM jadwalkegiatan 
+            WHERE jadwalkegiatan.id_kegiatan = %s;
+        """ 
+
+        cursor.execute(query, (id_kegiatan,))
+        ambildata = cursor.fetchall()
+
+        print("Ambildata:", ambildata)  # Debug: Cek data yang diterima dari database
+
+        if ambildata:
+            nama, hari, tanggalmulai, tanggal_akhir = ambildata[0]
+            print("Nama Kegiatan:", nama)
+            print("Hari:", hari)
+            print("Tanggal Mulai:", tanggalmulai)
+            print("Tanggal Akhir:", tanggal_akhir)
+
+            self.ldKegiatan.setText(nama)
+            self.ldHari.setText(hari)
+            self.ldtangggal_mulai.setDateTime(QDateTime.fromString(tanggalmulai, "yyyy-MM-dd HH:mm:ss"))
+            self.ldtanggal_akhir.setDateTime(QDateTime.fromString(tanggal_akhir, "yyyy-MM-dd HH:mm:ss"))
+
+            message = QMessageBox.question(self, "Konfirmasi", 
+                                        "Apakah anda ingin menyimpan editan ini?", 
+                                        QMessageBox.Yes | QMessageBox.No)
+            if message == QMessageBox.Yes:
+                print("Data kegiatan berhasil di edit")
                 connection.commit()
-                print("berhasil")
-                QMessageBox.information(self,"Berhasil",f"Penmabahan Jadwal Kegiatan Berhasil")
-                self.close()
-                self.parent.jadwalKegiatan()
+        else:
+            print("No data found.")

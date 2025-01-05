@@ -32,10 +32,9 @@ class HalamanDosen(QMainWindow):
         super().__init__()
         # self.setWindowTitle("Mahasiswa")
         self.username = username  # Simpan username
-        # self.id_pengumpulan = id_pengumpulan
-        # self.nim = nim
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         self.setFixedSize(600,400)
+
 
         # ini fungsi memanggil metode styleqss
         self.styleqss()
@@ -86,19 +85,27 @@ class HalamanDosen(QMainWindow):
     def Dashboard(self):
         # connection,curse = buat_koneksi()
         container = QWidget()
-        self.layout = QVBoxLayout()
-        judul = QLabel("Dashboard")
+        layout = QVBoxLayout()
+        judul = QLabel("Dashboard Tugas")
+        judul.setObjectName("lbjudul")
         
         frameLine = QFrame()
+        frameLine.setObjectName("garis")
         frameLine.setFrameShape(QFrame.HLine)
         frameLine.setFrameShadow(QFrame.Sunken)
-        self.layout.addWidget(judul)
-        self.layout.addWidget(frameLine)
+        layout.addWidget(judul)
+        layout.addWidget(frameLine)
 
         tanggal = QDate.currentDate()
         fromat = tanggal.toString("dddd dd - MMMM - yyyy")
         lbTanggal = QLabel(fromat)
-        self.layout.addWidget(lbTanggal)
+        layout.addWidget(lbTanggal)
+
+        # membuat layout btn add
+        layoutHAddTugas = QHBoxLayout()
+        spasi = QWidget()
+        spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        layoutHAddTugas.addWidget(spasi)
 
         btnAdd = QPushButton("  Add")
         btnAdd.setObjectName("add")
@@ -107,23 +114,26 @@ class HalamanDosen(QMainWindow):
         btnAdd.setIcon(QIcon(gambarBtnadd))
         btnAdd.setIconSize(QSize(20,20))
         btnAdd.clicked.connect(self.show_AddTugas)
-        self.layout.addWidget(btnAdd)
+        layoutHAddTugas.addWidget(btnAdd)
+        layout.addLayout(layoutHAddTugas)
 
-
+        # ini membuat table tugas
         self.tableTugas = QTableWidget()
         self.tableTugas.setColumnCount(7)
         self.tableTugas.setHorizontalHeaderLabels(["Id Tugas","kode matakuliah","Nama Kuliah","Deskripsi Tugas","Tanggal Pemberian","Tanggal Deadline","Action"])
         self.tableTugas.horizontalHeader().setStretchLastSection(True)
-        self.layout.addWidget(self.tableTugas)
+        layout.addWidget(self.tableTugas)
 
-        self.layout.addStretch()
-        container.setLayout(self.layout)
+        # ini mengset layout kedalam container
+        layout.addStretch()
+        container.setLayout(layout)
         self.setCentralWidget(container)
+        # memanggil method data tugas berdasarkan username
         self.updateDataTableTugas(self.username)
     
     # ini fungsi untuk memnggil class halaman tambah tugas
     def show_AddTugas(self):
-        self.showAddTugas = HalamanAddtugas(self)
+        self.showAddTugas = HalamanAddtugas(self.username)
         self.showAddTugas.show()
 
     def updateDataTableTugas(self,username):
@@ -176,10 +186,12 @@ class HalamanDosen(QMainWindow):
 
 # ini halaman menmabah tugas
 class HalamanAddtugas(QWidget):
-    def __init__(self,parent=None):
+    def __init__(self,username,parent=None):
         super().__init__()
+        # Pastikan username tidak None
         # ini membuat sebuah variabel untuk mengakses method variabel di luar kelas
         self.parent = parent
+        self.username = username
         self.setWindowTitle("Halaman Tambah Tugas")
         self.setFixedSize(300,350)
         # container = QWidget()
@@ -209,8 +221,30 @@ class HalamanAddtugas(QWidget):
         self.lbMkTugas.setObjectName("idMk")
         layoutIdMk.addWidget(self.lbMkTugas)
         self.spMk = QComboBox()
-        self.spMk.addItems(['NM','PPV'])
+        connection,curse = buat_koneksi()
+        curse = connection.cursor()
+        query = """
+            SELECT datamatakuliah.ID_MK 
+    FROM datamatakuliah 
+    JOIN matakuliah ON datamatakuliah.ID_MK = matakuliah.ID_MK
+    JOIN logindosen ON datamatakuliah.NIP_Dosen = logindosen.Username
+    WHERE logindosen.Username = %s;
+"""
+        curse.execute(query,(username,))
+        ambildata = curse.fetchall()
+        print("Data yang diambil:", ambildata)  # Debugging untuk melihat data
+
+        # Jika data ditemukan, tampilkan di combobox
+        if ambildata:
+            for row in ambildata:
+                id_mk = row[0]
+                self.spMk.addItem(id_mk)
+        else:
+            print("Tidak ada data yang ditemukan untuk username:", username)
+        
+        # menambah kontent didalam layout id_mk
         layoutIdMk.addWidget(self.spMk)
+        # menambhkn layout idmk didalam layout utama
         layout.addLayout(layoutIdMk)
 
         # JDL TUGAS
@@ -223,7 +257,6 @@ class HalamanAddtugas(QWidget):
         self.ldjdlTugas.setPlaceholderText("Judul Tugas")
         layoutjdlTugas.addWidget(self.ldjdlTugas)
         layout.addLayout(layoutjdlTugas)
-        # layout.addLayout(layoutIdMk)
 
         # DESKRIPSI TUGAS
         layoutDSTugas = QHBoxLayout()
@@ -254,6 +287,7 @@ class HalamanAddtugas(QWidget):
 
         # btn add
         btnTambah = QPushButton("Tambah")
+        btnTambah.setObjectName("btnTambahTugas")
         layout.addWidget(btnTambah)
         btnTambah.clicked.connect(self.tambah)
 
@@ -261,9 +295,10 @@ class HalamanAddtugas(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
-        # container.setLayout(layout)
-    
+        
+    # membuat method tambah
     def tambah (self):
+        # membuat variabel yang menampung isi dari variabel sebelumnya
         idtgs = self.ldidTugas.text()
         idmk = self.spMk.currentText()
         idDsMk = self.ldDSTugas.text()
@@ -305,7 +340,7 @@ class HalamanAddtugas(QWidget):
 class HalamanSetting(QWidget):
     def __init__(self,username):
         super().__init__()
-        self.userame = username
+        self.username = username
         self.setWindowTitle("Halaman Pengaturan")
         self.setFixedSize(300,350)
         layout = QVBoxLayout()
@@ -323,8 +358,6 @@ class HalamanSetting(QWidget):
         # self.setCentralWidget(tabs)
         layout.addWidget(tabs)
         self.setLayout(layout)
-        self.user(username)
-        self.changePw(username)
 
     # content dari tab user
     def user(self,username):
@@ -379,7 +412,6 @@ class HalamanSetting(QWidget):
         layout.addLayout(layoutHNama)
         layout.addLayout(layoutHNip)
         layout.addLayout(layoutHUsername)
-
 
         # merapikan layout
         layoutHNama.setContentsMargins(4,4,4,4)
@@ -469,7 +501,6 @@ class HalamanSetting(QWidget):
 
         container = QWidget()
         container.setLayout(layout)
-        self.simpan(username)
         return container
     
     # ini fungsi untuk menyimpan password didatabases ketika sudah di simpan 
@@ -518,6 +549,19 @@ class HalamanView(QWidget):
         # MEMBUAT LAYOUT UNTUK HALAMAN 
         self.layout = QVBoxLayout()
 
+        # ini judul  
+        self.judul = QLabel("Daftar Pengumpulan Tugas")
+        self.judul.setObjectName("lbjudul")
+        
+        # ini membuat garis untuk pemisah
+        frameLine = QFrame()
+        frameLine.setObjectName("garis")
+        frameLine.setFrameShape(QFrame.HLine)
+        frameLine.setFrameShadow(QFrame.Sunken)
+        self.layout.addWidget(self.judul)
+        self.layout.addWidget(frameLine)
+
+        # ini membuat table daftar mahasiswa yang menggumpulkan tugas
         self.tableViewMahasiswa = QTableWidget()
         self.tableViewMahasiswa.setColumnCount(7)
         self.tableViewMahasiswa.setHorizontalHeaderLabels(["Id Pengumpulan","Nama Kuliah","Nim Mahasiswa","Nama Mahasiswa","Deskripsi Tugas","Tanggal Pengumpulan","Action"])
@@ -587,6 +631,7 @@ class HalamanFileTugasMhs(QWidget):
         # Layout utama
         layout = QVBoxLayout()
         
+        
         # Widget untuk menampilkan data
         self.lbNama = QLabel("Nama Mahasiswa:")
         self.lbNim = QLabel("NIM Mahasiswa:")
@@ -594,6 +639,7 @@ class HalamanFileTugasMhs(QWidget):
         self.fileTugas = QPlainTextEdit()
         self.fileTugas.setReadOnly(True)
         
+        # ini menambahkann content content didalam layout
         layout.addWidget(self.lbNama)
         layout.addWidget(self.lbNim)
         layout.addWidget(self.lbdeskripsiTugas)
@@ -602,7 +648,7 @@ class HalamanFileTugasMhs(QWidget):
         
         self.setLayout(layout)
         
-        # Tampilkan data berdasarkan NIM dan ID Pengumpulan
+        # Tampilkan dile tugas  berdasarkan NIM dan ID Pengumpulan
         self.tampilkan_file(nim, id_pengumpulan)
 
     def tampilkan_file(self, nim, id_pengumpulan):
@@ -621,7 +667,7 @@ class HalamanFileTugasMhs(QWidget):
             """
         curse.execute(query, (nim, id_pengumpulan))
         data = curse.fetchone()
-
+        # ini mengambil data didalam dtaabses
         if data:
                 nama, nim, deskripsi_tugas,file_tugas = data
                 self.lbNama.setText(f"Nama Mahasiswa: {nama}")

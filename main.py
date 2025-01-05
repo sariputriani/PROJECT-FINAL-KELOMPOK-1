@@ -26,6 +26,7 @@ class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         # self.connectDB()
+        self.setShortcutEnabled(True)
 
         # start
         self.setWindowTitle("Login")
