@@ -161,7 +161,7 @@ class HalamanMahasiswa(QMainWindow):
         # table tugas
         self.daftarTugas = QTableWidget()
         self.daftarTugas.setObjectName("daftarTugas")
-        self.daftarTugas.setFixedSize(700,350)
+        self.daftarTugas.setFixedSize(400,350)
         self.daftarTugas.setColumnCount(9)
         self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Nama Mata Kuliah","Judul Tugas","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Waktu","Action"])
         self.daftarTugas.horizontalHeader().setStretchLastSection(False)
@@ -357,6 +357,8 @@ class HalamanMahasiswa(QMainWindow):
             if sudah_selesai:
                 self.btnkonfir.setText("SELESAI")
                 self.btnkonfir.setStyleSheet("Background-color:green")
+                self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
+                self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
             
             # jika button slesai belum terpenuhi maka diset konfirmasi
             else:
@@ -374,12 +376,11 @@ class HalamanMahasiswa(QMainWindow):
             layoutAction.addWidget(self.btnEditKegiatan)
             layoutAction.addWidget(self.btnHapus)
             layoutAction.addWidget(self.btnkonfir)
-            
             # meletakkan content tersebut atau action tersebut kedalam colom cel ke 5 setiap barisnumber (row)
             self.daftarJadwalKegiatan.setCellWidget(barisnumber, 5, action)
         # merapikan colom sesuai panjang data
-        self.daftarJadwalKegiatan.resizeColumnsToContents
-
+        self.daftarJadwalKegiatan.resizeColumnsToContents()
+            
     # membuat method add kegiatan untuk memaanggil class halamantambahkegiatan
     def addKegiatan(self):
         self.showTambahKegiatan = HalamanTambahKegiatan(self.username,self)
@@ -1251,7 +1252,7 @@ class halamanEditkegiatan(QWidget):
         if ambildata:
             nama, hari, tanggalmulai, tanggal_akhir = ambildata[0]
             self.ldKegiatan.setText(nama)
-            self.cbHari.setCurrentIndex(hari)
+            self.cbHari.setCurrentText(hari)
             # Konversi datetime ke string dan set ke QDateTimeEdit
             self.ldtangggal_mulai.setDateTime(tanggalmulai)
             self.ldtanggal_akhir.setDateTime(tanggal_akhir)

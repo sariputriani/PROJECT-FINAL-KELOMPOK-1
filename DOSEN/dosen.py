@@ -33,7 +33,7 @@ class HalamanDosen(QMainWindow):
         # self.setWindowTitle("Mahasiswa")
         self.username = username  # Simpan username
         self.setWindowTitle(f"Selamat Datang, {self.username}")
-        self.setFixedSize(700,400)
+        self.setFixedSize(700,600)
 
 
         # ini fungsi memanggil metode styleqss
@@ -119,7 +119,9 @@ class HalamanDosen(QMainWindow):
 
         # ini membuat table tugas
         self.tableTugas = QTableWidget()
-        self.tableTugas.setColumnCount(7)
+        # self.tableTugas.setFixedSize()
+        self.tableTugas.setFixedSize(700,350)
+        self.tableTugas.setColumnCount(8)
         self.tableTugas.setHorizontalHeaderLabels(["Id Tugas","kode matakuliah","Nama Kuliah","Judul Tugas","Deskripsi Tugas","Tanggal Pemberian","Tanggal Deadline","Action"])
         self.tableTugas.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.tableTugas)
@@ -192,7 +194,7 @@ class HalamanDosen(QMainWindow):
                 # menetapkan setpoprty
                 self.btnView.setProperty("row",barisnumber)
                 # meeletakkan tombolwidget kedalam cel atau colom ke 6 setaiap baris
-                self.tableTugas.setCellWidget(barisnumber, 6, tombolWidget)
+                self.tableTugas.setCellWidget(barisnumber, 7, tombolWidget)
             # merapikan content agar panjang table sesuai dengan data
         self.tableTugas.resizeColumnsToContents()
 
@@ -263,7 +265,7 @@ class HalamanAddtugas(QWidget):
         self.layoutidTugas.addWidget(self.llbidTugas)
         self.ldidTugas = QLineEdit()
         self.ldidTugas.setObjectName("self.ldidTugas")
-        self.ldidTugas.setPlaceholderText("Judul Tugas")
+        self.ldidTugas.setPlaceholderText("Nomor Tugas")
         self.layoutidTugas.addWidget(self.ldidTugas)
         layout.addLayout(self.layoutidTugas)
 
@@ -302,7 +304,7 @@ class HalamanAddtugas(QWidget):
 
         # JDL TUGAS
         layoutjdlTugas = QHBoxLayout()
-        self.lbjdlTugas = QLabel("No Tugas")
+        self.lbjdlTugas = QLabel("Judul Tugas")
         self.lbjdlTugas.setObjectName("jdltugas")
         layoutjdlTugas.addWidget(self.lbjdlTugas)
         self.ldjdlTugas = QLineEdit()
@@ -348,7 +350,6 @@ class HalamanAddtugas(QWidget):
 
         # layoutDSTugas.addStretch()
         layout.addStretch()
-
         self.setLayout(layout)
         
     # membuat method tambah
