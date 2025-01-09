@@ -133,7 +133,7 @@ class LoginWindow(QMainWindow):
         resultMahasiswa = curse.fetchall()
         if resultMahasiswa:
             print("Mahasiswa ditemukan")
-            self.showMHS = HalamanMahasiswa(username)
+            self.showMHS = HalamanMahasiswa(username,password)
             self.showMHS.show()
             self.close()
             return

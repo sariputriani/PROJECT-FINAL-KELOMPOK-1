@@ -1,0 +1,29 @@
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QDateEdit
+from PySide6.QtCore import QDate
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("QDateEdit Example")
+        
+        # Layout utama
+        layout = QVBoxLayout()
+        
+        # Membuat QDateEdit
+        self.dateEdit = QDateEdit()
+        self.dateEdit.setCalendarPopup(True)  # Menampilkan kalender pop-up
+        self.dateEdit.setDate(QDate.currentDate())  # Atur tanggal default ke hari ini
+        
+        # Tambahkan widget ke layout
+        layout.addWidget(self.dateEdit)
+        
+        # Atur layout ke dalam widget utama
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+if __name__ == "__main__":
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec()

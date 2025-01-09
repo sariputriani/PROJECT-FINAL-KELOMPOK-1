@@ -1,1 +1,1 @@
-Log
+self.c

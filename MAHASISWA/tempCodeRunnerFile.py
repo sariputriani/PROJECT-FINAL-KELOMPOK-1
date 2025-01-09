@@ -1,74 +1,21 @@
-import sys
-import os
-from PySide6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QHBoxLayout,
-    QVBoxLayout,
-    QToolBar,
-    QSizePolicy
-)
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QAction, QIcon
-basedir = os.path.dirname(__file__)
+query_check = """
+            SELECT status FROM jadwalkegiatan where id_kegiatan = %s and nim = %s;
+"""
+            curse.execute(query_check,(id_kegiatan,self.username))
+            ceksttus = curse.fetchone()
+            # ini mengek apakah id_kegiatan tersebut sudah dikumpulkan didalam daftarkegiatanselesai
+            sudah_selesai =  ceksttus and ceksttus [0] == 'selesai'  #ini mengecek jika lebih dari 1 maka sudah seesai
 
-class HalamanMahasiswa(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Mahasiswa")
-        self.setFixedSize(600,400)
+            # menghilangkan pengingat jika batasnya sudah melewati deadline
+            if sisaHari < 0 or sudah_selesai:
+                continue
 
-        # Layout dan Widget
-        self.layoutMHS = QVBoxLayout()
-        # self.judul = QLabel("SELAMAT DATANG MAHASISWA")
-        # self.judul.setStyleSheet("font-size: 24px; font-weight: bold; text-align: center;")
-        # self.judul.setAlignment(Qt.AlignCenter)
-        
-        # Menambahkan widget ke layout
-        self.toolbar = QToolBar("Toolbar")
-        self.toolbar.setIconSize(QSize(16,16))
-        self.addToolBar(self.toolbar)
+            # deadline hari ini
+            elif sisaHari == 0:
+                pesan = f"Kegiatan '{namajudul}' harus diselesaikan hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
+                QMessageBox.warning(self, "Deadline Hari Ini", pesan)
 
-        dataMHS = QAction("Dashboard", self)
-        dataMHS.setCheckable(True)
-        self.toolbar.addAction(dataMHS)
-
-        spasi = QWidget()
-        spasi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.toolbar.addWidget(spasi)
-
-        # Tambahkan action Data User di sebelah kanan
-        datauser = QAction(
-            QIcon(os.path.join(basedir, "user-female.png")),
-            "User",self
-        )
-        # datauser.triggered.connect(self.show_datauser)
-        self.toolbar.addAction(datauser)
-        langout = QAction(
-            QIcon(os.path.join(basedir, "application-dock.png")),
-            "Langout",self
-        )
-        
-        # Mengatur layout untuk widget utama
-        self.setLayout(self.layoutMHS)
-
-
-def apply_stylesheet(app, path):
-    with open(path, "r") as file:
-        qss = file.read()
-        app.setStyleSheet(qss)
-# Muat stylesheet
-   
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    stylesheet_path = "./style.qss"
-    apply_stylesheet(app, stylesheet_path)
-
-    window = HalamanMahasiswa()
-    window.show()
-    sys.exit(app.exec())
+            # tenggal hari <= 3 hari
+            elif sisaHari <= 3:
+                pesan = f"Kegiatan '{namajudul}' akan jatuh tempo dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
+                QMessageBox.information(self, "Pengingat Deadline", pesan)
