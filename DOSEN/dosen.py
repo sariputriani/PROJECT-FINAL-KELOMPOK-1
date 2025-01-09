@@ -34,6 +34,7 @@ class HalamanDosen(QMainWindow):
         self.username = username  # Simpan username
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         self.setFixedSize(700,600)
+        self.setGeometry(450,50,700,600)
 
 
         # ini fungsi memanggil metode styleqss
@@ -120,10 +121,11 @@ class HalamanDosen(QMainWindow):
         # ini membuat table tugas
         self.tableTugas = QTableWidget()
         # self.tableTugas.setFixedSize()
-        self.tableTugas.setFixedSize(700,350)
+        # self.tableTugas.setFixedSize(800,400)
+        self.tableTugas.setFixedSize(750,350)
         self.tableTugas.setColumnCount(8)
         self.tableTugas.setHorizontalHeaderLabels(["Id Tugas","kode matakuliah","Nama Kuliah","Judul Tugas","Deskripsi Tugas","Tanggal Pemberian","Tanggal Deadline","Action"])
-        self.tableTugas.horizontalHeader().setStretchLastSection(True)
+        self.tableTugas.horizontalHeader().setStretchLastSection(False)
         layout.addWidget(self.tableTugas)
 
         # ini mengset layout kedalam container
@@ -169,7 +171,7 @@ class HalamanDosen(QMainWindow):
                 layoutTombol = QHBoxLayout(tombolWidget)
                 # menghapus sapsi mrgin antar content
                 layoutTombol.setContentsMargins(0,0,0,0)
-                layoutTombol.setSpacing(0)
+                # layoutTombol.setSpacing(0)
 
                 # button view
                 self.btnView = QPushButton(" View")
