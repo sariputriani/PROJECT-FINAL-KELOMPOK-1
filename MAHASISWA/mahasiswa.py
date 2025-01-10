@@ -1084,6 +1084,8 @@ class HalamanTambahKegiatan(QWidget):
         layoutTglKegiatanEnd.addWidget(self.lbtglKegiatanEnd)
         self.tglEnd = QDateTimeEdit()
         self.tglEnd.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        current_datetime = QDateTime.currentDateTime()
+        self.tglEnd.setDateTime(current_datetime)
         layoutTglKegiatanEnd.addWidget(self.tglEnd)
         layout.addLayout(layoutTglKegiatanEnd)
 
@@ -1092,6 +1094,8 @@ class HalamanTambahKegiatan(QWidget):
         layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
         self.tglmulai = QDateTimeEdit()
         self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        current_datetime = QDateTime.currentDateTime()
+        self.tglmulai.setDateTime(current_datetime)
         layoutTglKegiatanStart.addWidget(self.tglmulai)
         layout.addLayout(layoutTglKegiatanStart)
 
