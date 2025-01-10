@@ -35,7 +35,7 @@ class HalamanDosen(QMainWindow):
         self.password = password
         self.setWindowTitle(f"Selamat Datang, {self.username}")
         # self.setFixedSize(700,600)
-        self.setGeometry(450,50,700,800)
+        self.setGeometry(450,50,700,600)
 
 
         # ini fungsi memanggil metode styleqss
@@ -111,7 +111,7 @@ class HalamanDosen(QMainWindow):
 
         btnAdd = QPushButton("  Add")
         btnAdd.setObjectName("add")
-        btnAdd.setFixedSize(90,30)
+        btnAdd.setFixedSize(80,50)
         gambarBtnadd = os.path.join(basedir,"","add.png")
         btnAdd.setIcon(QIcon(gambarBtnadd))
         btnAdd.setIconSize(QSize(20,20))
@@ -945,7 +945,7 @@ class HalamanSetting(QWidget):
 
         # Content: Foto
         foto = QLabel()
-        fotouser = QPixmap(os.path.join(basedir, "./gambarMahasiswa/13.png"))
+        fotouser = QPixmap(os.path.join(basedir, "../MAHASISWA/gambarMahasiswa/13.png"))
         foto.setPixmap(fotouser)
         foto.setAlignment(Qt.AlignCenter)
         layout.addWidget(foto)

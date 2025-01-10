@@ -83,12 +83,10 @@ QMessageBox QPushButton::pressed {
         background-color: white;
 }
 
-QPushButton#btnTambahTugas{
-    background-color:rgb(10, 212, 57);
-    color : white;
-    border-radius:5px; 
+QPushButton#add{
+    background-color: #6AE0E8;
+    border-radius:5px;  
     font-family:Poppins;
     font-size:12px; 
-    height : 40px;
-    margin-top : 20px;
+    margin-top : 20px;    
 }

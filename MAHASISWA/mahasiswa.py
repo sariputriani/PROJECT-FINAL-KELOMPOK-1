@@ -38,7 +38,7 @@ class HalamanMahasiswa(QMainWindow):
         self.id_tugas = id_tugas
         self.id_kegiatan = id_kegiatan
         self.setWindowTitle(f"Selamat Datang, {self.username}")
-        # self.setFixedSize(650,650)
+        # self.setFixedSize(900,)
         self.setGeometry(450,50,700,600)
         self.styleqss()
 
@@ -162,7 +162,7 @@ class HalamanMahasiswa(QMainWindow):
         # table tugas
         self.daftarTugas = QTableWidget()
         self.daftarTugas.setObjectName("daftarTugas")
-        self.daftarTugas.setFixedSize(750,350)
+        self.daftarTugas.setFixedSize(850,350)
         self.daftarTugas.setColumnCount(9)
         self.daftarTugas.setHorizontalHeaderLabels(["No Tugas","Id mk","Nama Mata Kuliah","Judul Tugas","Deskripsi Tugas", "Tanggal Pemberian","Tanggal Pengumpulan","Analisis Waktu Pengerjaan","Action"])
         self.daftarTugas.horizontalHeader().setStretchLastSection(False)
@@ -284,7 +284,7 @@ class HalamanMahasiswa(QMainWindow):
         # membuat jadwal kegiatan
         self.daftarJadwalKegiatan = QTableWidget()
         self.daftarJadwalKegiatan.setObjectName("daftarKegiatan")
-        self.daftarJadwalKegiatan.setFixedSize(750,400)
+        self.daftarJadwalKegiatan.setFixedSize(850,400)
         self.daftarJadwalKegiatan.horizontalHeader().setStretchLastSection(True)
         self.daftarJadwalKegiatan.setColumnCount(6)
         self.daftarJadwalKegiatan.setHorizontalHeaderLabels(["Id_kegiatan","Nama Kegiatan","Hari","Tanggal Kegiatan","Tanggal Akhir Kegiatan","Action"])
@@ -602,8 +602,8 @@ class HalamanMahasiswa(QMainWindow):
         curse = connection.cursor()
 
         # Query untuk mengambil data deadline
-        query = "SELECT * FROM jadwalkegiatan"
-        curse.execute(query)
+        query = "SELECT * FROM jadwalkegiatan where id_kegiatan = %s and nim = %s"
+        curse.execute(query,(id_kegiatan,self.username))
         ambildata = curse.fetchall()
         
 
@@ -1079,6 +1079,16 @@ class HalamanTambahKegiatan(QWidget):
         layoutHkegitan.addWidget(self.ldkegiatan)
         layout.addLayout(layoutHkegitan)
 
+        layoutTglKegiatanStart = QHBoxLayout()
+        self.lbtglKegiatanStart = QLabel("Tanggal Pelaksanaan Kegiatan")
+        layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
+        self.tglmulai = QDateTimeEdit()
+        self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        current_datetime = QDateTime.currentDateTime()
+        self.tglmulai.setDateTime(current_datetime)
+        layoutTglKegiatanStart.addWidget(self.tglmulai)
+        layout.addLayout(layoutTglKegiatanStart)
+
         layoutTglKegiatanEnd = QHBoxLayout()
         self.lbtglKegiatanEnd = QLabel("Tanggal")
         layoutTglKegiatanEnd.addWidget(self.lbtglKegiatanEnd)
@@ -1089,15 +1099,6 @@ class HalamanTambahKegiatan(QWidget):
         layoutTglKegiatanEnd.addWidget(self.tglEnd)
         layout.addLayout(layoutTglKegiatanEnd)
 
-        layoutTglKegiatanStart = QHBoxLayout()
-        self.lbtglKegiatanStart = QLabel("Tanggal Pelaksanaan Kegiatan")
-        layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
-        self.tglmulai = QDateTimeEdit()
-        self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
-        current_datetime = QDateTime.currentDateTime()
-        self.tglmulai.setDateTime(current_datetime)
-        layoutTglKegiatanStart.addWidget(self.tglmulai)
-        layout.addLayout(layoutTglKegiatanStart)
 
         # btn tambah
         self.btntambah = QPushButton("Tambah")
@@ -1139,7 +1140,7 @@ class HalamanTambahKegiatan(QWidget):
             if user:
                 nim = user[0]
                 query = """
-                            INSERT INTO jadwalkegiatan (nim,hari, nama_kegiatan, TanggalMulai_kegiatan, Tanggal_Akhirkegiatan) 
+                        INSERT INTO jadwalkegiatan (nim,hari, nama_kegiatan, TanggalMulai_kegiatan, Tanggal_Akhirkegiatan) 
                 VALUES (%s, %s, %s, %s, %s);
                 """ 
                 curse.execute(query,(nim,hari,nama_kegiatan,idtglml,idtglend))
@@ -1194,7 +1195,7 @@ class halamanEditkegiatan(QWidget):
         layoutHtanggal_akhir = QHBoxLayout()
         # content layout tanggal akhir
         self.lbtanggal_akhir = QLabel("Tanggal Akhir Kegiatan")
-        self.ldtanggal_akhir = QDateTimeEdit.cur()
+        self.ldtanggal_akhir = QDateTimeEdit()
         layoutHtanggal_akhir.addWidget(self.lbtanggal_akhir)
         layoutHtanggal_akhir.addWidget(self.ldtanggal_akhir)
 
