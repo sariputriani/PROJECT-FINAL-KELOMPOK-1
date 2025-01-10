@@ -144,7 +144,7 @@ class LoginWindow(QMainWindow):
         resultDosen = curse.fetchall()
         if resultDosen: 
             print("Dosen ditemukan")
-            self.showDSN = HalamanDosen(username)
+            self.showDSN = HalamanDosen(username,password)
             self.showDSN.show()
             self.close()
         else:
