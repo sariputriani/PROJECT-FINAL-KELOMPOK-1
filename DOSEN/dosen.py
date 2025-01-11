@@ -278,6 +278,7 @@ class HalamanAddtugas(QWidget):
         self.lbMkTugas.setObjectName("idMk")
         layoutIdMk.addWidget(self.lbMkTugas)
         self.spMk = QComboBox()
+        # ini query mengambil id_mk bersarkan username atau berdasarkan matakuliah sesuai dengan dosennya
         connection,curse = buat_koneksi()
         curse = connection.cursor()
         query = """
@@ -289,7 +290,6 @@ class HalamanAddtugas(QWidget):
 """
         curse.execute(query,(username,))
         ambildata = curse.fetchall()
-        print("Data yang diambil:", ambildata)  # Debugging untuk melihat data
 
         # Jika data ditemukan, tampilkan di combobox
         if ambildata:
@@ -333,6 +333,8 @@ class HalamanAddtugas(QWidget):
         layoutTglMl.addWidget(self.lbtglml)
         self.tglmulai = QDateTimeEdit()
         self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        ambilWaktuSekarang = QDateTime.currentDateTime()
+        self.tglmulai.setDateTime(ambilWaktuSekarang)
         layoutTglMl.addWidget(self.tglmulai)
         layout.addLayout(layoutTglMl)
 
@@ -342,6 +344,7 @@ class HalamanAddtugas(QWidget):
         layoutTglEnd.addWidget(self.lbtglend)
         self.tglEnd = QDateTimeEdit()
         self.tglEnd.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        self.tglEnd.setDateTime(ambilWaktuSekarang)
         layoutTglEnd.addWidget(self.tglEnd)
         layout.addLayout(layoutTglEnd)
 
@@ -360,12 +363,13 @@ class HalamanAddtugas(QWidget):
         # membuat variabel yang menampung isi dari variabel sebelumnya
         idtgs = self.ldidTugas.text()
         idmk = self.spMk.currentText()
+        jdl = self.ldjdlTugas.text()
         idDsMk = self.ldDSTugas.text()
         idtglml = self.tglmulai.dateTime().toString("yyyy-MM-dd HH:mm:ss")
         idtglend = self.tglEnd.dateTime().toString("yyyy-MM-dd HH:mm:ss")
 
         # ini analogi jika salah satu widget yang didalam alaman tersebut tidka terisi maka akan menimbulkan pesan
-        if not idtgs or not idmk or not idDsMk or not idtglml or not idtglend:
+        if not idtgs or not idmk or not jdl or not idDsMk or not idtglml or not idtglend:
             QMessageBox.warning(self, "Peringatan", "Lengkapi semua data sebelum menambahkan tugas.")
             return
         
@@ -377,11 +381,11 @@ class HalamanAddtugas(QWidget):
             curse = conection.cursor()
             
             # ini query untuk menambahkan tugas 
-            query = ("INSERT INTO tugas (id_tugas, id_mk, deskripsi_tugas, tanggal_pemberian, tanggal_pengumpulan) "
-                    "VALUES (%s, %s, %s, %s, %s)")
+            query = ("INSERT INTO tugas (id_tugas, id_mk, judul_tugas,deskripsi_tugas, tanggal_pemberian, tanggal_pengumpulan) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)")
             
             # ini mengambil data yang telah diisikan didalam widget tersebut
-            ambil = (idtgs, idmk, idDsMk, idtglml, idtglend)
+            ambil = (idtgs, idmk, jdl, idDsMk, idtglml, idtglend)
             
             # setelah itu ambil perintah query dan ambil data 
             curse.execute(query, ambil)
@@ -699,220 +703,6 @@ class HalamanFileTugasMhs(QWidget):
                 self.lbNim.setText(f"NIM Mahasiswa: {nim}")
                 self.lbdeskripsiTugas.setText(f"Deskripsi Tugas: {deskripsi_tugas}")
                 self.fileTugas.setPlainText(f"{file_tugas}")
-
-# # ini halaman untuk setting yaitu edit password dan data profile
-# class HalamanSetting(QWidget):
-#     def __init__(self,username,password):
-#         super().__init__()
-#         self.username = username
-#         self.password = password
-#         self.setWindowTitle("Halaman Pengaturan")
-#         self.setFixedSize(300,350)
-#         layout = QVBoxLayout()
-
-#         # membuat tab
-#         tabs = QTabWidget()
-#         tabs.setTabPosition(QTabWidget.North)
-
-#         # menmabhkan tab didalam tabs(QTabWidget)
-#         tabs.addTab(self.user(username), "Profile")
-#         tabs.addTab(self.changePw(self.username,self.password), "Change Password")   
-#         # tabs.addTab(self.logout(), "Logout")   
-
-#         # menmapilkan tabs
-#         # self.setCentralWidget(tabs)
-#         layout.addWidget(tabs)
-#         self.setLayout(layout)
-
-#     # content dari tab user
-#     def user(self,username):
-#         # layout awal
-#         layout = QVBoxLayout()
-        
-#         # memberikan margin
-#         layout.setContentsMargins(4,4,4,4)
-        
-#         # ini memberikan spacing antar content
-#         layout.setSpacing(5)
-
-#         #ini  content
-#         foto = QLabel()
-#         fotouser = QPixmap(os.path.join(basedir,"./gambardosen/13.png"))
-#         foto.setPixmap(fotouser)
-#         foto.setAlignment(Qt.AlignCenter)
-#         layout.addWidget(foto)
-
-#         # layout nama
-#         layoutHNama = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbNama = QLabel("Nama")
-#         self.lbNama.setStyleSheet("margin-right: 15px")
-#         self.ldNama = QLineEdit()
-#         self.ldNama.setEnabled(False)
-#         layoutHNama.addWidget(self.lbNama)
-#         layoutHNama.addWidget(self.ldNama)
-
-#         # layout nip
-#         layoutHNip = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbNip = QLabel("Nip")
-#         self.lbNip.setStyleSheet("margin-right : 25px")
-#         self.ldNip = QLineEdit()
-#         self.ldNip.setEnabled(False)
-#         layoutHNip.addWidget(self.lbNip)
-#         layoutHNip.addWidget(self.ldNip)
-
-#         # layout nim
-#         layoutHUsername = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbUsername = QLabel("Username")
-#         self.lbUsername.setStyleSheet("margin-right : 5px")
-#         self.ldUsername = QLineEdit()
-#         self.ldUsername.setEnabled(False)
-#         layoutHUsername.addWidget(self.lbUsername)
-#         layoutHUsername.addWidget(self.ldUsername)
-
-#         # ini membuat widget yang menampung layout vertikal
-#         widget = QWidget()
-#         layout.addLayout(layoutHNama)
-#         layout.addLayout(layoutHNip)
-#         layout.addLayout(layoutHUsername)
-
-#         # merapikan layout
-#         layoutHNama.setContentsMargins(4,4,4,4)
-#         layoutHNama.setSpacing(5)
-#         layoutHNip.setContentsMargins(4,4,4,4)
-#         layoutHNip.setSpacing(5)
-#         layoutHUsername.setContentsMargins(4,4,4,4)
-#         layoutHUsername.setSpacing(5)
-#         widget.setLayout(layout)
-#         self.ambilDataUser(username)
-#         return widget
-    
-#     # ini mengambil data user dari databases
-#     def ambilDataUser(self,username):
-#         connction,curse = buat_koneksi()
-#         curse = connction.cursor()
-#         query = """
-            #     SELECT dosen.nama_dosen,dosen.nip_dosen, logindosen.username
-            # FROM dosen
-            # JOIN logindosen ON dosen.nip_dosen = logindosen.username
-            # WHERE logindosen.username = %s;       
-#                 """
-#         curse.execute(query,(username,))
-#         ambildata = curse.fetchall()
-        # if ambildata:
-        #     nama,nip,username = ambildata[0]
-        #     self.ldNama.setText(nama)
-        #     self.ldNip.setText(nip)
-        #     self.ldUsername.setText(username)
-
-#     # ini fungsi untuk merubah password
-#     def changePw(self,username,password):
-#         # layout pertama
-#         layout = QVBoxLayout()
-
-#         # layout username
-#         layoutHUsernamePw = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbUsernamePw = QLabel("Username")
-#         self.lbUsernamePw.setStyleSheet("margin-right : 58px")
-#         self.ldUsernamePw = QLineEdit()
-#         self.ldUsernamePw.setEnabled(False)
-#         layoutHUsernamePw.addWidget(self.lbUsernamePw)
-#         layoutHUsernamePw.addWidget(self.ldUsernamePw)
-
-#         # Layout password
-#         layoutHOldPw = QHBoxLayout()
-#         self.lbOldPw = QLabel("Old Password")
-#         self.lbOldPw.setStyleSheet("margin-right : 36px")
-#         self.ldOldPw = QLineEdit()
-#         self.ldOldPw.setEchoMode(QLineEdit.Password)
-#         layoutHOldPw.addWidget(self.lbOldPw)
-#         layoutHOldPw.addWidget(self.ldOldPw)
-
-#         connection, curse = buat_koneksi()
-#         curse = connection.cursor()
-
-#         # Menyesuaikan query untuk mendapatkan username dan password
-#         query = """
-#             SELECT username FROM logindosen 
-#             WHERE username = %s AND password = %s
-#         """
-#         curse.execute(query, (username, password))  # Menggunakan dua parameter sesuai query
-#         ambildata = curse.fetchone()
-
-#         ambildata = curse.fetchone()
-#         if ambildata:
-#             username = ambildata[0]
-#             self.ldUsernamePw.setText(username)
-
-#         # layout pw baru
-#         layoutHPw = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbPw = QLabel("New Password")
-#         self.lbPw.setStyleSheet("margin-right : 35px")
-#         self.ldPw = QLineEdit()
-#         layoutHPw.addWidget(self.lbPw)
-#         layoutHPw.addWidget(self.ldPw)
-
-#         # layout konfir pw
-#         layoutHKonfirPw = QHBoxLayout()
-#         # ini content label dan line edit nama
-#         self.lbKonfirPw = QLabel("Konfirmasi Password")
-#         self.lbKonfirPw.setStyleSheet("margin-right : 5px")
-#         self.ldKonfirPw = QLineEdit()
-#         layoutHKonfirPw.addWidget(self.lbKonfirPw)
-#         layoutHKonfirPw.addWidget(self.ldKonfirPw)
-
-#         # button ubah
-#         self.edit = QPushButton("SIMPAN")
-#         self.edit.setObjectName("editPW")
-#         self.edit.clicked.connect(self.simpan)
-
-#         # menambah layout didalam layout utama
-#         layout.addLayout(layoutHUsernamePw)
-#         layout.addLayout(layoutHPw)
-#         layout.addLayout(layoutHKonfirPw)
-#         layout.addWidget(self.edit) 
-
-#         container = QWidget()
-#         container.setLayout(layout)
-#         return container
-    
-#     # ini fungsi untuk menyimpan password didatabases ketika sudah di simpan 
-#     def simpan(self,username):
-#         connection, curse = buat_koneksi()
-#         curse = connection.cursor()
-
-#         # ini mengambil username dari user yang login
-#         query_check = """
-#             select loginmahasiswa.username from loginmahasiswa where loginmahasiswa.username = %s;
-# """
-#         curse.execute(query_check,(username,))
-#         ambildata = curse.fetchone()
-
-#         if ambildata:
-#             username = ambildata[0]
-#             self.ldUsernamePw.setText(username)
-
-#         # ini membuat varibael yang berisikan string dari pw,dan konfirpw
-#         username = self.ldUsernamePw.text()
-#         pw = self.ldPw.text()
-#         konfirPw = self.ldKonfirPw.text()
-
-#         # ini mengeck logika jika pw tidka sama dengan konfirpw maka ada pesan
-#         if pw != konfirPw:
-#             QMessageBox.warning(self, "Warning", "Password baru dan Konfirmasi password tidak sama!")
-#             return  # Keluar jika tidak sama
-        
-#         # ini yaitu mengupdate pw jika pw dan konfirpw sama 
-#         query = """
-#             UPDATE loginmahasiswa SET password = %s WHERE username = %s;
-#         """
-#         curse.execute(query, (pw, self.username))  # Gunakan self.username untuk update
-#         connection.commit()
-#         QMessageBox.information(self, "Berhasil", "Password berhasil diubah!")
 
 class HalamanSetting(QWidget):
     def __init__(self, username,password):

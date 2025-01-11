@@ -642,6 +642,8 @@ class HalamanMahasiswa(QMainWindow):
             elif sisaHari <= 3:
                 pesan = f"Jadwal Kegiatan '{namajudul}' akan dilaksanakan dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
+            print(f"Hari ini: {hariIni.toString('yyyy-MM-dd HH:mm:ss')}, Deadline: {formatDeadline.toString('yyyy-MM-dd HH:mm:ss')}, Sisa hari: {sisaHari}")
+        
 
 
 
@@ -1079,9 +1081,11 @@ class HalamanTambahKegiatan(QWidget):
         layoutHkegitan.addWidget(self.ldkegiatan)
         layout.addLayout(layoutHkegitan)
 
+        # inii membuat layout jam mulai
         layoutTglKegiatanStart = QHBoxLayout()
-        self.lbtglKegiatanStart = QLabel("Tanggal Pelaksanaan Kegiatan")
+        self.lbtglKegiatanStart = QLabel("Tanggal ")
         layoutTglKegiatanStart.addWidget(self.lbtglKegiatanStart)
+        # ini membuat widget tanggal
         self.tglmulai = QDateTimeEdit()
         self.tglmulai.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         current_datetime = QDateTime.currentDateTime()
@@ -1089,9 +1093,12 @@ class HalamanTambahKegiatan(QWidget):
         layoutTglKegiatanStart.addWidget(self.tglmulai)
         layout.addLayout(layoutTglKegiatanStart)
 
+        # ini menambhakan layout untuk layout menyimpan tanggal tenggat 
         layoutTglKegiatanEnd = QHBoxLayout()
-        self.lbtglKegiatanEnd = QLabel("Tanggal")
+        self.lbtglKegiatanEnd = QLabel("Tanggal Pelaksanaan Kegiatan")
         layoutTglKegiatanEnd.addWidget(self.lbtglKegiatanEnd)
+
+        # ini membuat
         self.tglEnd = QDateTimeEdit()
         self.tglEnd.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         current_datetime = QDateTime.currentDateTime()
@@ -1121,6 +1128,7 @@ class HalamanTambahKegiatan(QWidget):
         connection, curse = buat_koneksi()
         curse = connection.cursor()
 
+        # ini analogi jika widget widget didalam halaman penambahan tugas kosong
         if not hari or not nama_kegiatan or not idtglml or not idtglend:
             QMessageBox.warning(self, "Peringatan", "Silahkan lengkapi file tugas.")
             return
@@ -1138,11 +1146,13 @@ class HalamanTambahKegiatan(QWidget):
             print(f"Hasil query: {user}")  # Menampilkan hasil query untuk debugging
 
             if user:
+                # ini mengambil nim dari query 
                 nim = user[0]
                 query = """
                         INSERT INTO jadwalkegiatan (nim,hari, nama_kegiatan, TanggalMulai_kegiatan, Tanggal_Akhirkegiatan) 
                 VALUES (%s, %s, %s, %s, %s);
                 """ 
+                # ini mengisi varibael nim,ari,nama_kegiatan,idtglml,idtglend itu dengan hasil inputan kita
                 curse.execute(query,(nim,hari,nama_kegiatan,idtglml,idtglend))
                 massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
                 if massage == QMessageBox.Yes : 
@@ -1152,7 +1162,6 @@ class HalamanTambahKegiatan(QWidget):
                     self.close()
                     self.windowss.jadwalKegiatan()
             else:
-                print("Username tidak ditemukan!")  # Debugging jika username tidak ditemukan
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
 
 class halamanEditkegiatan(QWidget):
