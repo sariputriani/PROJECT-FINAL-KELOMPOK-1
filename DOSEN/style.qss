@@ -90,3 +90,18 @@ QPushButton#add{
     font-size:12px; 
     margin-top : 20px;    
 }
+QPushButton#btnview,#btnViewMahasiswa{
+    background-color: green;
+    color : white;
+    font-weight: bold;
+}
+QPushButton#btnEditTugas{
+    background-color: blue;
+    color : white;
+    font-weight: bold;
+}
+QPushButton#btnHapusTugas{
+    background-color: red;
+    color : white;
+    font-weight: bold;
+}

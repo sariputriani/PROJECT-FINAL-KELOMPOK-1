@@ -295,7 +295,7 @@ class HalamanMahasiswa(QMainWindow):
         container.setLayout(layoutDs)
         self.setCentralWidget(container)
         self.jadwalKegiatan()
-        self.pengingatKegiatan(self.id_kegiatan)
+        self.pengingatKegiatan(id_kegiatan=self.id_kegiatan,username = self.username)
 
     # ini method menampilkan data table jadwal kegiatan di databses ke QtabeWIged
     def jadwalKegiatan(self):
@@ -405,7 +405,7 @@ class HalamanMahasiswa(QMainWindow):
 
 
     def Edit (self,id_kegiatan):
-        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self)
+        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
@@ -597,17 +597,21 @@ class HalamanMahasiswa(QMainWindow):
                 pesan = f"Tugas '{namajudul}' akan jatuh tempo dalam {sisaHari} hari , yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}!"
                 QMessageBox.warning(self, "Deadline Hari Ini", pesan)
 
-    def pengingatKegiatan(self,id_kegiatan):
+    def pengingatKegiatan(self, id_kegiatan,username):
         connection, curse = buat_koneksi()
         curse = connection.cursor()
 
         # Query untuk mengambil data deadline
-        query = "SELECT * FROM jadwalkegiatan where id_kegiatan = %s and nim = %s"
-        curse.execute(query,(id_kegiatan,self.username))
+        query = "SELECT * FROM jadwalkegiatan where nim = %s"
+        curse.execute(query,(username,))
         ambildata = curse.fetchall()
-        
+        # try:
+        #     print("Data kegiatan:", ambildata)
+        # except Exception as e:
+        #     print(f"Terjadi kesalahan: {e}")
+            
 
-        # ini mengambil tanggal hari ini
+            # ini mengambil tanggal hari ini
         hariIni = QDateTime.currentDateTime()
 
         for data in ambildata:
@@ -615,11 +619,13 @@ class HalamanMahasiswa(QMainWindow):
             namajudul = data[2]
             # ambil data dikolom 2 dengan format tanggal
             tanggal_akhirkegiatan = data[5].strftime("%Y-%m-%d %H:%M:%S")
+            print("Data kegiatan:", data)  
 
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
+            waktuPerhitungan = hariIni > formatDeadline
 
             query_check = """
             SELECT status FROM jadwalkegiatan where id_kegiatan = %s and nim = %s;
@@ -627,11 +633,11 @@ class HalamanMahasiswa(QMainWindow):
             curse.execute(query_check,(id_kegiatan,self.username))
             ceksttus = curse.fetchone()
             # ini mengek apakah id_kegiatan tersebut sudah dikumpulkan didalam daftarkegiatanselesai
-            sudah_selesai =  ceksttus and ceksttus [0] == 'selesai'  #ini mengecek jika lebih dari 1 maka sudah seesai
+            sudah_selesai =  ceksttus and ceksttus [0] == 'selesai'   #ini mengecek jika lebih dari 1 maka sudah seesai
 
             # menghilangkan pengingat jika batasnya sudah melewati deadline
-            if sisaHari < 0 or sudah_selesai:
-                break
+            if sisaHari < 0 or sudah_selesai or waktuPerhitungan :
+                continue
 
             # deadline hari ini
             elif sisaHari == 0:
@@ -642,10 +648,7 @@ class HalamanMahasiswa(QMainWindow):
             elif sisaHari <= 3:
                 pesan = f"Jadwal Kegiatan '{namajudul}' akan dilaksanakan dalam {sisaHari} hari, yaitu pada {formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}."
                 QMessageBox.information(self, "Pengingat Deadline", pesan)
-            print(f"Hari ini: {hariIni.toString('yyyy-MM-dd HH:mm:ss')}, Deadline: {formatDeadline.toString('yyyy-MM-dd HH:mm:ss')}, Sisa hari: {sisaHari}")
-        
-
-
+           
 
 # ini halaman kumpulkan tugas
 class HalamanKumpulkanTugas(QWidget):
@@ -1280,5 +1283,5 @@ class halamanEditkegiatan(QWidget):
                 curse.execute(query_update, (namakegiatan, hari, tglmulai, tglAkhir, id_kegiatan))
                 QMessageBox.information(self, "Informasi", "Data berhasil diubah")
                 connection.commit()
-                self.close()
                 self.windows.jadwalKegiatan()
+                self.close()

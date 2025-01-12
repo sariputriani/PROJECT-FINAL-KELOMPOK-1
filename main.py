@@ -18,6 +18,7 @@ from PySide6.QtGui import QIcon
 
 # import dosen dan mahasiswa
 from MAHASISWA.mahasiswa import HalamanMahasiswa
+# from sari import HalamanMahasiswa
 from DOSEN.dosen import HalamanDosen
 from DATABASE.databse import buat_koneksi
 basedir = os.path.dirname(__file__)

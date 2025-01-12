@@ -631,6 +631,7 @@ class HalamanView(QWidget):
                 
                 # Menambahkan tombol 'View' pada kolom 6 (kolom terakhir)
                 self.btnView = QPushButton("View")
+                self.btnView.setObjectName("btnview")
                 # mengambil nim dikolom 2
                 nim = barisData[2]
 
