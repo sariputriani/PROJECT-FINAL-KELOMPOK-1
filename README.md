@@ -1,4 +1,4 @@
-# PROJECT-PINAL-KELOMPOK-1
+# PROJECT-FINAL-KELOMPOK-1
 Syarat syarat untuk menjalan aplikasi ini adalah 
 1.	Menyediakan aplikasi vscode untuk menjalankan aplikasi 
 Jika tidak ada anda bisa mengunduh di website resmi vs code (https://code.visualstudio.com/download)
@@ -22,6 +22,8 @@ Pertama
 -	Jika anda ingin login sebagai dosen, anda bisa melihat username dan password dosen di tabel logindosen yang terdapat di database kelompok1.
 7.	Jika kalian login sebagai mahasiswa maka akan muncul tampilan berikut ini :
 - Login Sebagai Mahasiswa : ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
+- Dashboard Mahasiswa ![alt_text](https://github.com/user-attachments/assets/5b368687-13f8-49d7-b028-6c3c70e89b84)
+
  
 8.	Jika kalian login sebagai dosen maka akan muncul tampilan berikut ini :
 - Login Sebagai Dosen : ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2020.24.19_a3a3b8e9.jpg?raw=true)
