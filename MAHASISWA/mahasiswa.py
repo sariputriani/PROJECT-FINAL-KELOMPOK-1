@@ -327,7 +327,7 @@ class HalamanMahasiswa(QMainWindow):
             tanggal_akhirkegiatan = barisData[4].strftime("%Y-%m-%d %H:%M:%S")
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
-            formatpelaksaanlebihdari1 = formatDeadline.addDays(1)
+            # formatDeadline.addDays(1)
 
             # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
@@ -361,7 +361,7 @@ class HalamanMahasiswa(QMainWindow):
             self.btnkonfir.setObjectName("buttonkonfir")
             
             # ini membuat satu variabel yang dimana = sudah_selesai 
-            waktuPerhitungan = waktu > formatpelaksaanlebihdari1
+            waktuPerhitungan = waktu > formatDeadline
             waktukonfir = waktu < formatDeadline
             tombolNonAktif = sudah_selesai or waktuPerhitungan 
             
@@ -372,9 +372,10 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
             # jika button slesai belum terpenuhi maka diset konfirmasi
-            elif waktukonfir:
+            elif waktukonfir :
                 self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(self.pengingatWarningKegiatanKonfir)
+                # QMessageBox.warning
             else:
                 self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
@@ -385,6 +386,9 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnkonfir.setStyleSheet("Background-color:red")
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
+            # else:
+            #     self.btnkonfir.setText("Konfirmasi")
+            #     self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
 
                 
             # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
@@ -409,9 +413,10 @@ class HalamanMahasiswa(QMainWindow):
         self.showTambahKegiatan.show()
         # self.hide()
 
-
-    def Edit(self,id_kegiatan):
-        self.showEditKegiatan = halamanEditkegiatan(self,id_kegiatan,self.username)
+    def pengingatWarningKegiatanKonfir(self):
+        QMessageBox.warning(self,"peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah 1 hari dari tanggal pelaksanaan atau setelah waktu pelaksanaan telah berlalu")
+    def Edit (self,id_kegiatan):
+        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
@@ -430,14 +435,6 @@ class HalamanMahasiswa(QMainWindow):
             QMessageBox.information(self,"Konfirmasi","Jadwal kegiatan berhasil dihapus")
             self.jadwalKegiatan()
 
-    # pengingat konfirmasi jika button konfir diclik sebelum waktu pelaksanaan selesai atau lebih satu hari dari waktupelaksanaan
-    def pengingatWarningKegiatanKonfir(self):
-        QMessageBox.warning(
-        self,
-        "Peringatan",
-        "Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah melewati 1 hari dari tanggal pelaksanaan."
-    )
-        
     # ini fungsi untuk mengkonfirmasikan tugas
     def konfir(self, id_kegiatan):
         print("konfir")
@@ -619,9 +616,13 @@ class HalamanMahasiswa(QMainWindow):
         query = "SELECT * FROM jadwalkegiatan where nim = %s"
         curse.execute(query,(username,))
         ambildata = curse.fetchall()
+        # try:
+        #     print("Data kegiatan:", ambildata)
+        # except Exception as e:
+        #     print(f"Terjadi kesalahan: {e}")
             
 
-        # ini mengambil tanggal hari ini
+            # ini mengambil tanggal hari ini
         hariIni = QDateTime.currentDateTime()
 
         for data in ambildata:
@@ -635,7 +636,6 @@ class HalamanMahasiswa(QMainWindow):
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
-            formatkegiatanlebihdari1hari = formatDeadline.addDays(1)
             waktuPerhitungan = hariIni > formatDeadline
 
             query_check = """
@@ -649,10 +649,6 @@ class HalamanMahasiswa(QMainWindow):
             # menghilangkan pengingat jika batasnya sudah melewati deadline
             if sisaHari < 0 or sudah_selesai or waktuPerhitungan :
                 continue
-
-            elif formatkegiatanlebihdari1hari:
-                pesan = f"Jadwal Kegiatan '{namajudul}' telah lewat satu hari dari tanggal pelaksanaan ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}) tolong di button konfirmasi jika telah melaksanakannya jika tidak di klik maka jadwal kegiatan ini dianggap 'TIDAK SELESAI'!"
-                QMessageBox.warning(self, "Peringatan", pesan)
 
             # deadline hari ini
             elif sisaHari == 0:
@@ -1183,10 +1179,10 @@ class HalamanTambahKegiatan(QWidget):
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
 
 class halamanEditkegiatan(QWidget):
-    def __init__(self, id_kegiatan, halaman=None):
+    def __init__(self, id_kegiatan, window=None):
         super().__init__()
         self.id_kegiatan = id_kegiatan
-        self.halaman = halaman
+        self.windows = window
         print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
 
         # layout utama
@@ -1298,5 +1294,5 @@ class halamanEditkegiatan(QWidget):
                 curse.execute(query_update, (namakegiatan, hari, tglmulai, tglAkhir, id_kegiatan))
                 QMessageBox.information(self, "Informasi", "Data berhasil diubah")
                 connection.commit()
-                self.halaman.jadwalKegiatan()
+                self.windows.jadwalKegiatan()
                 self.close()

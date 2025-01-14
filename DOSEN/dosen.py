@@ -238,7 +238,7 @@ class HalamanDosen(QMainWindow):
 
     # halaman eddit tugas
     def halamanEdit (self,id_tugas):
-        self.showHalamanEditTugas = HalamanEdittugas(id_tugas,self.username)
+        self.showHalamanEditTugas = HalamanEdittugas(id_tugas,self.username,self)
         self.showHalamanEditTugas.show()
         
 # ini halaman menmabah tugas
