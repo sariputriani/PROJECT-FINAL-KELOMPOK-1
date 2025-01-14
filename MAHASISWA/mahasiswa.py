@@ -410,8 +410,8 @@ class HalamanMahasiswa(QMainWindow):
         # self.hide()
 
 
-    def Edit (self,id_kegiatan):
-        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username)
+    def Edit(self,id_kegiatan):
+        self.showEditKegiatan = halamanEditkegiatan(self,id_kegiatan,self.username)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
@@ -619,13 +619,9 @@ class HalamanMahasiswa(QMainWindow):
         query = "SELECT * FROM jadwalkegiatan where nim = %s"
         curse.execute(query,(username,))
         ambildata = curse.fetchall()
-        # try:
-        #     print("Data kegiatan:", ambildata)
-        # except Exception as e:
-        #     print(f"Terjadi kesalahan: {e}")
             
 
-            # ini mengambil tanggal hari ini
+        # ini mengambil tanggal hari ini
         hariIni = QDateTime.currentDateTime()
 
         for data in ambildata:
@@ -639,6 +635,7 @@ class HalamanMahasiswa(QMainWindow):
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
             sisaHari = hariIni.daysTo(formatDeadline)  # Hitung sisa hari hingga deadline
+            formatkegiatanlebihdari1hari = formatDeadline.addDays(1)
             waktuPerhitungan = hariIni > formatDeadline
 
             query_check = """
@@ -652,6 +649,10 @@ class HalamanMahasiswa(QMainWindow):
             # menghilangkan pengingat jika batasnya sudah melewati deadline
             if sisaHari < 0 or sudah_selesai or waktuPerhitungan :
                 continue
+
+            elif formatkegiatanlebihdari1hari:
+                pesan = f"Jadwal Kegiatan '{namajudul}' telah lewat satu hari dari tanggal pelaksanaan ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')}) tolong di button konfirmasi jika telah melaksanakannya jika tidak di klik maka jadwal kegiatan ini dianggap 'TIDAK SELESAI'!"
+                QMessageBox.warning(self, "Peringatan", pesan)
 
             # deadline hari ini
             elif sisaHari == 0:
@@ -1182,10 +1183,10 @@ class HalamanTambahKegiatan(QWidget):
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
 
 class halamanEditkegiatan(QWidget):
-    def __init__(self, id_kegiatan, window=None):
+    def __init__(self, id_kegiatan, halaman=None):
         super().__init__()
         self.id_kegiatan = id_kegiatan
-        self.windows = window
+        self.halaman = halaman
         print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
 
         # layout utama
@@ -1297,5 +1298,5 @@ class halamanEditkegiatan(QWidget):
                 curse.execute(query_update, (namakegiatan, hari, tglmulai, tglAkhir, id_kegiatan))
                 QMessageBox.information(self, "Informasi", "Data berhasil diubah")
                 connection.commit()
-                self.windows.jadwalKegiatan()
+                self.halaman.jadwalKegiatan()
                 self.close()
