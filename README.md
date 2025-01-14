@@ -7,7 +7,9 @@ Jika tidak ada, anda bisa mengunduh di website resmi xampp (https://www.apachefr
 3.	Mengunduh bahasa pemograman python (unduh python extension pack) di dalam vscode
 4.	Mengunduh library pyside6 di python (pip install pyside6) masukkan kode tersebut kedalam terminal untuk mengunduhnya
 
+===========================================================================================================================
 Langkah-Langkah untuk Menjalankan Aplikasi :
+===========================================================================================================================
 1.	Buka vscode 
 2.	Mengunduh codingan file di github 
    -	Open github
