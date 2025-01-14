@@ -22,8 +22,7 @@ Pertama
 -	Jika anda ingin login sebagai dosen, anda bisa melihat username dan password dosen di tabel logindosen yang terdapat di database kelompok1.
 7.	Jika kalian login sebagai mahasiswa maka akan muncul tampilan berikut ini :
 
-1. Login Sebagai Mahasiswa : 
-![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
+1. Login Sebagai Mahasiswa : ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
 
 2. 
 
