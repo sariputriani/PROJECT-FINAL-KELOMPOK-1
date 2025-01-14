@@ -327,8 +327,8 @@ class HalamanMahasiswa(QMainWindow):
             tanggal_akhirkegiatan = barisData[4].strftime("%Y-%m-%d %H:%M:%S")
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
-            # status = barisData[5]
-            
+            formatDeadline.addDays(1)
+
             # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
             layoutAction = QHBoxLayout(action)
@@ -355,12 +355,14 @@ class HalamanMahasiswa(QMainWindow):
             # ini mengek apakah id_kegiatan tersebut sudah dikumpulkan didalam daftarkegiatanselesai
             sudah_selesai = ceksttus [0] == 'selesai'  #ini mengecek jika lebih dari 1 maka sudah seesai
 
+            
             # ini membuat button konfir
             self.btnkonfir = QPushButton()
             self.btnkonfir.setObjectName("buttonkonfir")
             
             # ini membuat satu variabel yang dimana = sudah_selesai 
             waktuPerhitungan = waktu > formatDeadline
+            waktukonfir = waktu == formatDeadline
             tombolNonAktif = sudah_selesai or waktuPerhitungan 
             
             # ini jika syarat slesai terpenuhi mka btnkonfir akan diset selesai
@@ -370,6 +372,8 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
             # jika button slesai belum terpenuhi maka diset konfirmasi
+            elif waktukonfir :
+                QMessageBox.warning(self,"Peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah melewati 1 hari dari tanggal pelaksanaan.")
             else:
                 self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
