@@ -327,7 +327,7 @@ class HalamanMahasiswa(QMainWindow):
             tanggal_akhirkegiatan = barisData[4].strftime("%Y-%m-%d %H:%M:%S")
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
-            formatDeadline.addDays(1)
+            formatpelaksaanlebihdari1 = formatDeadline.addDays(1)
 
             # membuat widget yang menampung button hapus dan konfir
             action = QWidget()
@@ -361,8 +361,8 @@ class HalamanMahasiswa(QMainWindow):
             self.btnkonfir.setObjectName("buttonkonfir")
             
             # ini membuat satu variabel yang dimana = sudah_selesai 
-            waktuPerhitungan = waktu > formatDeadline
-            waktukonfir = waktu == formatDeadline
+            waktuPerhitungan = waktu > formatpelaksaanlebihdari1
+            waktukonfir = waktu < formatDeadline
             tombolNonAktif = sudah_selesai or waktuPerhitungan 
             
             # ini jika syarat slesai terpenuhi mka btnkonfir akan diset selesai
@@ -372,8 +372,9 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
             # jika button slesai belum terpenuhi maka diset konfirmasi
-            elif waktukonfir :
-                QMessageBox.warning(self,"Peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah melewati 1 hari dari tanggal pelaksanaan.")
+            elif waktukonfir:
+                self.btnkonfir.setText("Konfirmasi")
+                self.btnkonfir.clicked.connect(self.pengingatWarningKegiatanKonfir)
             else:
                 self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
@@ -384,6 +385,7 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnkonfir.setStyleSheet("Background-color:red")
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
+
                 
             # ini menjadikan tombol dinonaktifkan jika syarat terpenuhi
             self.btnkonfir.setEnabled(not tombolNonAktif)
@@ -428,6 +430,14 @@ class HalamanMahasiswa(QMainWindow):
             QMessageBox.information(self,"Konfirmasi","Jadwal kegiatan berhasil dihapus")
             self.jadwalKegiatan()
 
+    # pengingat konfirmasi jika button konfir diclik sebelum waktu pelaksanaan selesai atau lebih satu hari dari waktupelaksanaan
+    def pengingatWarningKegiatanKonfir(self):
+        QMessageBox.warning(
+        self,
+        "Peringatan",
+        "Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah melewati 1 hari dari tanggal pelaksanaan."
+    )
+        
     # ini fungsi untuk mengkonfirmasikan tugas
     def konfir(self, id_kegiatan):
         print("konfir")
