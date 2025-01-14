@@ -9,7 +9,7 @@ Jika tidak ada, anda bisa mengunduh di website resmi xampp (https://www.apachefr
 
 =============================================
 Langkah-Langkah untuk Menjalankan Aplikasi :
-=============================================
+=========================================
 1.	Buka vscode 
 2.	Mengunduh codingan file di github 
    -	Open github
