@@ -41,7 +41,7 @@ Fitur-Fitur Jika Login Sebagai Mahasiswa
 
 Fitur-Fitur Jika Login Sebagai Dosen
  -	Action View :
-   Fitur ini berfungsi sebagai tombol yang dapat melihat mahasiswa yang mengumpulkan tugas dan tidak mengumpulkan tugas.
+   Fitur ini berfungsi sebagai tombol yang dapat melihat mahasiswa yang mengumpulkan tugas.
  -	Button Hapus :
    Fitur ini berguna sebagai tombol untuk menghapus tugas yang ada.
  -	Button Edit :
