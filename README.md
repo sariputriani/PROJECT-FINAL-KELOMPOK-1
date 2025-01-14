@@ -22,9 +22,12 @@ Pertama
 -	Jika anda ingin login sebagai dosen, anda bisa melihat username dan password dosen di tabel logindosen yang terdapat di database kelompok1.
 7.	Jika kalian login sebagai mahasiswa maka akan muncul tampilan berikut ini : (masukkan ssan login sebagai mahasiswa)
 Masukkan ss fitur – fitur dalam tampilan mahasiswa
+
 Gambar Halaman Login Mahasiswa :
 ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
+
 8.	Jika kalian login sebagai dosen maka akan muncul tampilan berikut ini :(masukkan ssan login sebagai mahasiswa)
 Masukkan ss fitur – fitur dalam tampilan dosen
+
 Gambar Halaman Dosen :
 ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2020.24.19_a3a3b8e9.jpg?raw=true)
