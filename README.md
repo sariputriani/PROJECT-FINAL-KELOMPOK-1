@@ -3,7 +3,7 @@ Syarat syarat untuk menjalan aplikasi ini adalah
 1.	Menyediakan aplikasi vscode untuk menjalankan aplikasi 
 Jika tidak ada anda bisa mengunduh di website resmi vs code (https://code.visualstudio.com/download)
 2.	Menyediakan xampp untuk databases
-Jika tidak ada anda bisa mengunduh di website
+Jika tidak ada anda bisa mengunduh di website resmi xampp (https://www.apachefriends.org/download.html)
 3.	Mengunduh bahasa pemograman python dan mengunduh library pyside6 di python
 
 Pertama 
