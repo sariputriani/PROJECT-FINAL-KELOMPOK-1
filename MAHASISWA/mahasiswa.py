@@ -416,7 +416,7 @@ class HalamanMahasiswa(QMainWindow):
     def pengingatWarningKegiatanKonfir(self):
         QMessageBox.warning(self,"peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah 1 hari dari tanggal pelaksanaan atau setelah waktu pelaksanaan telah berlalu")
     def Edit (self,id_kegiatan):
-        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username)
+        self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username, self)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
@@ -1179,10 +1179,11 @@ class HalamanTambahKegiatan(QWidget):
                 QMessageBox.warning(self, "Peringatan", "Username tidak ditemukan!")
 
 class halamanEditkegiatan(QWidget):
-    def __init__(self, id_kegiatan, window=None):
+    def __init__(self, id_kegiatan,username, windows=None):
         super().__init__()
         self.id_kegiatan = id_kegiatan
-        self.windows = window
+        self.windows = windows 
+        self.username = username
         print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
 
         # layout utama
