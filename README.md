@@ -24,12 +24,12 @@ Pertama
 Masukkan ss fitur – fitur dalam tampilan mahasiswa
 
 
-![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
-Gambar Halaman Login Mahasiswa :
+Gambar Halaman Login Mahasiswa : ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2018.27.01_7e6f05dc.jpg?raw=true)
+
 
 8.	Jika kalian login sebagai dosen maka akan muncul tampilan berikut ini :(masukkan ssan login sebagai mahasiswa)
 Masukkan ss fitur – fitur dalam tampilan dosen
 
 
-![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2020.24.19_a3a3b8e9.jpg?raw=true)
-Gambar Halaman Dosen :
+Gambar Halaman Dosen : ![alt text](https://github.com/sariputriani/PROJECT-FINAL-KELOMPOK-1/blob/main/gambar_readme/WhatsApp%20Image%202025-01-10%20at%2020.24.19_a3a3b8e9.jpg?raw=true)
+
