@@ -362,7 +362,11 @@ class HalamanMahasiswa(QMainWindow):
             
             # ini membuat satu variabel yang dimana = sudah_selesai 
             waktuPerhitungan = waktu > formatDeadline
-            waktukonfir = waktu < formatDeadline
+            
+            # ini fugsi untuk menghitung deadline lebih dari 1 hari
+            # konfirselesai = formatDeadline.addDays(1)
+            # ini menghitung nilai 
+            # waktukonfir = waktu < formatDeadline
             tombolNonAktif = sudah_selesai or waktuPerhitungan 
             
             # ini jika syarat slesai terpenuhi mka btnkonfir akan diset selesai
@@ -371,11 +375,11 @@ class HalamanMahasiswa(QMainWindow):
                 self.btnkonfir.setStyleSheet("Background-color:green")
                 self.btnHapus.setStyleSheet("background-color: rgb(214, 222, 226); color : black")
                 self.btnEditKegiatan.setStyleSheet("background-color: rgb(214, 222, 226);color : black")
-            # jika button slesai belum terpenuhi maka diset konfirmasi
-            elif waktukonfir :
-                self.btnkonfir.setText("Konfirmasi")
-                self.btnkonfir.clicked.connect(self.pengingatWarningKegiatanKonfir)
-                # QMessageBox.warning
+            # # jika button slesai belum terpenuhi maka diset konfirmasi
+            # elif waktukonfir :
+            #     self.btnkonfir.setText("Konfirmasi")
+            #     self.btnkonfir.clicked.connect(self.pengingatWarningKegiatanKonfir)
+            #     # QMessageBox.warning
             else:
                 self.btnkonfir.setText("Konfirmasi")
                 self.btnkonfir.clicked.connect(partial(self.konfir, id_kegiatan=id_kegiatan))
@@ -413,15 +417,14 @@ class HalamanMahasiswa(QMainWindow):
         self.showTambahKegiatan.show()
         # self.hide()
 
-    def pengingatWarningKegiatanKonfir(self):
-        QMessageBox.warning(self,"peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah 1 hari dari tanggal pelaksanaan atau setelah waktu pelaksanaan telah berlalu")
+    # def pengingatWarningKegiatanKonfir(self):
+    #     QMessageBox.warning(self,"peringatan","Anda tidak dapat mengonfirmasi kegiatan ini karena tanggal kegiatan belum sesuai dengan jadwal pelaksanaannya. Silakan klik kembali tombol konfirmasi ini setelah 1 hari dari tanggal pelaksanaan atau setelah waktu pelaksanaan telah berlalu")
+    
     def Edit (self,id_kegiatan):
         self.showEditKegiatan = halamanEditkegiatan(id_kegiatan,self.username, self)
         self.showEditKegiatan.show()
 
     def Hapus(self,id_kegiatan):
-        print(f"ID yang diterima: {id_kegiatan}")
-        print("Hapus")
         connction,curse = buat_koneksi()
         curse = connction.cursor()
         massage = QMessageBox.question(self,"question","Apakah anda yakin ingin menghapus jadwal kegiatan ini? ", QMessageBox.Yes | QMessageBox.No)
@@ -437,7 +440,6 @@ class HalamanMahasiswa(QMainWindow):
 
     # ini fungsi untuk mengkonfirmasikan tugas
     def konfir(self, id_kegiatan):
-        print("konfir")
         connection, curse = buat_koneksi()
         curse = connection.cursor()
         selesai = 'selesai'
@@ -616,13 +618,9 @@ class HalamanMahasiswa(QMainWindow):
         query = "SELECT * FROM jadwalkegiatan where nim = %s"
         curse.execute(query,(username,))
         ambildata = curse.fetchall()
-        # try:
-        #     print("Data kegiatan:", ambildata)
-        # except Exception as e:
-        #     print(f"Terjadi kesalahan: {e}")
             
 
-            # ini mengambil tanggal hari ini
+        # ini mengambil tanggal hari ini
         hariIni = QDateTime.currentDateTime()
 
         for data in ambildata:
@@ -630,8 +628,6 @@ class HalamanMahasiswa(QMainWindow):
             namajudul = data[2]
             # ambil data dikolom 2 dengan format tanggal
             tanggal_akhirkegiatan = data[5].strftime("%Y-%m-%d %H:%M:%S")
-            print("Data kegiatan:", data)  
-
             # Konversi ke QDate
             formatDeadline = QDateTime.fromString(tanggal_akhirkegiatan, "yyyy-MM-dd HH:mm:ss")
             # hitung sisa hari hingga deadline
@@ -651,7 +647,7 @@ class HalamanMahasiswa(QMainWindow):
                 continue
 
             # deadline hari ini
-            elif sisaHari == 0:
+            if sisaHari == 0 :
                 pesan = f"Jadwal Kegiatan '{namajudul}' akan dilaksanakan pada hari ini ({formatDeadline.toString('dd MMMM yyyy HH:mm:ss')})!"
                 QMessageBox.warning(self, "Deadline Hari Ini", pesan)
 
@@ -758,7 +754,6 @@ class HalamanKumpulkanTugas(QWidget):
             massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
             if massage == QMessageBox.Yes : 
                 connection.commit()
-                print("berhasil")
                 QMessageBox.information(self,"Berhasil",f"Pengumpulan tugas yang berjudul {Jdltugas} berhasil")
                 self.close()
                 self.parent_window.tugas()
@@ -770,7 +765,6 @@ class HalamanSetting(QWidget):
         super().__init__()
         self.username = username  # Simpan username di atribut instance
         self.password = password
-        print(self.password)
         self.setWindowTitle("Halaman Pengaturan")
         self.setFixedSize(300, 350)
         layout = QVBoxLayout()
@@ -1037,7 +1031,6 @@ class HalamanViewTugas(QWidget):
             """
         curse.execute(query,(id_tugas,))
         # menampilkan usrname di consle
-        print(id_tugas)
         ambildata = curse.fetchone()
         if ambildata:
                 id_tugas,id_mk,deskripsi_tugas,tanggal_pemberian,tanggal_pengumpulan,tanggal,file_tugas = ambildata
@@ -1157,7 +1150,6 @@ class HalamanTambahKegiatan(QWidget):
             curse.execute(query_username, (username,))
             user = curse.fetchone()  # Hanya mengambil satu hasil
 
-            print(f"Hasil query: {user}")  # Menampilkan hasil query untuk debugging
 
             if user:
                 # ini mengambil nim dari query 
@@ -1171,7 +1163,6 @@ class HalamanTambahKegiatan(QWidget):
                 massage = QMessageBox.question(self,"",f"Apakah anda yakin ? ", QMessageBox.Yes | QMessageBox.No)
                 if massage == QMessageBox.Yes : 
                     connection.commit()
-                    print("berhasil")
                     QMessageBox.information(self,"Berhasil",f"Penmabahan Jadwal Kegiatan Berhasil")
                     self.close()
                     self.windowss.jadwalKegiatan()
@@ -1184,7 +1175,6 @@ class halamanEditkegiatan(QWidget):
         self.id_kegiatan = id_kegiatan
         self.windows = windows 
         self.username = username
-        print(f"ID Kegiatan dalam konstruktor: {self.id_kegiatan}")
 
         # layout utama
         layout = QVBoxLayout()
@@ -1247,7 +1237,6 @@ class halamanEditkegiatan(QWidget):
 
         cursor.execute(query, (id_kegiatan,))
         ambildata = cursor.fetchall()
-        print("Ambildata:", ambildata)  # Debug: Cek data yang diterima dari database
 
         if ambildata:
             nama, hari, tanggalmulai, tanggal_akhir = ambildata[0]
@@ -1262,9 +1251,6 @@ class halamanEditkegiatan(QWidget):
         self.setLayout(layout)
 
     def simpan(self, id_kegiatan):
-        # Cek data yang dimasukkan
-        print("ini id_kegiatan:", id_kegiatan)
-
         # Ambil data yang baru dimasukkan oleh pengguna
         namakegiatan = self.ldKegiatan.text()
         hari = self.cbHari.currentText()
